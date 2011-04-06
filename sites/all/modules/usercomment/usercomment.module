@@ -1,0 +1,631 @@
+<?php
+// $Id: usercomment.module,v 1.5.4.9 2010/12/28 01:04:17 rschwab Exp $ //
+/**
+ * @file
+ *
+ * This module gives users administrative privileges on comments to nodes they own
+ */
+
+/**
+ * Implementation of hook_help().
+ * @param string $path relative URL
+ * @param $arg
+ * @return string Helptext
+ */
+function usercomment_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#usercomment':
+      return '<p>'. t("This module lets users delete comments on nodes they create without giving them full comment administration access. Permissions are on a per node type basis, so it is a great way to, e.g., allow users to administer comments on their own blogs. Additionally, you can configure this module to force comments on selected node types to be approved before they get published. As with delete rights, this is administered by users so you don't have to do it yourself.") .'</p>';
+      break;
+    case 'admin/modules#description':
+      return t('This module gives users additional comment administration rights on content they create.');
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_comment()
+ * Shows the message and optional sends the mail to nodeauthor.
+ * 
+ * @param object $comment The comment object by reference
+ * @param string $op The operation insert, update and so on
+ * @return unknown_type
+ */
+function usercomment_comment(&$comment, $op) {
+  switch ($op) {
+    case 'insert':
+    case 'update':
+      if (usercomment_access_check($comment['cid'], 'update')) {
+        $node = node_load($comment['nid']);
+        $nodeauthor = user_load(array("uid" => $node->uid));
+        $status_msg_php = variable_get('usercomment_msg_approval_queue_php', '');
+        if ($status_msg_php != '') {
+          $status_msg = drupal_eval($status_msg_php);
+        }
+        else {
+          $status_msg = variable_get('usercomment_msg_approval_queue', "Your comment will be posted once it's been approved.");
+          $status_msg = t($status_msg, array(
+            '@poster'     => (!empty($comment['name'])) ? $comment['name'] : variable_get('anonymous', 'anonymous'),
+            '@node_owner' => $node->name,
+            '@subject'    => $comment['subject'],
+          ));
+        }
+        drupal_set_message($status_msg);
+        //unpublish the comment
+        db_query("UPDATE {comments} SET status = %d WHERE cid = %d", COMMENT_NOT_PUBLISHED, $comment['cid']);
+        // send the mail when enable
+        if ($nodeauthor->usercomment_get_notifications) {
+          $replacements = array(
+            '@approver' => $node->name,
+            '@subject' => $comment['subject'],
+            '@comment' => $comment['comment'],
+            '@commenter' => (!empty($comment['name'])) ? $comment['name'] : variable_get('anonymous', 'anonymous'),
+            '@nodelink' => url('node/'. $node->nid, array('absolute' => TRUE)),
+            '@commentlink' => url('node/'. $node->nid, array('absolute' => TRUE, 'fragment' => 'comment-'. $comment['cid'])),
+            '@site' => variable_get("site_name", "Drupal"),
+            '@siteurl' => $GLOBALS["base_url"],
+          );
+          $params = array('replacements' => $replacements);
+          drupal_mail('usercomment', 'usercomment_get_notifications', $nodeauthor->mail, user_preferred_language($nodeauthor), $params);
+        }
+      }
+      break;
+  }
+}
+
+
+/**
+ * Implementation of hook_mail()
+ * @param string $key
+ * @param array $message
+ * @param array $params
+ * @return unknown_type
+ */
+function usercomment_mail($key, &$message, $params) {
+  $langcode = isset($message['language']->language) ? $message['language']->language : NULL;
+
+ if ($key == 'usercomment_get_notifications') {
+   $subject = variable_get('usercomment_mail_subject', '@commenter posted a new comment!');
+   $messagebody = variable_get('usercomment_mail_message', usercomment_mail_message_default());
+   $subject = t($subject, $params['replacements'], $langcode);
+   $messagebody = t($messagebody, $params['replacements'], $langcode);
+   $message['subject'] = $subject;
+   $message['body'] = $messagebody;
+   
+ }
+}
+
+/**
+ * Implementation of hook_link()
+ * @param string $type comment, node
+ * @param object $object node object, comment object
+ * @param booleen $teaser TRUE or FALSE
+ * @return array $links
+ */
+function usercomment_link($type, $object = NULL, $teaser = FALSE) {
+  $links = array();
+
+  // we're only adding links to comments, so return if not comment
+  if ($type != "comment") { 
+    return $links;
+  }
+  if (usercomment_access_check($object->cid, 'delete') && !user_access('administer comments')) {
+    $links['usercomment_delete'] = array(
+      'title' => t('delete'),
+      'href' => 'comment/delete/'. $object->cid,
+    );
+  }
+  if (usercomment_access_check($object->cid, 'approve')) {
+    $links['usercomment_approve'] = array(
+      'title' => t('approve'),
+      'href' => 'comment/approve/'. $object->cid,
+    );
+  }
+  return $links;
+}
+
+/**
+ * Implementation of hook_menu().
+ * @return array $items
+ */
+function usercomment_menu() {
+  $items = array();
+  $items['admin/content/comment/usercomment'] = array(
+    'title' => 'Usercomment',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('usercomment_admin_settings'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer comments'),
+    'weight' => 20,
+  );
+  $items['comment/approve/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'usercomment_approve',
+    'page arguments' => array(2),
+    'access callback' => 'usercomment_access_check',
+    'access arguments' => array(2, 'approve'),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter()
+ */
+function usercomment_menu_alter(&$callbacks) {
+  $callbacks['comment/delete']['access callback'] = 'usercomment_access_check';
+  $callbacks['comment/delete']['access arguments'] = array(2, 'delete');
+}
+
+/**
+ * Implementation of hook_nodeapi()
+ * Adds the comment approval form to the node
+ *
+ * @param object $node The node object by reference
+ * @param string $op
+ * @param $a3
+ * @param $a4
+ * @return unknown_type
+ */
+function usercomment_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  global $user;
+  switch ($op) {
+    case 'view':
+      // Don't show the form for users with administer comments permission, they already see unpublished.
+      if (!user_access('administer comments')) {
+        if ($user->uid == $node->uid && (user_access('approve comments on own '. $node->type .' content') || user_access('administer comments on own content'))) {
+          if (!$a3 && $user->uid) { 
+            $node->content['usercomment'] = array(
+              '#value' => usercomment_approval_form($node),
+              '#weight' => variable_get('usercomment_approval_form_weight', 0),
+            );
+          }
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ * @return array $perms
+ */
+function usercomment_perm() {
+  $perms = array(
+    "skip author approval queue when posting comments",
+    'administer comments on own content',
+  );
+
+  foreach (node_get_types() as $node) {
+    $perms[] = 'delete comments on own '. $node->type .' content';
+    $perms[] = 'approve comments on own '. $node->type .' content';
+  }
+
+  return $perms;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * Adds the comment administration fields to the node edit form
+ *
+ * @param array $form form by reference
+ * @param array $form_state
+ * @param string $form_id
+ * @return array $form
+ */
+function usercomment_form_alter(&$form, $form_state, $form_id) {
+  global $user;
+
+  if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    $form['comment_settings']['#access'] |= ($user->uid == $form['#node']->uid && user_access('administer comments on own content'));
+  }
+}
+
+/**
+ * Implementation of hook_user()
+ * @param string $op
+ * @param array $edit
+ * @param object $account the user object of the account
+ * @param string $category
+ * @return unknown_type
+ */
+function usercomment_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+  case 'form':
+    if ($category == "account") {
+      $form = array();
+      foreach (node_get_types() as $node) {
+        if (node_access('create', $node, $account)) {
+          if ((user_access('approve comments on own '. $node->type .' content', $account)) || (user_access('administer comments on own content'))) {
+
+            $form['usercomment_settings']['usercomment_approve_'. $node->type] = array(
+              '#type'          => 'checkbox',
+              '#title'         => t('Skip '. $node->name .' approvals'),
+              '#default_value' => isset($edit['usercomment_approve_'. $node->type]) ? $edit['usercomment_approve_'. $node->type] : 1,
+              '#description'   => t('Check this to allow other users to comment on your content without approval. Note: Admin users can always comment without approval.'),
+            );
+          }
+        }
+      }
+      // if user has approval rights, put the settings in a fieldset and
+      // give an extra option to receive emails
+      if (!empty($form['usercomment_settings'])) {
+        $usercomment_settings = array(
+          '#type'        => 'fieldset',
+          '#title'       => t('Usercomment settings'),
+          '#weight'      => 5,
+          '#collapsible' => TRUE,
+        );
+        $form['usercomment_settings'] = array_merge($form['usercomment_settings'], $usercomment_settings);
+        $form['usercomment_settings']['usercomment_get_notifications'] = array(
+          '#type'          => 'checkbox',
+          '#title'         => t('Receive e-mail notifications'),
+          '#default_value' => isset($edit['usercomment_get_notifications']) ? $edit['usercomment_get_notifications'] : 1,
+          '#description'   => t('Check this to receive e-mail notifications when new comments need your approval.'),
+        );
+      }
+    }
+    return $form;
+    break;
+  }
+}
+
+/**
+ * This function returns the count of unapproved notes for a specified node
+ *
+ * @param $nid - numeric node id
+ */
+function usercomment_count_unapproved($nid) {
+  $query = "SELECT count(cid) FROM {comments} WHERE status = %d AND nid = %d";
+  $count = db_result(db_query($query, COMMENT_NOT_PUBLISHED, $nid));
+  return (int)$count;
+}
+
+/**
+ * This function determines whether the specified user needs to approve comments on the specified node type
+ *
+ * @param string $nodetype - text string specifying the name of a node type
+ * @param object $nodeauthor - the user object from the nodeauthor
+ *
+ * @return TRUE if the user must approve comments on the specified nodetype, FALSE if not
+ */
+function usercomment_requires_approval($nodetype, $nodeauthor = 0) {
+  // check the user's settings, when author is anonymous than return FALSE
+  if (is_object($nodeauthor) && $nodeauthor->uid) {
+    $skip_approval_field = "usercomment_approve_{$nodetype}";
+    if ($nodeauthor->$skip_approval_field == 1 ) {
+      return FALSE; // $nodeauthor has said to skip approvals for this node type
+    }
+    else {
+      return TRUE;
+    }
+  }
+  else { // didn't get a valid user object
+    return FALSE;
+  }
+}
+
+
+/**
+ * This function checks access perms.
+ * @param int $cid Comment ID
+ * @param string $op Delete, aproved or update
+ * @return booleen TRUE or FALSE dependent from the $op
+ */
+function usercomment_access_check($cid, $op = '') {
+  global $user;
+  if (!is_numeric($cid)) {
+    return FALSE;
+  }
+  $comment  = _comment_load($cid);
+  $node = node_load($comment->nid);
+  switch ($op) {
+    case 'delete':
+      if (!$user->uid) {
+        return FALSE;
+      }
+      // admin users already have functionality so no need to show duplicate link
+      if (user_access('administer comments')) {
+        return TRUE;
+      }
+      elseif (user_access('administer comments on own content') && ($user->uid == $node->uid)) {
+        return TRUE;
+      }
+      elseif (user_access('delete comments on own '. $node->type .' content') && ($user->uid == $node->uid)) {
+        return TRUE;
+      }
+      break;
+
+    case 'approve':
+      if (!$user->uid) {
+        return FALSE;
+      }
+      if ($comment->status == COMMENT_NOT_PUBLISHED) {
+        if (user_access('administer comments')) {
+          return TRUE;
+        }
+        elseif (user_access('administer comments on own content') && ($user->uid == $node->uid)) {
+          return TRUE;
+        }
+        elseif (user_access('approve comments on own '. $node->type .' content') && ($user->uid == $node->uid)) {
+          return TRUE;
+        }
+      }
+      break;
+
+    case 'update':
+      //Nodeauthor do not need an mail, message and so on
+      if ($node->uid == $user->uid) {
+        return FALSE;
+      }
+      elseif (user_access("skip author approval queue when posting comments")) {
+        return FALSE;
+      }
+      else {
+        $nodeauthor = user_load($node->uid);
+        return usercomment_requires_approval($node->type, $nodeauthor);
+      }
+      break;
+
+    default:
+      return FALSE;
+  }// end switch $op
+}
+
+/**
+ * This function generates the approval message
+ * @param int $cid Comment ID
+ * @return nothing
+ */
+function usercomment_approve($cid) {
+  global $user;
+  $comment = _comment_load($cid);
+  $node = node_load($comment->nid);
+
+  $comment->status = COMMENT_PUBLISHED;
+
+  comment_save((array)$comment);
+  // when COMMENT_NODE_READ_WRITE drupal shows an message
+  if ($node->comment == COMMENT_NODE_READ_WRITE) {
+    $status_msg_php = variable_get('usercomment_msg_approved_php', '');
+    if ($status_msg_php != '') {
+      $status_msg = drupal_eval($status_msg_php);
+    }
+    else {
+      $status_msg = variable_get('usercomment_msg_approved', t("The comment has been approved."));
+      $status_msg = t($status_msg, array(
+        '@poster'     => $comment->name,
+        '@node_owner' => $node->name,
+        '@subject'    => $comment->subject,
+      ));
+  }
+
+  // Invoke the comment approval trigger
+  module_invoke_all('usercomment', 'usercomment_approval', $user);
+
+  drupal_set_message($status_msg);
+  }
+  drupal_goto('node/'. $node->nid);
+}
+
+/**
+ * This function is a modified copy of comment_render()
+ * I had to modify b/c comment_render() didn't let me get comments that
+ * weren't published
+ * not ideal, but it works.
+ * 
+ * @param object $node The node object
+ * @return $content
+ */
+function usercomment_comment_render($node) {
+  $content = '';
+  $query = 'SELECT c.cid as cid, c.pid, c.nid, c.subject, c.comment, c.format, c.timestamp, c.name, c.mail, c.homepage, u.uid, u.name AS registered_name, u.picture, u.data, c.thread, c.status FROM {comments} c INNER JOIN {users} u ON c.uid = u.uid WHERE c.nid = %d AND c.status = %d';
+
+  $result = db_query($query, $node->nid, COMMENT_NOT_PUBLISHED);
+  while ($comment = db_fetch_object($result)) {
+    $comment = drupal_unpack($comment);
+    if (usercomment_access_check($comment->cid)) {
+      $links = usercomment_link('comment', $comment, FALSE);
+    }
+    else {
+      $links = module_invoke_all('link', 'comment', $comment, 0);
+    }
+    drupal_alter('link', $links, $node);
+    $content .= theme('comment_view', $comment, $node, $links);
+  }
+  return $content;
+}
+
+/**
+ * Generate the usercomment admin settings form
+ */
+function usercomment_admin_settings() {
+  $form = array();
+  $form['general'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('General settings'),
+  );
+  $form['general']['usercomment_approval_form_weight'] = array(
+    '#type' => 'weight',
+    '#title' => t('Approval form'),
+    '#description' => t('This sets the weight of the approval form on the node. For example, you can change this to move the form below the node content.'),
+    '#default_value' => variable_get('usercomment_approval_form_weight', 0),
+  );
+  $form['mail'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Approval email'),
+    '#description' => t('This page is generated by the usercomment module. The following variables are available for use in email subject/message: @approver, @commenter, @title, @comment, @commentlink, @nodelink, @site, @siteurl'),
+  );
+  $form['mail']['usercomment_mail_subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#default_value' => variable_get('usercomment_mail_subject', t('@commenter posted a new comment!')),
+  );
+  $form['mail']['usercomment_mail_message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Message'),
+    '#rows' => 10,
+    '#default_value' => variable_get('usercomment_mail_message', usercomment_mail_message_default()),
+  );
+  $form['usercomment_text'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Text options'),
+  );
+  $form['usercomment_text']['usercomment_msg_approval_queue'] = array(
+    '#type' => 'textfield',
+    '#size' => 80,
+    '#title' => t("Approval queue message"),
+    '#description' => t("Enter the status message a user will see after submitting a comment that requires approval prior to being published. The following variables are available for use in the status message: @poster, @node_owner, @subject."),
+    '#default_value' => variable_get('usercomment_msg_approval_queue', t("Your comment will be posted once it's been approved.")),
+  );
+  $msg_php = variable_get('usercomment_msg_approval_queue_php', '');
+  $form['usercomment_text']['usercomment_msg_approval_queue_php_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => empty($msg_php) ? TRUE : FALSE,
+    '#title' => t('PHP code'),
+  );
+  $form['usercomment_text']['usercomment_msg_approval_queue_php_fieldset']['usercomment_msg_approval_queue_php'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Approval queue message code'),
+    '#default_value' => $msg_php,
+    '#cols' => 60,
+    '#rows' => 6,
+    '#description' => '<p>'. t('Advanced Usage Only: PHP code that returns the text of the status message. The PHP code must be entered between %php. Note that executing incorrect PHP-code can break your Drupal site.', array('%php' => '<?php ?>')) .'</p><p>'. t('Note: if set, this will override any Approval queue message text set above.') .'</p>',
+  );
+
+  $form['usercomment_text']['usercomment_msg_approved'] = array(
+    '#type' => 'textfield',
+    '#size' => 80,
+    '#title' => t("Approved comment message"),
+    '#description' => t("Enter the status message a user will see after approving a comment. The following variables are available for use in the status message: @poster, @node_owner, @subject."),
+    '#default_value' => variable_get('usercomment_msg_approved', t("Your comment has been approved.")),
+  );
+  $msg_php2 = variable_get('usercomment_msg_approved_php', '');
+  $form['usercomment_text']['usercomment_msg_approved_php_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => empty($msg_php2) ? TRUE : FALSE,
+    '#title' => t('PHP code'),
+  );
+  $form['usercomment_text']['usercomment_msg_approved_php_fieldset']['usercomment_msg_approved_php'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Approved comment message code'),
+    '#default_value' => $msg_php2,
+    '#cols' => 60,
+    '#rows' => 6,
+    '#description' => '<p>'. t('Advanced Usage Only: PHP code that returns the text of the status message. The PHP code must be entered between %php. Note that executing incorrect PHP-code can break your Drupal site.', array('%php' => '<?php ?>')) .'</p><p>'. t('Note: if set, this will override any Approval queue message text set above.') .'</p>',
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * This function defines the default message sent out by this module
+ */
+function usercomment_mail_message_default() {
+  return <<<END
+Hey @approver,
+
+@commenter posted a new comment[1] that needs to be approved.
+
+Comment in @nodelink
+
+@subject
+-----------------------
+@comment
+
+
+
+You can approve or remove the comment here:
+
+[1]@commentlink
+
+Regards,
+The @site team
+END;
+}
+
+/**
+ * This function generates the approval form
+ * @param object $node
+ * @return string
+ */
+function usercomment_approval_form($node) {
+  $countunprovedcomments = usercomment_count_unapproved($node->nid);
+  $content = usercomment_comment_render($node);
+  if (!empty($content)) {
+    return theme('usercomment', $content, $countunprovedcomments);
+  }
+  elseif ($node->comment_count > 0) {
+    return theme('usercomment_empty');
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ * @return array
+ */
+function usercomment_theme() {
+  return array(
+    'usercomment' => array(
+      'arguments' => array('content' => NULL, 'countunprovedcomments' => NULL),
+    ),
+    'usercomment_empty' => array(
+      'arguments' => array(),
+    ),
+  );
+}
+
+/**
+ * Theme out the usercomment form
+ * @param $content
+ * @param $countunprovedcomments
+ * @return string $output
+ */
+function theme_usercomment($content, $countunprovedcomments) {
+  $title = format_plural($countunprovedcomments, '1 comment to approve', '@count comments to approve');
+  $output = '<div class="usercomment">';
+  $output .= theme('box', $title, $content);
+  $output .= "</div>";
+  return $output;
+}
+
+/**
+ * Theme out the empty usercomment form.
+ * @return string $output
+ */
+function theme_usercomment_empty() {
+  $output = '<div class="usercomment_empty">';
+  $output .= t('You have no comments to approve.');
+  $output .= "</div>";
+  return $output;
+}
+
+/**
+* The following two functions provide integration with trigger module
+*
+* Implementation of hook_hook_info() and hook_trigger_name()
+*/
+function usercomment_hook_info() {
+  return array(
+    'usercomment' => array(
+      'usercomment' => array(
+        'usercomment_approval' => array(
+          'runs when' => t('A comment has been approved'),
+        ),
+      ),
+    ),
+  );
+}
+
+function usercomment_trigger_name($op, $user) {
+  if (!in_array($op, array('usercomment_approval'))) {
+    return;
+  }
+  $aids = _trigger_get_hook_aids('usercomment', $op);
+  $context = array(
+    'hook' => 'usercomment',
+    'op' => $op,
+    'approver' => $user,
+  );
+  actions_do(array_keys($aids), $user, $context);
+}

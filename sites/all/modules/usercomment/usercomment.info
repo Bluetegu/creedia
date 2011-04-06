@@ -1,0 +1,12 @@
+; $Id $
+name = "User Comment"
+description = "This module gives users some additional comment administration rights on content they create."
+dependencies[] = comment
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-12-28
+version = "6.x-2.0"
+core = "6.x"
+project = "usercomment"
+datestamp = "1293498680"
+

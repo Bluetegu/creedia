@@ -1,0 +1,60 @@
+<?php
+// $Id: usercomment.install,v 1.2.6.2 2010/02/03 21:07:58 gwen Exp $
+
+/**
+ * @file
+ * Implementation of module.install
+ */
+
+/**
+ * Changed names of some permissions
+ */
+function usercomment_update_1() {
+  $result = db_query("SELECT * FROM {permission}");
+  while ($permission = db_fetch_object($result)) {
+    $perms = array();
+    foreach (explode(', ', $permission->perm) as $perm) {
+      if (preg_match("/^((approve|delete) comments on) (\w+) content$/", $perm, $matches)) {
+        $perm = $matches[1] .' own '. $matches[3] .' content';
+      }
+      $perms[] = $perm;
+    }
+    db_query("UPDATE {permission} SET perm = '%s'", implode(', ', $perms));
+  }
+}
+
+/**
+ * Implementation of hook_update()
+ *
+ * Permission name was changed b/c drupal does not permit special chars in permissions, so
+ * update data in permissions table
+ */
+function usercomment_update_6001() {
+  $ret = array();
+  $result = db_query("SELECT * FROM {permission}");
+  while ($permission = db_fetch_object($result)) {
+    $run_sql = 0;
+    $perms = array();
+    foreach (explode(', ', $permission->perm) as $perm) {
+      if ($perm == "skip author's approval queue when posting comments") {
+        $run_sql = 1;
+        $perm = "skip author approval queue when posting comments";
+      }
+      $perms[] = $perm;
+    }
+    if ($run_sql) {
+      $ret[] = update_sql("UPDATE {permission} SET perm = '". implode(', ', $perms) ."' WHERE rid = '". $permission->rid ."'");
+    }
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+
+function usercomment_uninstall() {
+  variable_del('usercomment_msg_approval_queue_php');
+  variable_del('usercomment_msg_approval_queue');
+  variable_del('usercomment_mail_message');
+}
