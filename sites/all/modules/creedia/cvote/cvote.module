@@ -1,0 +1,1549 @@
+<?php
+// $Id$
+/* TODO Automatically add Drupal.settings.basePath
+   In Drupal 5, you would have to add the base path to Drupal.settings yourself
+   if you needed it (it's needed for just about every AHAH/AJAX enabled module
+   if you did it right). Now in Drupal 6, it's added automatically. You can always
+   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
+   called at least once, so this is similar to the way we automatically add
+   drupal.js and jquery.js. */
+
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO Remove $row argument from db_result() method
+   The $row argument of db_result() was removed from the database abstraction
+   layer in 6.x core, as it was a database dependent option. Developers need to
+   use other handling to replace the needs of this method. */
+
+/* TODO hook_nodeapi('submit') has been replaced by op='presave'
+   There is no longer a 'submit' op for nodeapi. Instead you may use the newly
+   created 'presave' op. Note, however, that this op is invoked at the beginning
+   of node_save(), in contrast to op='submit' which was invoked at the end of
+   node_submit(). Thus 'presave' operations will be performed on nodes that are
+   saved programatically via node_save(), while in Drupal 5.x op='submit' was
+   only applied to nodes saved via the node form. Note that the node form is now,
+   in effect, a multistep form (for example when previewing), so if you need to
+   fix up the data in the node for re-building the form, use a #submit function
+   added to the node form's $form array. */
+
+/* TODO Change 'Submit' to 'Save' on buttons
+   It has been agreed on that the description 'Submit' for a button is not a
+   good choice since it does not indicate what actually happens. While for
+   example on node editing forms, 'Preview' and 'Delete' describe exactly what
+   will happen when the user clicks on the button, 'Submit' only gives a vague
+   idea. When labelling your buttons, make sure that it is clear what this
+   button does when the user clicks on it. */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function cvote_theme() {
+  return array(
+    'cvote_node_type_form' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'cvote_settings' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'cvote_preview_widget' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'css_file' => NULL,
+      ),
+    ),
+    'cvote_preview' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'style' => NULL,
+        'text' => NULL,
+        'stars' => NULL,
+        'unvote' => NULL,
+        'title' => NULL,
+        'feedback_enable' => TRUE,
+        'labels_enable' => TRUE,
+        'labels' => array(),
+      ),
+    ),
+    'cvote_preview_wrapper' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'content' => NULL,
+        'type' => 'direct',
+      ),
+    ),
+    'cvote' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'element' => NULL,
+      ),
+    ),
+    'cvote_select' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'element' => NULL,
+      ),
+    ),
+    'cvote_widget' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'cvote_static' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'rating' => NULL,
+        'stars' => 5,
+        'tag' => 'vote',
+        'title' => NULL,
+      ),
+    ),
+    'cvote_summary' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'user_rating' => NULL,
+        'average_rating' => NULL,
+        'votes' => NULL,
+        'stars' => 5,
+        'feedback' => TRUE,
+      ),
+    ),
+    'cvote_static_element' => array(
+      'file' => 'cvote.module',
+      'arguments' => array(
+        'value' => NULL,
+        'title' => NULL,
+        'description' => NULL,
+      ),
+    ),
+  );
+} */
+
+/* TODO
+   An argument for replacements has been added to format_plural(),
+   escaping and/or theming the values just as done with t().*/
+
+/* TODO $form['#base'] is gone
+   In FormAPI, many forms with different form_ids can share the same validate,
+   submit, and theme handlers. This can be done by manually populating the
+   $form['#submit'], $form['#validate'], and $form['#theme'] elements with
+   the proper function names. */
+
+/* TODO You may want to take advantage of new form-specific alter hooks.
+   The hook_form_alter() is complemented by hook_form_$form-id_alter().
+   Optionally, modules can implement form-specific alteration functions rather
+   than a single hook_form_alter() with many conditional switch statements.
+   This is optional, and is most useful for tidying the code of modules that
+   alter many forms to customize a site's operations.
+   The new function names are built using the following format:
+   [your-module-name]_form_[$form_id]_alter. */
+
+/** 
+ * @file
+ * Creedia creed voting twicks of fivestar.
+ *
+ **
+ * This module provides creed rating widget to the user. 
+ *
+ * 1. use two axes for voting. The 'vote' axis is used for 'my creed' ratings,
+ *   and as such can use the views default filter and sort pluggins. The
+ *   'my bridge' ratings use the 'bridge' axis. 
+ *
+ * 2. add creed nodes with either 'my creed' or 'my bridge' rating widgets
+ *   depending on the user vs. creed religion settings. 'my creed' uses 3 positive
+ *   stars and a single negative one, while 'my bridge' ratings uses a single 
+ *   negative and a single positive star. Both have a 'cancel' star that is used
+ *   both to indicate zero average as well as to cancel the user voting.
+ *   --- 14-Sep-09 --- 
+ *   Change the default behavior to provide both my-creed and my-bridge rating 
+ *   regardless of member's settings.
+ *
+ * 3. add support for negative votes. A (single) negative 'star' is added. Ratings
+ *    results shown to the user are -1..number-of-stars. 
+ *   --- 5-Oct-09 ---
+ *   Remove the support of negative ratings.
+ *    
+ * 4. if the user changed religion settings and already votes on some of the creeds
+ *    within that religion, the 'old' votes will not be converted automatically
+ *    from my-creed to my-bridge voting (or vice versa). Rather the user will have
+ *    to vote again on these creeds. When a user votes on a creed, votes on
+ *    the other 'axis' are removed if they exists. 
+ *
+ **
+ *
+ * Creed voting discussion:
+ *
+ * Fivestar does not support multiple axis rating (Drupal 5.x) for a single
+ * content out of the box. It supports only CCK fields for review of other
+ * content types through node reference (which is rather cool).
+ *
+ * Fivestar doesn't support negative number ratings as well. See discussion
+ * below.
+ *
+ * Negative numbers: 
+ *
+ * Members can express both positive as well as negative identification with
+ * a creed statement. When ordering creeds according to rate, those creed
+ * entries that are not-rated should come before those creed statements that
+ * received an overall negative ratings. 
+ * Making Fivestar support negative rating is not easy. Fivestar uses average
+ * precentage for calculating the rate. If we simply attempt to treat negative
+ * as zero while no-vote is positive, and then to scale down the result, it
+ * requires that whenever a new member joins, all creed entries vote should be
+ * incremented to represent the 'no vote' of this member. This doesn't sound
+ * like a good design.
+ *
+ **
+ * Assumptions:
+ *
+ * 1. Religion Lineage is saved. That is, the religion taxonomy is always saved
+ *    in the member profile object (and not the movement taxonomy only).
+ * 
+ **
+ * Todo:
+ *
+ * 1. Support 'part-of-a-star' rating image for negative ratings. Currently
+ *   when the result is 1.6 the second star will be half 'on' and half 'off'
+ *   I can't figure out how to do this with the negative values (both in js
+ *   and in static HTML). Since I'm currently showing on the members vote
+ *   and not the average, this problem is never apperant.
+ *
+ * 2. Add back the configuration through the UI I dropped too zealously.
+ *
+ * 3. When a creed with no rating is first rated, the js does not show
+ *    the 'Your vote: Average..' summary writing. When the page is reloaded the
+ *    summary appears. This also happens with Fivestar module.
+ *
+ **
+ * Procedural map:
+ *
+ * 1. Use hook_nodeapi to add a form to the node content calling cvote_widget_form
+ * 2. cvote_widget_form calls cvote_form indirectly through drupal_get_form
+ *    and hook_forms.
+ * 3. cvote_form calls cvote_custom_widget that builds a very long and elaborate
+ *    form. It includes in the 'theme' property of the form theme_cvote_widget. It also
+ *    calls directly (through theme function) for theme_cvote_summary to theme
+ *    the description fields of the form. It calls theme_cvote_static and 
+ *    theme_cvote_static_element and embbeds the output into a 'markup' form
+ *    element (It is not clear to me why this is not directly done cvote_
+ *    custom_widget). It builds the form element 'vote' and assigns the 'type'
+ *    property as 'cvote', which I believe calls theme_cvote when the
+ *    form is rendered. 
+ * 4. The above assume that fivestar form element was defined as part of the 
+ *    form building process using hook_elements. This hook defines cvote_expand
+ *    as the function that should be called as part of the form build of the
+ *    fivestar element. cvote_expand indeed expands the element. 
+ * 5. theme_cvote adds the relevant js and css files in addition to its (minor)
+ *    theming role.
+ * 6. theme_cvote_widget add wrapper divs and unsets some form fields and calls
+ *    drupal_render to generate the HTML output.
+ *
+ * 
+ * Additional changes per 22-Feb-2009
+ * 1. added 'My vote: vote' tip for static view
+ * 2. fixed 'cancel' static CSS to hide it when negative is selected
+ * 3. added 'text' attribute to node view to provide separate text
+ *    display for average voting
+ * 4. themed a constant 3 'stars' static view for anonymous users
+ *
+ * Changes done 14-Sep-2009
+ * 1. Add both my-creed and my-bridge rating widgets per creed statement regardless
+ *    of user's religion settings.
+ * 2. Support multi-axis voting, i.e. expand the widget to include the tag parameter 
+ *    per http://drupal.org/node/185074 comment 72
+ *
+ * Changes done 5-Oct-2009
+ * 1. Removed the negative rating support. I've done a minimal change in code that
+ *    can be changed back at any time.
+ *
+ */
+
+
+/**
+ * Check if the current logged in user is of the same religion as the
+ * creed node.
+ *
+ * @param    $nid: The creed node id.
+ * @return
+ *   Boolean TRUE if the user and creed share the same religion
+ *           FALSE otherwise
+ */
+
+function _cvote_is_my_religion($nid) {
+
+  global $user;
+  if (!$user->uid){
+    return FALSE;  // anonymous users 
+  }
+  $creed_religion = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID); 
+  if (empty($creed_religion)) {
+    return FALSE;
+
+  }
+  // ronc: for some reason the nodefamily relation is not formed
+  // so I'm trying to get the member directly
+  //   $usernode = usernode_get_node($user);
+  //   if (!$usernode) {
+  //     return FALSE;
+  //   }
+  //   $member = nodefamily_relation_load($usernode, 0);
+  //   firep($usernode, 'is my religion: usernode');
+  //   if (!$member || empty($member)) {
+  //     return FALSE;
+  //   }
+  //   firep($member, 'is my religion: member');
+  //   $user_religions = taxonomy_node_get_terms_by_vocabulary($member[0]->nid, CREEDIA_RELIGION_VID, 'vid'); 
+
+  // Get the member's nid which created the member profile
+  // Assumption here is that there is a single member node per user
+  $sql = "SELECT nid FROM {node} WHERE type = 'member' AND uid = %d";
+  $mnid = db_result(db_query($sql, $user->uid));
+  if (!$mnid) {
+    return FALSE;
+  }
+  $user_religions = taxonomy_node_get_terms_by_vocabulary($mnid, CREEDIA_RELIGION_VID); 
+  //firep($user_religions, 'is my religion: user religions');
+  
+  foreach ($user_religions as $religion) {
+    if (isset($creed_religion[$religion->tid])) {
+      // firep('TRUE', 'is my religion: bingo ');
+      return TRUE;
+    }
+  }
+  return FALSE;
+
+}
+
+/**
+ * Provide a stub for variable_get
+ * 
+ * @param string $param: variable name
+ * @param var    $default: variable value default
+ * @param int    $nid: the node id. 
+ *               Required for 'stars', 'tag' and 'lables' variables.
+ *
+ */
+function cvote_variable_get($param, $default, $nid = 0) {
+
+  switch ($param) {
+  case 'cvote_position_teaser_creed':
+    // 'above', 'below', 'above_static', 'below_static'
+    return 'below';
+  case 'cvote_position_creed':
+    // 'above', 'below', 'above_static', 'below_static'
+    return 'below';
+  case 'cvote_stars_creed':
+    // number of stars
+    return _cvote_is_my_religion($nid) ? 3 : 1;
+  case 'cvote_unvote_creed':
+    return TRUE;
+  case 'cvote_style_creed':
+    // 'none', 'average', 'user', 'smart', 'dual'
+    return 'user';
+  case 'cvote_text_creed':
+    // 'none', 'average', 'user', 'smart', 'dual'
+    return 'none';
+  case 'cvote_title_creed':
+    return FALSE;
+  case 'cvote_feedback_creed':
+    return TRUE;
+  case 'cvote_labels_enable_creed':
+    return TRUE;
+  case 'cvote_labels_creed':
+    return array('negative', 'remove', 'positive', 'strong', 'core');
+//     if (_cvote_is_my_religion($nid)) {
+//       return array('negative', 'indifferent', 'positive', 'strong', 'core');
+//     }
+//     else {
+//       return array('negative', 'indifferent', 'positive');
+//     }
+  case 'cvote_tag_creed':
+    return _cvote_is_my_religion($nid) ? 'vote' : 'bridge';
+  case 'cvote_widget':
+    return 'default';
+  default:
+    return variable_get($param, $default);
+  }
+}
+
+
+/**
+ *
+ *
+ */
+function cvote_help($path, $arg) {
+  // nothing to help
+}
+
+function cvote_menu() {
+
+  $items = array();
+/* TODO
+   Non menu code that was placed in hook_menu under the '!$may_cache' block
+   so that it could be run during initialization, should now be moved to hook_init.
+   Previously we called hook_init twice, once early in the bootstrap process, second
+   just after the bootstrap has finished. The first instance is now called boot
+   instead of init.
+   
+   In Drupal 6, there are now two hooks that can be used by modules to execute code
+   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
+   and runs on each page request, even for cached pages. hook_boot() now only runs
+   for non-cached pages and thus can be used for code that was previously placed in
+   hook_menu() with $may_cache = FALSE:
+   
+   Dynamic menu items under a '!$may_cache' block can often be simplified
+   to remove references to arg(n) and use of '%<function-name>' to check
+   conditions. See http://drupal.org/node/103114.
+   
+   The title and description arguments should not have strings wrapped in t(),
+   because translation of these happen in a later stage in the menu system.
+*/
+  if ($may_cache) {
+
+    $items['cvote/vote'] = array(
+      'page callback' => 'cvote_vote',
+      'type'     => MENU_CALLBACK,
+      'access arguments' => array('rate content'),
+    );
+  }
+  return $items;
+}
+
+
+/**
+ * Implementation of hook_boot().
+ * Not that this will cause Drupal to post a warning on the admin screen
+ * when agressive caching is activated. Like CCK, Cvote's use of hook_init
+ * IS compatible with agressive caching, we just need a way to annouce that.
+ */
+function cvote_init() {
+}
+
+/**
+ * Implementation of hook_perm (permissions).
+ * Exposes permissions for rating content, viewing aggregate ratings, and using PHP
+ * snippets when configuring cvote CCK fields.
+ */
+function cvote_perm() {
+  //  return array('rate content', 'use PHP for cvote target');
+}
+
+/**
+ * Implementation of hook_form_alter
+ * Adds cvote enable and position to the node-type configuration form.
+ * 
+ */
+function cvote_form_alter(&$form, &$form_state, $form_id) {
+}
+
+/**
+ * Additional submit handler for the node type form.
+ */
+function cvote_node_type_form_submit($form, &$form_state) {
+}
+
+/**
+ * Theme function to add the Cvote preview to the node type form.
+ */
+function theme_cvote_node_type_form($form) {
+}
+
+/**
+ * Implementation of hook_node_types().
+ * ..change of node type..
+ */
+function cvote_node_type($op, $info) {
+}
+
+/**
+ * Callback function for admin/settings/cvote. Display the settings form.
+ */
+function cvote_settings() {
+}
+
+function cvote_settings_submit($form, &$form_state) {
+}
+
+function theme_cvote_settings($form) {
+}
+
+function theme_cvote_preview_widget($css_file) {
+}
+
+function cvote_preview_color() {
+}
+
+/**
+ * Callback function for cvote/preview/node. Outputs a JSON page containing
+ * a Cvote preview of a node rating widget.
+ */
+function cvote_preview() {
+}
+
+function theme_cvote_preview($style = NULL, $text = NULL, $stars = NULL, $unvote = NULL, $title = NULL, $feedback_enable = TRUE, $labels_enable = TRUE, $labels = array()) {
+  return $form;
+}
+
+function theme_cvote_preview_wrapper($content, $type = 'direct') {
+  return '';
+}
+
+/**
+ * Callback function for cvote/vote.
+ * 
+ * @param type
+ *   A content-type to log the vote to. 'node' is the most common.
+ * @param tag
+ *   Multi axis tag to allow multiple votes per node. 'vote' is the most common
+ * @param cid
+ *   A content id to log the vote to. This would be a node ID, a comment ID, etc.
+ * @param value
+ *   A value from 1-100, representing the vote cast for the content.
+ *   ronc: changed: to 100 per star and -100 for negative star
+ * @return
+ *  An XML chunk containing the results of the vote, for use by the client-side
+ *  javascript code.
+ */
+function cvote_vote($type, $cid, $tag, $value) {
+
+  _cvote_cast_vote($type, $cid, $value, $tag);
+  $result = votingapi_recalculate_results($type, $cid);
+  // Retrieve cached result if recalculation is not set to immediate.
+  if (!is_array($result)) {
+    $result = votingapi_get_voting_results($type, $cid);
+  }
+//   if ($type == 'node') {
+//     $node = node_load($cid);
+//   }
+
+//  Support multiple widgets - need to rely on input parameters
+//  $tag = cvote_variable_get('cvote_tag_creed', 'vote', $cid);
+//  $stars = cvote_variable_get('cvote_stars_creed', 3, $cid);
+  $stars = $tag == 'vote' ? 3 : 1;
+
+  $feedback_enable = cvote_variable_get('cvote_feedback_creed', TRUE, $cid);
+
+  $output = '';
+  $output .= '<?xml version="1.0" encoding="UTF-8"?>';
+  $output .= '<xml><result>';
+
+  if (count($result)) {
+    foreach ($result as $data) {
+      if ($data->tag == $tag) {
+        $output .= '<'. $data->function .'>'. $data->value .'</'. $data->function .'>';
+        $summary[$data->tag][$data->function] = $data->value;
+      }
+    }
+  }
+  $output .= '<summary>';
+  $output .= '<average><![CDATA['. theme('cvote_summary', NULL, $summary[$tag]['average'], NULL, $stars, $feedback_enable) .']]></average>';
+  $output .= '<average_count><![CDATA['. theme('cvote_summary', NULL, $summary[$tag]['average'], $summary[$tag]['count'], $stars, $feedback_enable) .']]></average_count>';
+  $output .= '<user><![CDATA['. theme('cvote_summary', $value, NULL, NULL, $stars, $feedback_enable) .']]></user>';
+  $output .= '<user_count><![CDATA['. theme('cvote_summary', $value, NULL, $summary[$tag]['count'], $stars, $feedback_enable) .']]></user_count>';
+  $output .= '<combo><![CDATA['. theme('cvote_summary', $value, $summary[$tag]['average'], $summary[$tag]['count'], $stars, $feedback_enable) .']]></combo>';
+  $output .= '<count><![CDATA['. theme('cvote_summary', NULL, NULL, $summary[$tag]['count'], $stars, $feedback_enable) .']]></count>';
+  $output .= '</summary>';
+  $output .= '</result>';
+
+  $output .= '<vote>';
+  $output .= '<value>'. $value .'</value>';
+  $output .= '<type>'. $type .'</type>';
+  $output .= '<id>'. $cid .'</id>';
+  $output .= '<tag>'. $tag .'</tag>';
+  $output .= '</vote></xml>';
+
+  drupal_set_header("Content-Type: text/xml");
+  exit($output);
+}
+
+/**
+ * Internal function to handle vote casting, flood control, XSS, IP based
+ * voting, etc...
+ */
+function _cvote_cast_vote($type, $cid, $value, $tag = NULL, $uid = NULL) {
+  global $user;
+  $tag = empty($tag) ? 'vote' : $tag;
+  // drupal_set_message(t('Creedia vote: tag '. $tag));
+
+  // Bail out if the user's trying to vote on an invalid object.
+  //  if (!_cvote_validate_target($type, $cid)) {
+  //  return array();
+  //}
+
+  // Prep variables for anonymous vs. registered voting.
+  if (!isset($uid)) {
+    if ($user->uid) {
+      $uid = $user->uid;
+    }
+    else {
+      return array(); // ronc: no anonymous voting
+    }
+  }
+
+  // Sanity-check the incoming values.
+  if (is_numeric($cid) && is_numeric($value)) {
+    
+    //  Support multiple widgets - need to rely on input parameters
+    //  $tag = cvote_variable_get('cvote_tag_creed', 'vote', $cid);
+    //  $stars = cvote_variable_get('cvote_stars_creed', 3, $cid);
+    $stars = $tag == 'vote' ? 3 : 1;
+    $value_type = 'percent';
+
+    if ($value > $stars * 100) {
+      $value = $stars * 100;
+      drupal_set_message(t('Creedia vote: value exceeding upper limit received.'));
+    }
+    elseif ($value < -100) {
+      $value = -100;
+      drupal_set_message(t('Creedia vote: value exceeding lower limit received.'));
+    }
+
+    // If the user is logged in, we'll look for votes from that uid.
+    $sql =  "SELECT vote_id, tag FROM {votingapi_vote} ";
+    $sql .= "WHERE content_type='%s' AND content_id=%d AND value_type='%s' AND uid=%d";
+    $result = db_query($sql, $type, $cid, $value_type, $uid);
+    while ($data = db_fetch_object($result)) {
+      if ($data->tag == $tag && !$old_vote) {
+	$old_vote = $data;
+      }
+      else {
+	// This could happen if the user has voted on a creed, and later changed
+	// his religion settings. Remove the 'old' vote.
+        votingapi_delete_vote($data);
+      }
+    }
+
+    // If the old vote exists, either delete it (if the new one is zero)
+    // or change it. If it doesn't exist and the vote is non-zero, cast
+    // it and recalculate.
+    if ($old_vote) {
+      if ($value == 0){
+        votingapi_delete_vote($old_vote);
+      }
+      else {
+        $vote = votingapi_change_vote($old_vote, $value);
+      }
+    }
+    elseif ($value != 0) {
+      $vote = votingapi_add_vote($type, $cid, $value, $value_type, $tag, $uid);
+    }
+    return $vote;
+  }
+  else {
+    return array();
+  }
+}
+
+/**
+ * Internal function to check that node-type accepts votes
+ * 
+ * @param text $type type of target (currently only node is supported)
+ * @param text $id identifier within the type (in this case node-type)
+ * 
+ * @return boolean
+ */
+function _cvote_validate_target($type, $id) {
+  return TRUE;
+}
+
+
+/**
+ * Implementation of hook_cvote_widgets.
+ * 
+ * This hook allows other modules to create additional custom widgets for
+ * the cvote module.
+ * 
+ * @return array
+ *   An array of key => value pairs suitable for inclusion as the #options in a
+ *   select or radios form element. Each key must be the location of a css
+ *   file for a cvote widget. Each value should be the name of the widget.
+ */
+function cvote_cvote_widgets() {
+  $widgets_directory = drupal_get_path('module', 'cvote') .'/widgets';
+  $files = file_scan_directory($widgets_directory, '\.css$');
+
+  $widgets = array();
+  foreach ($files as $file) {
+    if (strpos($file->filename, '-rtl.css') === FALSE) {
+      $widgets[$file->filename] = drupal_ucfirst(str_replace('-color', '', $file->name));
+    }
+  }
+  return $widgets;
+}
+
+
+/**
+ * Implementation of hook_nodeapi()
+ * 
+ * Adds the fievestar widget to the node view.
+ */
+function cvote_nodeapi(&$node, $op, $teaser, $page) {
+  switch ($op) {
+
+    case 'view':
+      if ($node->in_preview == FALSE && !isset($node->modr8_form_teaser) && $node->type == 'creed') {
+        if ($teaser) {
+          $position = cvote_variable_get('cvote_position_teaser_'. $node->type, 'above');
+        }
+        else {
+          $position = cvote_variable_get('cvote_position_'. $node->type, 'above');
+        }
+        switch ($position) {
+          case 'above':
+          case 'below':
+            if (user_access('rate content')) {
+              cvote_static('node', $node->nid, 'vote', $node->type, $text);
+              $node->content['cvote_widget'] = array(
+                '#value' => cvote_widget_form($node, 'vote'),
+                '#weight' => $position == 'above' ? -10 : 50,
+		'#text' => $text,
+              );
+              $node->content['cvote_widget1'] = array(
+                '#value' => cvote_widget_form($node, 'bridge'),
+                '#weight' => $position == 'above' ? -10 : 50,
+		'#text' => $text,
+              );
+              break;
+            } // Fall through to static if not allowed to rate.
+            $position .= '_static';
+          case 'above_static':
+          case 'below_static':
+            $node->content['cvote_widget'] = array(
+              '#value' => cvote_static('node', $node->nid, 'vote', $node->type, $text),
+              '#weight' => strpos($position, 'above') === 0 ? -10 : 50,
+	      '#text' => $text,
+            );
+            $node->content['cvote_widget1'] = array(
+              '#value' => cvote_static('node', $node->nid, 'bridge', $node->type, $text),
+              '#weight' => strpos($position, 'above') === 0 ? -10 : 50,
+	      '#text' => $text,
+            );
+            break;
+          default:
+            // We'll do nothing.
+            break;
+        }
+      }
+      break;
+  }
+}
+
+
+/**
+ * Implementation of hook_link()
+ *
+ * Add a "rate" link to node teaser.
+ */
+function cvote_link($type, $node = NULL, $teaser = FALSE) {
+  $links = array();
+  if ($type == "node" && $teaser) {
+    if (cvote_variable_get('cvote_position_teaser_'. $node->type, 'above') == "link") {
+      $links['rate'] = array(
+        'title' => t('Rate'),
+        'href' => 'node/'. $node->nid,
+        'fragment' => 'cvote-form-node-'. $node->nid,
+        'attributes' => array('title' => t('Rate this @type', array('@type' => node_get_types('name', $node->type)))),
+      );
+    }
+  }
+  return $links;
+}
+
+
+function cvote_block($op = 'list', $delta = 0, $edit = array()) {
+}
+
+function cvote_widget_form($node, $tag = 'vote') {
+  return drupal_get_form('cvote_form_node_'. $node->nid .'_'. $tag, 'node', $node->nid, $tag);
+}
+
+/**
+ * Implementation of hook_forms. This is necessary when multiple cvote
+ * forms appear on the same page, each requiring a separate form_id, but all
+ * using the same underlying callbacks.
+ */
+function cvote_forms($form_id, $args) {
+/* TODO Your function did not have $args in its signature.
+   Any $args[n] values have been converted to $args[n].
+   You may need to reduce these indices by one. */
+  $args = func_get_args();
+  if (strpos($form_id, 'cvote_form') !== FALSE) {
+    if ($form_id == 'cvote_form_'. $args[1] .'_'. $args[2] .'_'. $args[3]) {
+      $forms[$form_id] = array('callback' => 'cvote_form');
+      return $forms;
+    }
+  }
+}
+
+/**
+ * Create the cvote form for the current item.
+ * Note that this is not an implementation of hook_form(). We should probably
+ * change the function to reflect that.
+ */
+function cvote_form(&$form_state, $content_type, $content_id, $tag) {
+  global $user;
+
+  if ($content_type == 'node') {
+    if (is_numeric($content_id)) {
+      $node = node_load($content_id);
+      if (!$node || $node->type != 'creed') {
+	return array();
+      }
+    }
+    else {
+      return array();
+    }
+  }
+
+  $current_avg = votingapi_get_voting_result($content_type, $content_id, 'percent', 'vote', 'average');
+  $current_count = votingapi_get_voting_result($content_type, $content_id, 'percent', 'vote', 'count');
+  // The below two are not shown on creed entries
+  //$current_points = votingapi_get_voting_result($content_type, $content_id, 'points', 'bridge', 'average');
+  //$current_count_points = votingapi_get_voting_result($content_type, $content_id, 'points', 'bridge', 'count');
+  if ($user->uid) {
+    // one of these should always be null. 
+    $user_vote = votingapi_get_vote($content_type, $content_id, 'percent', $tag, $user->uid);
+  }
+  else {
+    // If the user is anonymous, we never bother loading their existing votes.
+    // Not only would it be hit-or-miss, it would break page caching. Safer to always
+    // show the 'fresh' version to anon users.
+    $user_vote->value = 0;
+  }
+
+  $values = array(
+    'average' => $current_avg->value,
+    'user' => $user_vote->value,
+    'count' => $current_count->value,
+  );
+
+  $settings = array(
+    'stars' => $tag == 'vote' ? 3 : 1,
+    'allow_clear' => cvote_variable_get('cvote_unvote_'. $node->type, TRUE),
+    'style' => cvote_variable_get('cvote_style_'. $node->type, 'dual'),
+    'text' => cvote_variable_get('cvote_text_'. $node->type, 'dual'),
+    'tag' => $tag,
+    'content_type' => $content_type,
+    'content_id' => $content_id,
+    'autosubmit' => TRUE,
+    'title' => cvote_variable_get('cvote_title_'. $node->type, FALSE) ? NULL : FALSE,
+    'feedback_enable' => cvote_variable_get('cvote_feedback_'. $node->type, TRUE),
+    'labels_enable' => cvote_variable_get('cvote_labels_enable_'. $node->type, TRUE),
+    'labels' => cvote_variable_get('cvote_labels_'. $node->type, array(), $content_id),
+  );
+
+  return cvote_custom_widget($form_state, $values, $settings);
+}
+
+function cvote_static($content_type, $content_id, $tag = 'vote', $node_type = NULL, &$text = NULL) {
+  global $user;
+
+  if ($content_type != 'node') {
+    return '';   // no time to handle anything else...
+  }
+
+  // Content type should always be passed to avoid this node load.
+  if (!isset($node_type)) {
+    $node = node_load($content_id);
+    $node_type = $node->type;
+  }
+
+  $current_avg = votingapi_get_voting_result($content_type, $content_id, 'percent', 'vote', 'average');
+  $current_count = votingapi_get_voting_result($content_type, $content_id, 'percent', 'vote', 'count');
+  //$user_vote = $user->uid ? votingapi_get_vote($content_type, $content_id, 'percent', 'vote', $user->uid) : 0;
+  if ($user->uid) {
+    // one of these should always be null. 
+    $user_vote = votingapi_get_vote($content_type, $content_id, 'percent', $tag, $user->uid);
+  }
+  else {
+    // If the user is anonymous, we never bother loading their existing votes.
+    // Not only would it be hit-or-miss, it would break page caching. Safer to always
+    // show the 'fresh' version to anon users.
+    $user_vote->value = 0;
+  }
+
+  $star_display = cvote_variable_get('cvote_style_'. $node_type, 'dual');
+  $text_display = cvote_variable_get('cvote_text_'. $node_type, 'dual');
+  $title_display = cvote_variable_get('cvote_title_'. $node_type, TRUE);
+  $stars = $tag == 'vote' ? 3 : 1;
+
+  switch ($star_display) {
+  case 'user':
+    if (user_access('rate content')) {
+      $star_value = $user_vote->value;
+      $title = $title_display ? t('Your rating') : NULL;
+      break;
+    } // Fall through to average if not allowed to rate.
+  case 'smart':
+    if (user_access('rate content')) {
+      $star_value = $user_vote->value ? $user_vote->value : $current_avg->value;
+      $title = $title_display ? $user_vote->value ? t('Your rating') : t('Average') : NULL;
+      break;
+    } // Fall through to average if not allowed to rate.
+  case 'average':
+  case 'dual':
+    $star_value = $current_avg->value;
+    $title = $title_display ? t('Average') : NULL;
+    break;
+  }
+
+  // Set all text values, then unset the unnecessary ones.
+  $user_value = $user_vote->value;
+  $average_value = $current_avg->value;
+  $count_value = $current_count->value;
+  //  $text = theme('cvote_summary', NULL, $average_value, $count_value, $stars, FALSE); // added
+  $text = '<span class="average-rating" title="';
+  $text .= $count_value ? format_plural($count_value, '1 vote', '@count votes') : t('No votes yet');
+  $text .= '">';
+  if (!$average_value) {
+    $average_value = 0;
+  }
+  $text .= t('Rate: !value', array('!value' => round($average_value, 0))) .'</span>';
+
+  if ($user->uid) {
+    $labels = cvote_variable_get('cvote_labels_creed', array(), $content_id);
+    $user_label = round($user_value / 100, 0) + 1;
+    $hover_title =   t('My vote: !vote', array('!vote' => t($labels[$user_label])));
+  }
+  else {
+    $hover_title =   t('Login or Register to vote');
+  }
+
+  switch ($text_display) {
+  case 'average':
+    $user_value = NULL;
+    break;
+  case 'user':
+    $average_value = NULL;
+    break;
+  case 'smart':
+    if ($user_vote->value) {
+      $average_value = NULL;
+    }
+    else {
+      $user_value = NULL;
+    }
+    break;
+  }
+  
+  $star_display = theme('cvote_static', $star_value, $stars, $tag, $hover_title);
+  $text_display = $text_display == 'none' ? NULL : theme('cvote_summary', $user_value, $average_value, $count_value, $stars, FALSE);
+
+  return theme('cvote_static_element', $star_display, $title, $text_display);
+}
+
+function cvote_custom_widget(&$form_state, $values, $settings) {
+  $form = array(
+    '#attributes' => array('class' => 'cvote-widget'),
+    '#base' => 'cvote_form',
+    '#redirect' => FALSE,
+    '#theme' => 'cvote_widget',
+  );
+
+  if (isset($settings['content_type'])) {
+    $form['content_type'] = array(
+      '#type' => 'hidden',
+      '#value' => $settings['content_type'],
+      '#id' => $settings['content_id'] ? 'edit-content-type-'. $settings['content_id'] : NULL,
+    );
+  }
+
+  if (isset($settings['content_id'])) {
+    $form['content_id'] = array(
+      '#type' => 'hidden',
+      '#value' => $settings['content_id'],
+      '#id' => $settings['content_id'] ? 'edit-content-id-'. $settings['content_id'] : NULL,
+    );
+  }
+
+  $form['vote'] = array(
+    '#type' => 'cvote',
+    '#stars' => $settings['stars'],
+    '#vote_count' => $values['count'],
+    '#vote_average' => $values['average'],
+    '#auto_submit' => isset($settings['autosubmit']) ? $settings['autosubmit'] : TRUE,
+    '#auto_submit_path' => (!isset($settings['autosubmit']) || $settings['autosubmit']) ? 'cvote/vote/'. $settings['content_type'] .'/'. $settings['content_id'] .'/'. $settings['tag'] : NULL,
+    '#allow_clear' => $settings['allow_clear'],
+    '#content_id' => isset($settings['content_id']) ? $settings['content_id'] : NULL,
+    '#required' => isset($settings['required']) ? $settings['required'] : FALSE,
+    '#feedback_enable' => isset($settings['feedback_enable']) ? $settings['feedback_enable'] : TRUE,
+    '#labels_enable' => isset($settings['labels_enable']) ? $settings['labels_enable'] : TRUE,
+    '#labels' => isset($settings['labels']) ? $settings['labels'] : NULL,
+    '#tag' => $settings['tag'],
+  );
+
+  $form['destination'] = array(
+    '#type' => 'hidden',
+    '#value' => $_GET['q'],
+    '#id' => isset($settings['content_id']) ? 'edit-destination-'. $settings['content_id'] : NULL,
+  );
+
+  $form['cvote_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Rate'),
+    '#attributes' => array('class' => 'cvote-submit'),
+    '#id' => isset($settings['content_id']) ? 'edit-cvote-submit-'. $settings['content_id'] : NULL,
+  );
+
+  $form['vote']['#attributes']['class'] = isset($form['vote']['#attributes']['class']) ? $form['vote']['#attributes']['class'] : '';
+  $settings['feedback_enable'] = isset($settings['feedback_enable']) ? $settings['feedback_enable'] : TRUE;
+  switch ($settings['text']) {
+    case 'user':
+      $form['vote']['#description'] = theme('cvote_summary', $values['user'], NULL, $settings['style'] == 'dual' ? NULL : $values['count'], $settings['stars'], $settings['feedback_enable']);
+      $form['vote']['#attributes']['class'] .= ' cvote-user-text';
+      break;
+    case 'average':
+      $form['vote']['#description'] = $settings['style'] == 'dual' ? NULL : theme('cvote_summary', NULL, $values['average'], $values['count'], $settings['stars'], $settings['feedback_enable']);
+      $form['vote']['#attributes']['class'] .= ' cvote-average-text';
+      break;
+    case 'smart':
+      $form['vote']['#description'] = ($settings['style'] == 'dual' && !$values['user']) ? NULL : theme('cvote_summary', $values['user'], $values['user'] ? NULL : $values['average'], $settings['style'] == 'dual' ? NULL : $values['count'], $settings['stars'], $settings['feedback_enable']);
+      $form['vote']['#attributes']['class'] .= ' cvote-smart-text '. ($values['user'] ? 'cvote-user-text' : 'cvote-average-text');
+      break;
+    case 'dual':
+      $form['vote']['#description'] = theme('cvote_summary', $values['user'], $settings['style'] == 'dual' ? NULL : $values['average'], $settings['style'] == 'dual' ? NULL : $values['count'], $settings['stars'], $settings['feedback_enable']);
+      $form['vote']['#attributes']['class'] .= ' cvote-combo-text';
+      break;
+  }
+
+  switch ($settings['style']) {
+    case 'average':
+      $form['vote']['#title'] = t('Average');
+      $form['vote']['#default_value'] = $values['average'];
+      $form['vote']['#attributes']['class'] .= ' cvote-average-stars';
+      break;
+    case 'user':
+      $form['vote']['#title'] = t('Your rating');
+      $form['vote']['#default_value'] = $values['user'];
+      $form['vote']['#attributes']['class'] .= ' cvote-user-stars';
+      break;
+    case 'smart':
+      $form['vote']['#title'] = $values['user'] ? t('Your rating') : t('Average');
+      $form['vote']['#default_value'] = $values['user'] ? $values['user'] : $values['average'];
+      $form['vote']['#attributes']['class'] .= ' cvote-smart-stars '. ($values['user'] ? 'cvote-user-stars' : 'cvote-average-stars');
+      break;
+    case 'dual':
+      $form['vote']['#title'] = t('Your rating');
+      $form['vote']['#default_value'] = $values['user'];
+      $form['vote']['#attributes']['class'] .= ' cvote-combo-stars';
+      $form['#attributes']['class'] .= ' cvote-combo-stars';
+      $static_average = theme('cvote_static', $values['average'], $settings['stars'], $settings['tag']);
+      if ($settings['text'] == 'none' && !$settings['labels_enable'] && !$settings['feedback_enable']) {
+        $static_description = NULL;
+      }
+      elseif ($settings['text'] != 'none') {
+        $static_description = theme('cvote_summary', NULL, $settings['text'] == 'user' ? NULL : (isset($values['average']) ? $values['average'] : 0), isset($values['count']) ? $values['count'] : 0, $settings['stars'], FALSE);
+      }
+      else {
+        $static_description = '&nbsp;';
+      }
+      $form['average'] = array(
+        '#type' => 'markup',
+        '#value' => theme('cvote_static_element', $static_average, $settings['title'] !== FALSE ? t('Average') : NULL, $static_description),
+        '#weight' => -1,
+      );
+      break;
+  }
+
+  // Set an over-ridding title if passed in.
+  // An empty title won't change the default, a string will set a new title,
+  // and title === FALSE will unset the title entirely.
+  if (isset($settings['title'])) {
+    if ($settings['title'] !== FALSE) {
+      $form['vote']['#title'] = $settings['title'];
+    }
+    else {
+      unset($form['vote']['#title']);
+      unset($form['average']['#title']);
+    }
+  }
+
+  return $form;
+}
+
+/**
+ * Submit handler for the above form (non-javascript version).
+ */
+function cvote_form_submit($form, &$form_state) {
+  if ($form_state['values']['form_id'] == 'cvote_form_'. $form_state['values']['content_type'] .'_'. $form_state['values']['content_id'] .'_'. $form_state['values']['#tag']) {
+    // Cast the vote.
+    _cvote_cast_vote($form_state['values']['content_type'], $form_state['values']['content_id'], $form_state['values']['vote'], $form_state['values']['#tag']);
+    votingapi_recalculate_results($form_state['values']['content_type'], $form_state['values']['content_id']);
+
+    // Set a message that the vote was received.
+    if ($form_state['values']['vote'] === '0') {
+      drupal_set_message(t('Your vote has been cleared.'));
+    }
+    elseif (is_numeric($form_state['values']['vote'])) {
+      drupal_set_message(t('Thank you for your vote.'));
+    }
+    // Regenerate the page with a drupal_goto() to update the current values.
+    drupal_goto();
+  }
+}
+
+/**
+ * Implementation of hook_elements
+ * 
+ * Defines 'cvote' form element type
+ */
+function cvote_elements() {
+  $type['cvote'] = array(
+    '#input' => TRUE,
+    '#stars' => 5,
+    '#widget' => 'stars',
+    '#allow_clear' => FALSE,
+    '#auto_submit' => FALSE,
+    '#auto_submit_path' => '',
+    '#labels_enable' => TRUE,
+    '#feedback_enable' => TRUE,
+    '#process' => array('cvote_expand'),
+  );
+  return $type;
+}
+
+/**
+ * Theme the cvote form element by adding necessary css and javascript.
+ */
+function theme_cvote($element) {
+  // Add necessary CSS.
+  cvote_add_css();
+
+  // Add necessary javascript.
+  if ($element['#widget'] == 'stars' ) {
+    cvote_add_js();
+  }
+
+  if (empty($element['#description'])) {
+    if ($element['#feedback_enable']) {
+      $element['#description'] = '<div class="cvote-summary cvote-feedback-enabled">&nbsp;</div>';
+    }
+    elseif ($element['#labels_enable']) {
+      $element['#description'] = '<div class="cvote-summary">&nbsp;</div>';
+    }
+  }
+
+  return theme('form_element', $element, $element['#children']);
+}
+
+/**
+ * Theme the straight HTML version of the cvote select list. This is used
+ * to remove the wrapping 'form-item' div from the select list.
+ */
+function theme_cvote_select($element) {
+  $select = '';
+  $size = $element['#size'] ? ' size="'. $element['#size'] .'"' : '';
+  _form_set_class($element, array('form-select'));
+  $multiple = isset($element['#multiple']) && $element['#multiple'];
+  return '<select name="'. $element['#name'] .''. ($multiple ? '[]' : '') .'"'. ($multiple ? ' multiple="multiple" ' : '') . drupal_attributes($element['#attributes']) .' id="'. $element['#id'] .'" '. $size .'>'. form_select_options($element) .'</select>';
+}
+
+/**
+ * Theme an entire cvote widget, including the submit button and the normal
+ * cvote widget themed in the theme_cvote() function.
+ */
+function theme_cvote_widget($form) {
+  // Only print out the summary if text is being displayed or using rollover text.
+  if (empty($form['vote']['#description']) && strpos($form['vote']['#prefix'], 'cvote-labels-hover') === FALSE) {
+    unset($form['vote']['#description']);
+  }
+
+  $output  = '';
+  $output .= '<div class="cvote-form-'. (isset($form['content_id']['#value']) ? $form['content_id']['#value'] : 0) .' clear-block">';
+  $output .= drupal_render($form);
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Display a plain HTML VIEW ONLY version of the widget
+ * with the specified rating
+ * 
+ * @param $rating
+ *   The desired rating to display out in the range of -100 to 300 
+ *   (The desired rating to display out of 100 (i.e. 80 is 4 out of 5 stars))
+ * @param $stars
+ *   The total number of stars this rating is out of
+ * @return
+ *   A themed HTML string representing the star widget
+ * 
+ */
+function theme_cvote_static($rating, $stars = 5, $tag = 'vote', $title = NULL) {
+  global $user;
+  // Add necessary CSS.
+  cvote_add_css();
+
+  if (!$rating) {
+    $rating = 0;
+  }
+  //firep($rating, 'rating in theme cvote static');
+
+  $output = '';
+  $output .= $title ? 
+    '<div class="cvote-widget-static cvote-widget-static-'. $stars .'-'. $tag .' clear-block" title="'. $title .'">' :
+    '<div class="cvote-widget-static cvote-widget-static-'. $stars .'-'. $tag .' clear-block">' ;
+
+  $numeric_rating = $rating/100;
+
+  // 'negative'
+  // ronc: remove negative ratings: otherwise this would show in 
+//    if ($rating < 0 || !$user->uid) {
+//      $output .= '<div class="negative">';
+//      $output .= '<span class="on">';     $percent = 100 - $rating;
+//      $output .= '</span></div>';
+//   }
+
+  // 'cancel'
+  if ($numeric_rating == 0 || !$user->uid) {
+    $output .= '<div class="cancel">';
+    $output .= '<span class="on">';
+    $output .= '</span></div>';
+  }
+
+  if ($rating > 0 || !$user->uid) {
+    for ($n=1; $n <= $stars; $n++) {
+      $star_value = 100 * $n;
+      $prev_star_value = 100 * ($n-1);
+      //$zebra = ($n % 2 == 0) ? 'even' : 'odd';
+      //$first = $n == 1 ? ' star-first' : '';
+      //$last = $n == $stars ? ' star-last' : '';
+      $zebra = 'zebra';
+      $first = '';
+      $last = '';
+      $output .= '<div class="star star-'. $n .' star-'. $zebra . $first . $last .'">';
+      if ($rating < $star_value && $rating > $prev_star_value) {
+	$percent = $rating - $prev_star_value;
+	$output .= '<span class="on" style="width: '. $percent .'%">';
+      }
+      elseif ($rating >= $star_value || !$user->uid) {
+	$output .= '<span class="on">';
+      }
+      else {
+	$output .= '<span class="off">';
+      }
+      if ($n == 1)$output .= $numeric_rating;
+      $output .= '</span></div>';
+    }
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_cvote_summary($user_rating, $average_rating, $votes, $stars = 5, $feedback = TRUE) {
+  $output = '';
+  $div_class = '';
+  if (isset($user_rating)) {
+    $div_class = isset($votes) ? 'user-count' : 'user';
+    $user_stars = round(($user_rating) / 100, 1);
+    $output .= '<span class="user-rating">'. t('Your rating: <span>!stars</span>', array('!stars' => $user_rating ? $user_stars : t('None'))) .'</span>';
+  }
+  if (isset($user_rating) && isset($average_rating)) {
+    $output .= ' ';
+  }
+  if (isset($average_rating)) {
+    $div_class = isset($votes) ? 'average-count' : 'average';
+    $average_stars = round(($average_rating) / 100, 1);
+    $output .= '<span class="average-rating">'. t('Average: <span>!stars</span>', array('!stars' => $average_stars)) .'</span>';
+  }
+  if (isset($user_rating) && isset($average_rating)) {
+    $div_class = 'combo';
+  }
+
+  if (isset($votes) && !(isset($user_rating) || isset($average_rating))) {
+    $output .= ' <span class="total-votes">'. format_plural($votes, '<span>1</span> vote', '<span>@count</span> votes') .'</span>';
+    $div_class = 'count';
+  }
+  elseif (isset($votes)) {
+    $output .= ' <span class="total-votes">('. format_plural($votes, '<span>1</span> vote', '<span>@count</span> votes') .')</span>';
+  }
+
+  if ($votes === 0) {
+    $output = '<span class="empty">'. t('No votes yet') .'</span>';
+  }
+
+  $output = '<div class="cvote-summary cvote-summary-'. $div_class . ($feedback ? ' cvote-feedback-enabled' : '') .'">'. $output .'</div>';
+  return $output;
+}
+
+/**
+ * Display a static cvote value as stars with a title and description.
+ */
+function theme_cvote_static_element($value, $title = NULL, $description = NULL) {
+  $output = '';
+  $output .= '<div class="cvote-static-form-item">';
+  $element = array(
+    '#type' => 'item',
+    '#title' => $title,
+    '#description' => $description,
+  );
+
+  $output .= theme('form_element', $element, $value);
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Fetch the necessary CSS files to render the cvote widget.
+ */
+function cvote_add_css($widget_css = NULL) {
+  // Add cvote CSS.
+  drupal_add_css(drupal_get_path('module', 'cvote') .'/css/cvote.css');
+
+  // Add widget specific CSS.
+  if (!isset($widget_css)) {
+    $widget_css = cvote_variable_get('cvote_widget', 'default');
+  }
+
+  if ($widget_css != 'default') {
+    drupal_add_css($widget_css);
+  }
+}
+
+/**
+ * Add necessary JS files and settings to render the cvote widget.
+ */
+function cvote_add_js() {
+  static $js_added = FALSE;
+
+  // Add necessary javascript only once per page.
+  if (!$js_added) {
+    $settings = array(
+      'titleUser' => t('Your rating') .': ',
+      'titleAverage' => t('Average') .': ',
+      'feedbackSavingVote' => t('Saving your vote...'),
+      'feedbackVoteSaved' => t('Added to profile.'),
+      'feedbackDeletingVote' => t('Deleting your vote...'),
+      'feedbackVoteDeleted' => t('Removed from profile.'),
+    );
+
+    drupal_add_js(drupal_get_path('module', 'cvote') .'/js/cvote.js');
+    drupal_add_js(array('cvote' => $settings), 'setting');
+    $js_added = TRUE;
+  }
+}
+
+/**
+ * Process callback for cvote_element -- see cvote_element()
+ */
+function cvote_expand($element) {
+  static $cvote_id = 0;
+
+  if (isset($element['#vote_count'])) {
+    $element['vote_count'] =  array(
+      '#type' => 'hidden',
+      '#value' => $element['#vote_count'],
+      '#id' => 'edit-vote-count-'. $cvote_id,
+    );
+  }
+
+  if (isset($element['#vote_average'])) {
+    $element['vote_average'] =  array(
+      '#type' => 'hidden',
+      '#value' => $element['#vote_average'],
+      '#id' => 'edit-vote-average-'. $cvote_id,
+    );
+  }
+
+  if ($element['#auto_submit'] && !empty($element['#auto_submit_path'])) {
+    $element['auto_submit_path'] =  array(
+      '#type' => 'hidden',
+      '#value' => url($element['#auto_submit_path']),
+      '#attributes' => array('class' => 'cvote-path'),
+      '#id' => 'edit-auto-submit-path-'. $cvote_id,
+    );
+  }
+
+  if (!isset($element['#default_value'])) {
+    $element['#default_value'] = 0;
+  }
+
+  $options = array('-' => t('Select rating'));
+  $default_value = $element['#default_value'];
+  // ronc: To remove the negative rating with minimum changes I started counting from 1
+  //  for ($i = 0; $i <= $element['#stars'] + 1; $i++) {
+  for ($i = 1; $i <= $element['#stars'] + 1; $i++) {
+    // ronc: we are not using percentage anymore. We assign any star with 100 points and we take average
+    $this_value = ($i - 1) * 100;
+    $next_value = $i * 100;
+    
+    // The negative button...
+    if ($i == 0) {
+      $options[$this_value] = isset($element['#labels'][$i]) ? t(filter_xss_admin($element['#labels'][$i])) :
+	t('Give it - @star/@count', array('@star' => $i, '@count' => $element['#stars']));
+    }
+
+    // Display clear button only if enabled.
+    if ($element['#allow_clear'] == TRUE && $i == 1) {
+      $options[$this_value] = isset($element['#labels'][$i]) ? t(filter_xss_admin($element['#labels'][$i])) : t('Cancel rating');
+    }
+    // Display a normal star value.
+    if ($i > 1) {
+      if (isset($element['#labels'][$i])) {
+        $options[$this_value] = $element['#labels'][$i] == '' ? $i : t(filter_xss_admin($element['#labels'][$i]), array('@star' => $i, '@count' => $element['#stars']));
+      }
+      else {
+        $options[$this_value] = t('Give it @star/@count', array('@star' => $i, '@count' => $element['#stars']));
+      }
+    }
+  }
+
+  // ronc: We can't round up once we have negative voting. So, instead we use round
+  $default_value = round($element['#default_value']);
+
+  $element['vote'] = array(
+    '#type' => 'select',
+    '#options' => $options,
+    '#required' => $element['#required'],
+    '#default_value' => $default_value,
+    '#parents' => $element['#parents'],
+    '#id' => 'edit-vote-'. $cvote_id,
+    '#theme' => 'cvote_select',
+    '#weight' => $element['#weight'],
+  );
+
+  // ronc: not clear why this appears in code twice... but anyhow, set this default to round  instead of round up
+  $element['vote']['#default_value'] = $default_value;
+
+  // Set a class for the display of label text on hover.
+  $label_class = $element['#labels_enable'] ? ' cvote-labels-hover' : '';
+
+  $element['#id'] = 'edit-vote-'. $cvote_id;
+  $element['#prefix'] = '<div class="cvote-form-item '. (isset($element['#attributes']['class']) ? $element['#attributes']['class'] : '') . $label_class .'">';
+  $element['#suffix'] = '</div>';
+
+  // Add validation function that considers a 0 value as empty.
+  $element['#validate'][] = 'cvote_validate';
+
+  $cvote_id++;
+  //firep($element, 'in cvote_expand');
+
+  return $element;
+}
+
+function cvote_validate($form) {
+  if ($form['#required'] && (empty($form['vote']['#value']) || $form['vote']['#value'] == '-')) {
+    form_error($form, t('!name field is required.', array('!name' => $form['#title'])));
+  }
+}
+
+function cvote_votingapi_views_formatters($details = array()) {
+  if ($details['value_type'] == 'percent') {
+    return array(
+      'cvote_views_value_display_handler' => t('Cvote Stars (display only)'),
+      'cvote_views_widget_compact_handler' => t('Cvote Stars (clickable, no text)'),
+      'cvote_views_widget_normal_handler' => t('Cvote Stars (clickable, with text)'),
+    );
+  }
+}
+
+function cvote_views_value_display_handler($op, $filter, $value, &$query) {
+
+  $content_id = $query->nid;
+  // Determine number of stars to display
+  // Not sure what to do here for multi axis - I don't have the tag information. Returning 5 for the meantime
+  //  $stars = cvote_variable_get('cvote_stars_'. $node_type, 3, $content_id);
+  $stars = 5;
+
+  //  firep($value , 'value in views display handler');
+  //  firep($content_id , 'cid in views display handler');
+
+  return theme('cvote_static', $value, $stars, 'vote');
+}
+
+function cvote_views_widget_compact_handler($op, $filter, $value, &$query) {
+  return cvote_views_widget_handler($op, $filter, $value, $query, FALSE);
+}
+
+function cvote_views_widget_normal_handler($op, $filter, $value, &$query) {
+  return cvote_views_widget_handler($op, $filter, $value, $query, TRUE);
+}
+
+function cvote_views_widget_handler($op, $filter, $value, &$query, $summary) {
+  global $user;
+
+  $content_type = 'node';
+  $content_id = $query->nid;
+  $node_type = isset($query->node_type) ? $query->node_type : db_result(db_query("SELECT type FROM {node} WHERE nid = %d", $query->nid));
+
+  //  firep($value + ' cid ' + $content_id, 'value and cid in views widget handler');
+
+  if ($node_type != 'creed') {
+    return ''; // ronc: probably should return something..
+  }
+
+  $tag = cvote_variable_get('cvote_tag_creed', 'vote', $content_id);
+  $current_count = votingapi_get_voting_result($content_type, $content_id, 'percent', 'vote', 'count');
+  if ($user->uid) {
+    $user_vote = votingapi_get_vote($content_type, $content_id, 'percent', $tag, $user->uid);
+  }
+  else {
+    $user_vote->value = 0;
+  }
+
+  $values = array(
+    'average' => (int)$value,
+    'user' => $user_vote->value,
+    'count' => $current_count->value,
+  );
+
+  $settings = array(
+     // Multi-axis support - not clear what we should do here.
+     // 'stars' => cvote_variable_get('cvote_stars_'. $node_type, 3, $content_id),
+    'stars' => 5,
+    'allow_clear' => cvote_variable_get('cvote_unvote_'. $node_type, FALSE),
+    // If the user has setup this content type to use smart stars, display
+    // the smart version instead of just the average.
+    'style' => cvote_variable_get('cvote_style_'. $node_type, 'average') != 'smart' ? 'average' : 'smart',
+    'text' => $summary ? cvote_variable_get('cvote_text_'. $node_type, 'dual') : 'none',
+    'content_type' => $content_type,
+    'content_id' => $content_id,
+    'autosubmit' => TRUE,
+    'title' => FALSE,
+    'feedback_enable' => $summary ? cvote_variable_get('cvote_feedback_'. $node_type, 1) : FALSE,
+    'labels_enable' => $summary ? cvote_variable_get('cvote_labels_enable_'. $node_type, 1) : FALSE,
+    'labels' => $summary ? cvote_variable_get('cvote_labels_'. $node_type, array(), $content_id) : array(),
+  );
+
+  return drupal_get_form('cvote_custom_widget', $values, $settings);
+}

@@ -1,0 +1,152 @@
+/* Plain HTML Version */
+form.cvote-widget {
+  clear: both;
+  display: block;
+}
+form.cvote-widget select,
+form.cvote-widget input {
+  margin: 0;
+  width: 60px;
+}
+
+/* Combo Static and Rate Widget */
+.cvote-combo-stars .cvote-static-form-item {
+  float: left; /* RTL */
+  margin-right: 40px; /* RTL */
+}
+.cvote-combo-stars .cvote-form-item {
+  float: left; /* RTL */
+}
+
+/* Cvote form items */
+.cvote-static-form-item .form-item,
+.cvote-form-item .form-item {
+  margin: 0.2em 0;
+}
+
+/* Static View-only Star Version */
+div.cvote-widget-static {
+  display: block;
+}
+
+div.cvote-widget-static br {
+  clear: left; /* RTL */
+}
+
+div.cvote-widget-static .star {
+  float: left; /* RTL */
+  width: 11px;
+  height: 9px;
+  overflow: hidden;
+  text-indent: -999em;
+}
+
+div.cvote-widget-static .star span.on {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url(../widgets/default/star.gif) no-repeat 0 -10px;
+}
+
+div.cvote-widget-static .star span.off {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: url(../widgets/default/star.gif) no-repeat 0 0px;
+}
+
+div.cvote-widget-static .cancel {
+  float: left; /* RTL */
+  width: 11px;
+  height: 9px;
+  overflow: hidden;
+  text-indent: -999em;
+}
+
+div.cvote-widget-static .cancel span.on {
+  display: block;
+  width: 11px;
+  height: 9px;
+  overflow: hidden;
+  background: url(../widgets/default/delete.gif) no-repeat 0 -10px;
+}
+
+div.cvote-widget-static .cancel span.off {
+  display: none;
+  width: 100%;
+  height:100%;
+  background: url(../widgets/default/delete.gif) no-repeat 0 0px;
+}
+
+div.cvote-widget-static .negative {
+  float: left; /* RTL */
+  width: 11px;
+  height: 9px;
+  overflow: hidden;
+  text-indent: -999em;
+}
+
+div.cvote-widget-static .negative span.on {
+  display: block;
+  width: 11px;
+  height: 9px;
+  overflow: hidden;
+  background: url(../widgets/default/negative.gif) no-repeat 0 -10px;
+}
+
+div.cvote-widget-static .negative span.off {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: url(../widgets/default/negative.gif) no-repeat 0 0px;
+}
+
+/* Javascript Star Version */
+div.cvote-widget {
+  display: block;
+}
+
+div.cvote-widget .cancel, div.cvote-widget .star, div.cvote-widget .negative {
+  float: left; /* RTL */
+  width: 11px;
+  height: 9px;
+  overflow: hidden;
+  text-indent: -999em;
+}
+
+div.cvote-widget .cancel, div.cvote-widget .cancel a {
+  background: url(../widgets/default/delete.gif) no-repeat 0 0px;
+  text-decoration: none;
+}
+
+div.cvote-widget .negative, div.cvote-widget .negative a {
+  background: url(../widgets/default/negative.gif) no-repeat 0 0px;
+  text-decoration: none;
+}
+
+div.cvote-widget .star, div.cvote-widget .star a {
+  background: url(../widgets/default/star.gif) no-repeat 0 0px;
+  text-decoration: none;
+}
+
+div.cvote-widget .cancel a, div.cvote-widget .star a, div.cvote-widget .negative a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-position: 0 0px;
+  cursor: pointer;
+}
+
+div.cvote-widget div.on a {
+  background-position: 0 -10px;
+}
+div.cvote-widget div.hover a, div.rating div a:hover {
+  background-position: 0 -20px;
+}
+form.cvote-widget div.description {
+  margin-bottom: 0;
+  height: 0;
+  overflow: visible;
+  width:auto;
+  line-height:100%;
+}

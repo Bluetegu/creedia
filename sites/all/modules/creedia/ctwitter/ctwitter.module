@@ -1,0 +1,407 @@
+<?php
+// $Id$
+/* TODO Automatically add Drupal.settings.basePath
+   In Drupal 5, you would have to add the base path to Drupal.settings yourself
+   if you needed it (it's needed for just about every AHAH/AJAX enabled module
+   if you did it right). Now in Drupal 6, it's added automatically. You can always
+   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
+   called at least once, so this is similar to the way we automatically add
+   drupal.js and jquery.js. */
+
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function ctwitter_theme() {
+  return array(
+    'ctwitter_updates' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'ctwitter_facebook' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'ctwitter_links' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'ctwitter_link' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        'service' => NULL,
+        'url' => NULL,
+        'title' => NULL,
+      ),
+    ),
+    'ctwitter_fb_like' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        'url' => NULL,
+        'teaser' => TRUE,
+      ),
+    ),
+    'ctwitter_fb_comments' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        'node' => NULL,
+      ),
+    ),
+    'ctwitter_fb_like_js' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        'node' => NULL,
+      ),
+    ),
+    'ctwitter_fb_share' => array(
+      'file' => 'ctwitter.module',
+      'arguments' => array(
+        'node' => NULL,
+      ),
+    ),
+  );
+} */
+
+/*
+ * @file
+ * Creedia's Twitter Integration
+ *
+ * Assumes twitter field is defined per members profile. Presents
+ * the members last tweets.
+ * Presents the latest Creedia blog tweets.
+ *
+ * Creedia's Facebook Fun Box on blog (IFrame used as JS doesn't work on IE6&7)
+ */
+
+/**
+ * Implementation of hook_block
+ */
+function ctwitter_block($op = 'list', $delta = 0, $edit = array()) {
+  global $user;
+  $uid = $user->uid;
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+  case 'list':
+    // If $op is "list", we just need to return a list of block descriptions.
+    // This is used to provide a list of possible blocks to the administrator,
+    // end users will not see these descriptions.
+    $blocks[0]['info'] = t('Creedia: Members Tweets');
+    $blocks[0]['visibility'] = 1; // show only on listed pages
+    $blocks[0]['pages'] = "user/*\n";
+    $blocks[1]['info'] = t('Creedia: Company Tweets');
+    $blocks[1]['visibility'] = 1; // show only on listed pages
+    $blocks[1]['pages'] = "blog\n"."node/*\n";
+    $blocks[2]['info'] = t('Creedia: Company Facebook');
+    $blocks[2]['visibility'] = 1; // show only on listed pages
+    $blocks[2]['pages'] = "blog\n"."node/*\n";
+    $blocks[3]['info'] = t('Creedia: Creedia Links');
+    $blocks[3]['visibility'] = 0; // show on every page except the listed pages
+    $blocks[3]['pages'] = "";
+   
+    return $blocks;
+  case 'configure':
+    // If $op is "configure", we need to provide the administrator with a
+    // configuration form. The $delta parameter tells us which block is being
+    // configured. In this example, we'll allow the administrator to customize
+    // the text of the first block.
+    $form = array();
+    //       if ($delta == 0) {
+    //         // All we need to provide is a text field, Drupal will take care of
+    //         // the other block configuration options and the save button.
+    //         $form['block_example_string'] = array(
+    //           '#type' => 'textfield',
+    //           '#title' => t('Block contents'),
+    //           '#size' => 60,
+    //           '#description' => t('This string will appear in the example block.'),
+    //           '#default_value' =>
+    //             variable_get('block_example_string',  t('Some example content.')),
+    //         );
+    //      }
+    return $form;
+  case 'save':
+    // If $op is "save", we need to save settings from the configuration form.
+    // Since the first block is the only one that allows configuration, we
+    // need to check $delta to make sure we only save it.
+    //       if ($delta == 0) {
+    //         // Have Drupal save the string to the database.
+    //         variable_set('block_example_string', $edit['block_example_string']);
+    //       }
+    return;
+  case 'view': default:
+    // If $op is "view", then we need to generate the block for display
+    // purposes. The $delta parameter tells us which block is being requested.
+
+    switch ($delta) {
+    case 0:
+      $block['subject'] = t('My Tweets');
+      // theme('imagecache', 'block_title', path_to_theme() .'/images/twitter-member.png', t('My Tweets'));
+      $block['content'] = theme('ctwitter_updates');
+      break;
+    case 1:
+      $block['subject'] = t('Creedia Tweets');
+      // theme('imagecache', 'block_title', path_to_theme() .'/images/twitter-creedia.png', t('Creedia Tweets'));
+      $block['content'] = theme('ctwitter_updates');
+      break;
+    case 2:
+      $block['subject'] = t('Creedia Fans');
+      $block['content'] = theme('ctwitter_facebook');
+      break;
+    case 3:
+      $block['subject'] = '';
+      $block['content'] = theme('ctwitter_links');
+      break;
+    } 
+  }
+  return $block;
+}
+
+function ctwitter_screenname() {
+  static $name;
+  static $checked;
+  if (!$checked) {
+    if (arg(0) == 'user' && is_numeric(arg(1))) {
+      $node = cprofile_get_member(arg(1));
+      if ($node) {
+	$name = $node->field_twitter[0]['value'];
+      }
+    }
+    else if (arg(0) == 'blog') {
+      $name = 'creedia';
+    }
+    else if (arg(0) == 'node' && is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+      if ($node && $node->type == 'blog') {
+	$name = 'creedia';
+      }
+    }
+    $checked = TRUE;
+  }
+  return $name;
+}
+
+/**
+ * Add js to make sure twitter call doesn't hold off the site.
+ */
+
+function ctwitter_add_js($name) {
+  static $load = TRUE;
+  if ($load) {
+    drupal_add_js(drupal_get_path('module', 'ctwitter') .'/ctwitter.js');
+    $settings = array('name' => array());
+    $settings['name'] = $name;
+    drupal_add_js(array('ctwitter' => $settings), 'setting');
+    $load = FALSE;
+  }
+}
+
+/**
+ * Implementation of hook_footer().
+ */
+function ctwitter_footer($main = 0) {
+  if ($name = ctwitter_screenname()) {
+    $output = '<script type="text/javascript" src="http://twitter.com/javascripts/blogger.js"></script>';
+    //    $output .= '<script type="text/javascript" src="http://twitter.com/statuses/user_timeline/';
+    //    $output .= $name;
+    //    $output .= '.json?callback=twitterCallback2&amp;count=5"></script>';
+  }
+
+  ctwitter_add_js($name);
+
+//   if ($name == 'creedia') {  // piggyback on twitter - not so elegant...
+//     $output .= '<script src="http://static.ak.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/en_US" type="text/javascript"></script>';
+//     $output .= '<script type="text/javascript">FB.init("92ab9d752a33311111677ae3c494abd8");</script>';
+//   }
+  return $output;
+}
+
+function theme_ctwitter_updates(){
+  if ($name = ctwitter_screenname()) {
+    $output = '<div id="twitter_div">';
+    $output .= '<ul id="twitter_update_list"></ul>';
+    $image = theme('image', path_to_theme() .'/images/twitter-followme.gif', 
+		   t('follow me on Twitter.'), t('follow me on Twitter.'));
+    $output .= l($image, 'http://twitter.com/'. $name, array('attributes' => array('id' => 'twitter-link'), 'absolute' => TRUE, 'html' => TRUE));
+    $output .= '</div>';
+  }
+  return $output;
+}
+
+function theme_ctwitter_facebook(){
+  $name = ctwitter_screenname();
+  if ($name == 'creedia') {
+//     $output = '<fb:fan profile_id="130634997626" stream="0" connections="10" width="188"></fb:fan>';
+//     $output .= '<div style="font-size:12px; padding-left:10px"><a href="http://www.facebook.com/pages/Creedia/130634997626">Creedia</a> on Facebook</div>';
+
+    $output = '<iframe scrolling="no" frameborder="0" src="http://www.facebook.com/connect/connect.php?id=130634997626&connections=6&stream=0" allowtransparency="true" style="border: none; width: 188px; height: 260px;"></iframe> ';
+//    $output = '<iframe scrolling="no" frameborder="0" src="http://www.facebook.com/connect/connect.php?id=23070720738&connections=6&stream=0" allowtransparency="true" style="border: none; width: 188px; height: 260px;"></iframe> ';
+    $output .= '<div style="font-size:12px; padding-left:10px"><a href="http://www.facebook.com/pages/Creedia/130634997626">Creedia</a> on Facebook</div>';
+
+  }
+  return $output;
+}
+
+function theme_ctwitter_links() {
+
+  $output = '<div class="services">';
+  $output .= theme('ctwitter_link', 'newsletter', 'newsletter/subscriptions', 'Creedia newsletter');
+  $output .= theme('ctwitter_link', 'twitter', 'http://twitter.com/creedia', 'Creedia on Twitter');
+  $output .= theme('ctwitter_link', 'facebook', 'http://www.facebook.com/pages/Creedia/130634997626', 'Creedia on Facebook');
+  $output .= theme('ctwitter_link', 'blog', 'blog', 'The Creedia blog');
+  $output .= theme('ctwitter_link', 'rss', 'rss.xml', 'Creedia news feed');
+  $output .= theme('ctwitter_link', 'help', 'faq', 'Frequently Asked Questions');
+  $output .= theme('ctwitter_link', 'info', 'about', 'About Creedia');
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_ctwitter_link($service, $url, $title) {
+
+  $output .= '<div class="service-link">';
+  $image = theme('image', path_to_theme() .'/images/'. $service .'-icon.png'); 
+  $output .= l($image, $url, array('attributes' => array('title' => $title,
+				   'rel' => 'nofollow', 
+				   'target' => '_blank', 
+				   'class' => 'pngfix'), 'absolute' => TRUE, 'html' => TRUE));
+  $output .= '</div>';
+  return $output;
+}
+
+/*
+ * Theme the Facebook like plugin
+ */
+function theme_ctwitter_fb_like($url = NULL, $teaser = TRUE) {
+
+  $url = url($url, array('absolute' => TRUE)); // absolute URL
+  $width = $teaser ? 100 : 450;
+  $show_faces = $teaser ? 'false' : 'true';
+  $layout = $teaser ? 'button_count' : 'standard';
+  $add_style = $teaser ? 'float:left;padding-left:.5em;margin-top:-2px;' : 'margin-top:1em';
+
+  $output = '<iframe src="http://www.facebook.com/plugins/like.php?';
+  $output .= 'href='. check_plain($url) .'&amp;';
+  $output .= 'layout='. $layout .'&amp;';
+  $output .= 'show_faces='. $show_faces .'&amp;';
+  $output .= 'width='. $width .'&amp;';
+  $output .= 'action=like&amp;locale=en_US&amp;';
+  $output .= 'font=arial&amp;colorscheme=light&amp;height=21" scrolling="no" frameborder="0"';
+  $output .= 'style="border:none; overflow:hidden; width:'. $width .'px; height:21px;';
+  $output .= ' '. $add_style .'"';
+  $output .= 'allowTransparency="true">';
+  $output .= '</iframe>';
+
+  return $output;
+}
+
+/**
+ * Add the FB js init code
+ */
+function ctwitter_fb_init() {
+  static $added = FALSE;
+
+  if (!$added) {
+    drupal_add_js(drupal_get_path('module', 'ctwitter') .'/cfb_init.js', 'module', 'header');
+    $added = TRUE;
+  }
+}
+
+/**
+ * Add the comment social plugin
+ */
+function theme_ctwitter_fb_comments($node) {
+
+  ctwitter_fb_init();
+
+  $xid = $node->nid .'-page';
+  $url = url('node/'. $node->nid, array('absolute' => TRUE));
+  $numposts = 10;
+  $width = 550; // px
+  $title = $node->title;
+  $simple = FALSE;
+  $reverse = FALSE; // order of comments
+  $publish_feed = TRUE; 
+
+  $output = '<fb:comments xid="'. $xid .'" url="'. $url .'"></fb:comments>';
+  return $output;
+}
+
+/**
+ * Add the comment social plugin
+ */
+function theme_ctwitter_fb_like_js($node) {
+
+  ctwitter_fb_init();
+
+  $attrs = array(
+      'href' => url('node/'. $node->nid, array('absolute' => TRUE)), 
+      'layout' => 'standard', // standard, button_count
+      'show_faces' => 'true', // true, false
+      'width' => 350, // px
+      'action' => 'like', // like, recommend
+      'font' => 'arial',
+      'colorscheme' => 'light' // dark, light, evil
+  );
+  
+  $attrs = drupal_attributes($attrs);
+  
+  return '<fb:like ' . $attrs . '/>';
+
+}
+
+/**
+ * Add a facebook share
+ */
+function theme_ctwitter_fb_share($node) {
+
+  ctwitter_fb_init();
+
+  $attrs = array(
+      'href' => url('node/'. $node->nid, array('absolute' => TRUE)), 
+      'type' => 'button_count',
+      'class' => 'url'
+  );
+  $attrs = drupal_attributes($attrs);
+
+  return '<fb:share-button '. $attrs .'></fb:share-button>';
+}

@@ -1,0 +1,1624 @@
+<?php
+// $Id$
+/* TODO Automatically add Drupal.settings.basePath
+   In Drupal 5, you would have to add the base path to Drupal.settings yourself
+   if you needed it (it's needed for just about every AHAH/AJAX enabled module
+   if you did it right). Now in Drupal 6, it's added automatically. You can always
+   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
+   called at least once, so this is similar to the way we automatically add
+   drupal.js and jquery.js. */
+
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO Remove $row argument from db_result() method
+   The $row argument of db_result() was removed from the database abstraction
+   layer in 6.x core, as it was a database dependent option. Developers need to
+   use other handling to replace the needs of this method. */
+
+/* TODO hook_user('view')
+   The return value of hook_user('view') has changed, to match the process that
+   nodes use for rendering. Modules should add their custom HTML to
+   $account->content element. Further, this HTML should be in the form that
+   drupal_render() recognizes. */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function cprofile_theme() {
+  return array(
+    'user_register' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'user_edit' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'cprofile_facet' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'term' => NULL,
+        'content' => NULL,
+        'position' => NULL,
+        'edit' => false,
+      ),
+    ),
+    'cprofile_entry1' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'data' => NULL,
+        'i' => 0,
+        'edit' => false,
+      ),
+    ),
+    'cprofile_howto' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'nid' => NULL,
+      ),
+    ),
+    'cprofile_tool' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'type' => NULL,
+        'i' => NULL,
+        'title' => '',
+      ),
+    ),
+    'cprofile_wrapper' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'title' => NULL,
+        'content' => NULL,
+        'node' => NULL,
+      ),
+    ),
+    'cprofile_title_bar' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'title' => NULL,
+        'node' => NULL,
+      ),
+    ),
+    'cprofile_submit' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'form' => NULL,
+        '&$form_state' => NULL,
+      ),
+    ),
+    'cprofile_menu' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'lid' => NULL,
+      ),
+    ),
+    'cprofile_tab' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'content' => NULL,
+        'lid' => NULL,
+        'slid' => NULL,
+      ),
+    ),
+    'cprofile_empty_tab_message' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'cprofile_membersonly_tab_message' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'cprofile_private_tab_message' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'cprofile_profile_wrapper' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'content' => NULL,
+        'node' => NULL,
+        'lid' => NULL,
+      ),
+    ),
+    'cprofile_entry' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'data' => NULL,
+        'i' => NULL,
+        'interpretations' => NULL,
+      ),
+    ),
+  );
+} */
+
+/* TODO
+   An argument for replacements has been added to format_plural(),
+   escaping and/or theming the values just as done with t().*/
+
+/* TODO You may want to take advantage of new form-specific alter hooks.
+   The hook_form_alter() is complemented by hook_form_$form-id_alter().
+   Optionally, modules can implement form-specific alteration functions rather
+   than a single hook_form_alter() with many conditional switch statements.
+   This is optional, and is most useful for tidying the code of modules that
+   alter many forms to customize a site's operations.
+   The new function names are built using the following format:
+   [your-module-name]_form_[$form_id]_alter. */
+
+/**
+ * @file
+ * Creedia faith profile handler
+ *
+ **
+ * This module builds and maintains the 'my creed' and 'my bridge' member
+ * profiles.
+ *
+ * A single table 'cprofile' is maintained to manage the members order
+ * of the profile creed statements:
+ *
+ * uid:       user id: key
+ * cid:       creed id: key
+ * lid:       list id: 0 for 'my profile' and 1 for 'my bridge'
+ * slid:      sub list id: determined by the members vote.
+ * position:  the order of the creed within the given list and sublist as determined by the member.
+ *
+ * All other profile fields presented are retrieved from the votingapi
+ * tables (members vote) and the node and cck tables (title, original
+ * language title). A 'new' indication is presented to all creed entries
+ * that appear in votingapi and either do not appear in cprofile table
+ * or appear in a different list or sublist.
+ *
+ * Religion setting change...
+ *
+ * hook_user is used to cleanup entries when user is deleted.
+ *
+ **
+ * Javascript:
+ *
+ * Code based on jTree plugin, with the 'Tree' part removed. jquery.ui
+ * is not used (avoid the loading of core, sortable, droppable & sortable
+ * libraries).
+ *
+ * Each creed statement can be dragged to and placed in the right order
+ * of creed statements within the sublist. The save the new ordered list
+ * the user must press the 'save' button. The sublist order is serialized
+ * and sent to the server.
+ *
+ */
+
+if (!defined(CPROFILE_CREEDS_IN_TEASER)) {
+  define("CPROFILE_CREEDS_IN_TEASER", 5);
+}
+if (!defined(OS_OPTION_NONE)) {
+  define("OS_OPTION_NONE", 1000);
+}
+
+/**
+ * get member per user
+ */
+
+function cprofile_get_member($uid) {
+//   $sql = "SELECT nid FROM {node} WHERE type = 'member' AND uid = %d";
+//   $nid = db_result(db_query($sql, $uid));
+//   if (!$nid) {
+//     drupal_set_message(t('No profile found for this user.'), 'error');
+//     return NULL;
+//   }
+//   $node = node_load($nid);
+
+  $node = node_load(array('type' => 'member', 'uid' => $uid));
+  if (!$node) {
+    if (!drupal_set_message()) { // set message only once
+      drupal_set_message(t('No profile found for this user.'), 'error');
+    }
+  }
+  return $node;
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function cprofile_menu() {
+  global $user;
+  $items = array();
+/* TODO
+   Non menu code that was placed in hook_menu under the '!$may_cache' block
+   so that it could be run during initialization, should now be moved to hook_init.
+   Previously we called hook_init twice, once early in the bootstrap process, second
+   just after the bootstrap has finished. The first instance is now called boot
+   instead of init.
+   
+   In Drupal 6, there are now two hooks that can be used by modules to execute code
+   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
+   and runs on each page request, even for cached pages. hook_boot() now only runs
+   for non-cached pages and thus can be used for code that was previously placed in
+   hook_menu() with $may_cache = FALSE:
+   
+   Dynamic menu items under a '!$may_cache' block can often be simplified
+   to remove references to arg(n) and use of '%<function-name>' to check
+   conditions. See http://drupal.org/node/103114.
+   
+   The title and description arguments should not have strings wrapped in t(),
+   because translation of these happen in a later stage in the menu system.
+*/
+  if ($may_cache) {
+  }
+  else {
+    $items['admin/content/creedia/cprofile/attr/reset'] = array(
+		     'title'    => 'Reset Profile Attributes Table',
+		     'description' => 'Reset Profile Attribute Table',
+		     'page callback' => 'cprofile_attr_reset',
+		     'type'     => MENU_CALLBACK,
+		     'access arguments' => array('administer site configuration'),
+		     );
+
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+    }
+    if ($node && in_array($node->type, array('usernode', 'member'))) {
+      // forward usernodes and member nodes to users
+      $destination = 'user/'. $node->uid;
+      drupal_goto($destination, NULL, NULL, 301); 
+    }
+    if (arg(0) == 'user' && is_numeric(arg(1))) {
+      $uid = arg(1);
+      $node = cprofile_get_member($uid);
+      if (!$node) {
+	watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
+	return $items;  // no member profile for this user. This shouldn't happen
+      }
+
+      // process creed ordering
+      $items['user/'. $uid .'/order'] = array(
+		       'page callback' => 'cprofile_order',
+		       'type'     => MENU_CALLBACK,
+		       'access arguments' => array('administer cprofile') || ($user->uid == $uid),
+		       );
+
+      // process creed ordering
+      $items['user/'. $uid .'/attr'] = array(
+		       'page callback' => 'cprofile_attr',
+		       'type'     => MENU_CALLBACK,
+		       'access arguments' => array('administer cprofile') || ($user->uid == $uid),
+		       );
+
+
+      // override node view
+      $items['user/'. $uid ] = array(
+                       'title'    => 'My profile',
+                       'description' => 'My profile.',
+                       'page callback' => 'cprofile_view',
+                       'page arguments' => array('node' => $node),
+                       'access arguments' => array('access content'),
+                       );
+
+      $items['user/'. $uid . '/view'] = array(
+                       'title'    => 'View',
+                       'description' => 'View summary.',
+                       'page callback' => 'cprofile_view',
+                       'page arguments' => array('node' => $node),
+                       'type'     => MENU_DEFAULT_LOCAL_TASK,
+                       'access arguments' => array('access content'),
+                       'weight'   => -10,
+                       );
+
+      $items['user/'. $uid . '/about'] = array(
+                       'title'    => 'About Me',
+                       'description' => 'My spiritual biography and personal details.',
+                       'page callback' => 'cprofile_about',
+                       'page arguments' => array('node' => $node),
+                       'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('access content'),
+                       'weight'   => -9,
+                       );
+
+      $items['user/'. $uid . '/blog'] = array(
+                       'title'    => 'My Blog',
+                       'description' => 'My Blog.',
+                       'page callback' => 'cviews_blog',
+                       'page arguments' => array('uid' => $node->uid),
+                       'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('access content'),
+                       'weight'   => -6,
+                       );
+
+      $items['user/'. $uid . '/guestbook'] = array(
+                       'title'    => 'Comments',
+                       'description' => 'Comment on my profile.',
+                       'page callback' => 'cprofile_guestbook',
+                       'page arguments' => array('node' => $node),
+                       'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('access content'),
+                       'weight'   => -7,
+                       );
+
+      // Order the user/edit tabs. Ideas taken from category_weight module
+      $items['user/'. $uid . '/edit'] = array(
+                       'title'    => 'Edit',
+                       'description' => 'Edit account and personal details.',
+                       'page callback' => 'cprofile_about_edit',
+                       'page arguments' => array('node' => $node),
+                       'access arguments' => array('administer content') || ($user->uid == $uid),
+                       'weight'   => 7,
+                       );
+      $items['user/'. $uid . '/edit/about'] = array(
+                       'title'    => 'About',
+                       'description' => 'Edit personal details and spiritual biography.',
+                       'page callback' => 'cprofile_about_edit',
+                       'page arguments' => array('node' => $node),
+                       'type'     => MENU_DEFAULT_LOCAL_TASK,
+                       'access arguments' => array('edit own member content'),
+                       'weight'   => -7,
+                       );
+
+      $items['user/'. $uid . '/edit/picture'] = array(
+                       'title'    => 'Picture',
+                       'description' => 'Edit picture.',
+                       'page callback' => 'cprofile_picture_edit',
+                       'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('administer content') || ($user->uid == $uid),
+                       'weight'   => -5,
+                       );
+      $items['user/'. $uid . '/edit/preference'] = array(
+                       'title'    => 'Preferences',
+                       'description' => 'Edit preferences.',
+                       'page callback' => 'cprofile_preference_edit',
+                       'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('administer content') || ($user->uid == $uid),
+                       'weight'   => -4,
+                       );
+      $items['user/'. $uid . '/edit/account'] = array(
+                       'title'    => 'Account',
+                       'description' => 'Edit account details.',
+                       'page callback' => 'cprofile_account_edit',
+                       'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('administer content') || ($user->uid == $uid),
+                       'weight'   => -3,
+                       );
+
+     }
+    $items['user/welcome'] = array(
+                       'title'    => 'Welcome',
+                       'description' => 'Welcome Message',
+                       'page callback' => 'cprofile_welcome',
+                       'type'     => MENU_CALLBACK,
+                       'access arguments' => array('access content'),
+                       );
+
+  }
+  return $items;
+}
+
+
+function cprofile_welcome($uid) {
+  //  $user = user_load(array('uid' => $uid));
+  $member = cprofile_get_member($uid);
+  if ($member) {
+    $teaser = TRUE;
+    $page = TRUE;
+    $links = FALSE;
+    $output = node_view($member, $teaser, $page, $links);
+    //    drupal_set_title(t('Welcome @name', array('@name' => $member->field_full_name[0]['value'])));
+  }
+
+//   if (!$user->status) {
+//     $output = '<p>'. 'Thank you '.'<em>'. $member->field_full_name[0]['value'] .'</em>'.' for registering at Creedia!'. '</p>';
+//     $output .= '<p>'. 'Your application for an account is currently pending approval. ';
+//     $output .= 'A confirmation email has been sent to your email address.'. '</p>';
+//   }
+//   else {
+//     $output = '<p>'. 'Welcome '.'<em>'. $member->field_full_name[0]['value'] .'</em>'.' to Creedia!'. '</p>';
+//     $output .= '<p>'. 'Your Creedia account is open. ';
+//     $output .= 'Thank you for being part of '.'<em>'.'The World\'s Creed as People See It.'.'</em>'.'</p>';
+    
+//   }
+
+  return $output;
+}
+
+/**
+ * Picture edit tab 
+ */
+function cprofile_picture_edit() {
+  // the theme function for user edit prints only the picture part of the form
+  return drupal_get_form('user_edit', 'account', 'picture');
+}
+
+/**
+ * Account edit tab 
+ */
+function cprofile_account_edit() {
+  // the theme function for user edit prints only the account part of the form
+  return drupal_get_form('user_edit', 'account', 'account');
+}
+
+/**
+ * Preference edit tab 
+ */
+function cprofile_preference_edit() {
+  // the theme function for user edit prints only the preference part of the form
+  return drupal_get_form('user_edit', 'account', 'preference');
+}
+
+/**
+ * Theme the user registration form
+ */
+function theme_user_register($form) {
+
+  // modify member form
+  if (isset($form['member'])) {
+    // remove unneeded collapsible title
+    $form['member']['#collapsible'] = FALSE;
+    $form['member']['#title'] = '';
+
+    // change the look and feel from a fieldset to a 'required' attribute
+    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#collapsible'] = FALSE;
+    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#required'] = TRUE;
+    // move the fieldset title to the file field title and move the file title to the file description
+    $pdescription = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#description'];
+    $ftitle = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#title'];
+    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#title'] = '';
+    $fdescription = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#description'];
+    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#description'] = '';
+    $ptitle = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#title'];
+    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#title'] = $ftitle;
+    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#description'] =  $ptitle . '. ' . $fdescription . $pdescription;
+
+    // remove fields
+    unset($form['member']['form']['#form']['group_personal_information_0']['field_birth_date']);
+    unset($form['member']['form']['#form']['group_personal_information_0']['field_home_page']);
+    unset($form['member']['form']['#form']['group_personal_information_0']['field_community_page']);
+    unset($form['member']['form']['#form']['group_personal_information_0']['field_twitter']);
+    unset($form['member']['form']['#form']['group_profile_properties']);
+
+    // modify spiritual biography for registeration purposes
+
+    // I couldn't find how to force the description field to appear between the textarea and the title, 
+    // so eventually I added another form element body_title, placed it before the textarea and cleared the 
+    // original title
+    $weight = $form['member']['form']['#form']['body_filter']['#weight'];
+    $form['member']['form']['#form']['body_filter']['body']['#title'] = '';
+
+    $form['member']['form']['#form']['body_title']['#type'] = 'item';
+    $form['member']['form']['#form']['body_title']['#title'] = t('More details');
+    $form['member']['form']['#form']['body_title']['#description'] = t('Add any relevant information. The more the merrier. Indicate what you expect from the Creedia experience. The text entered will be used as draft for your Spiritual Biography. You can edit this field once you log in to Creedia.');
+    $form['member']['form']['#form']['body_title']['#weight'] = $weight ? $weight/10 : -30;
+    
+  }
+
+  // pimp acount information and picture
+  $form['account']['#collapsible'] = TRUE;
+  if (isset($form['picture'])) {
+    $form['picture']['#collapsible'] = TRUE;
+    // The #required attribute is set here during the theming phase to generate the look-and-feel of
+    // a mandatory field, without using the default form checking. The usual form checking fails 
+    // on file upload fields. A special validation function is added to the form instead to test
+    // this field is filled by the user.
+    $form['picture']['picture_upload_register']['#required'] = TRUE;
+  }
+
+  // In order to debug the registration process hack user.module to allow access to registration process
+  // for logged in users. And don't forget to clear cache...
+
+  //  firep($form, 'user_register');
+
+  // render the personal details first to avoid confusion between full name and username.
+  $output = drupal_render($form['user_registration_help']);
+  $output .= drupal_render($form['member']['form']['#form']['group_personal_information_0']);
+  $output .= drupal_render($form);
+  return $output;
+}
+
+/**
+ * Implementation of hook_form_alter
+ *
+ * Patch imagecache_profiles to work with reg_with_pic module. During registration, call imagecache_profile
+ * user_edit form alter to add its validation and submission functions.
+ */
+function cprofile_form_alter(&$form, &$form_state, $form_id) {
+   if ($form_id == 'user_edit') {
+     // redirect the user to its member edit form. During initial registeration user is redirected to
+     // add his/her password. Once done, the user will be redireted to edit/add details beyond those
+     // entered in registeration.
+     // Once user completes those parameters he/she will be redirectred to the user/about page - code
+     // in form alter in creedia.module.
+//     $form['#redirect'] = 'user/'. $form['_account']['#value']->uid .'/edit';
+   }
+//   if ($form_id == 'user_register') {
+//     if (module_exists('imagecache_profiles') && module_exists('reg_with_pic')) {
+//       $form['#validate']['cprofile_user_register_validate'] = array();
+//     }
+//   }
+}
+
+/**
+ * Validate picture in user registration.
+ */
+function cprofile_user_register_validate($form, &$form_state) {
+  //  dpr($_FILES);
+  //  dpr($form_state['values']);
+
+  // combine the imagecache_profiles added validation copied here and check that a picture
+  // has been uploaded.
+  // I can not use the imagecache_profiles validation function directly as it uses a different 
+  // form field (without hacking reg_with_pic).
+
+  // Add a minimum size requirement to the image upload form
+/* TODO Modify the validators array to suit your needs.
+   This array is used in the revised file_save_upload */
+  $validators = array(
+    'file_validate_is_image' => array(),
+    'file_validate_image_resolution' => array('85x85')),
+    'file_validate_size' => array(30 * 1024),
+  );
+
+//   if ($info = file_save_upload(file_check_upload, $validators) {
+//     // need to get image info from the file and not from the form
+//     // $image_info = image_get_info($form_state['values']['picture']);
+//     $image_info = image_get_info($info->filepath);
+//     if ($image_info['width'] < variable_get('user_picture_imagecache_profiles_min_width', 0) || $image_info['height'] < variable_get('user_picture_imagecache_profiles_min_height', 0)) {
+//       form_set_error('picture_upload_register',t('The image must be at least @min_user_picture_width pixels wide and @min_user_picture_height pixels tall (your image was @width x @height pixels).',array('@min_user_picture_width' => check_plain(variable_get('user_picture_imagecache_profiles_min_width', 0)), '@min_user_picture_height' => check_plain(variable_get('user_picture_imagecache_profiles_min_height', 0)), '@width' => $image_info['width'], '@height' => $image_info['height'])));
+//     }
+//   }
+//   else {
+//     // check that the a file is entered. 
+//     form_set_error('picture_upload_register',t('User picture is required.'));
+//   }
+}
+
+/**
+ * Theme the user edit form per calling function parameter
+ */ 
+function theme_user_edit($form) {
+
+//   foreach ($form as $key => $element) {
+//     firep($key, 'key');
+//     firep($element, 'element');
+//   }
+
+  // get theme instructions
+  $type = $form['#parameters'][2];
+  switch ($type) {
+  case 'picture':
+    foreach ($form as $key => $element) {
+      if (in_array($key, array('content_images', 'theme_select', 'block', 'cprofile_settings',
+			       'comment_settings', 'usercomment_settings', 'contact', 
+			       'timezone', 'delete', 'revalidate', 'legal', 'mimemail'))) {
+	unset($form[$key]);
+      }
+    }
+    $form['picture']['#collapsible'] = TRUE;
+    // update only, no delete
+    unset($form['picture']['picture_delete']);
+    // hide mail information. If mail is removed form validation breaks
+    $form['account']['mail']['#type'] = 'hidden';
+    $form['account']['name']['#type'] = 'hidden';
+    unset($form['account']['#title']);
+    unset($form['account']['pass']);
+    unset($form['account']['status']);
+    unset($form['account']['roles']);
+    //    unset($form['#validate']['user_edit_validate']);
+    break;
+  case 'account':
+    foreach ($form as $key => $element) {
+      if (in_array($key, array('picture', 'content_images', 'theme_select', 'block', 
+			       'comment_settings', 'usercomment_settings', 'contact', 
+			       'timezone', 'cprofile_settings', 'mimemail'))) {
+	unset($form[$key]);
+      }
+    }
+    $form['account']['#collapsible'] = TRUE;
+    break;
+  case 'preference':
+    foreach ($form as $key => $element) {
+      if (in_array($key, array('picture', 'content_images', 'theme_select', 'delete', 'revalidate', 'legal'))) {
+	unset($form[$key]);
+      }
+    }
+    // hide mail information. If mail is removed form validation breaks
+    $form['account']['mail']['#type'] = 'hidden';
+    $form['account']['name']['#type'] = 'hidden';
+    unset($form['account']['#title']);
+    unset($form['account']['pass']);
+    unset($form['account']['status']);
+    unset($form['account']['roles']);
+    //    unset($form['#validate']['logintoboggan_user_edit_validate']);
+    break;
+  default:
+    break;
+  }
+  
+  // firep($form, 'user_edit');
+
+  $output = drupal_render($form);
+  return $output;
+}
+
+
+/**
+ * Implementation of hook_user
+ * 
+ * - Delete the profile fields when user is deleted
+ * - Handle picture upload during registeration via imagefield module
+ */
+function cprofile_user($op, &$edit, &$user, $category = NULL) {
+
+  switch ($op) {
+  case 'delete':
+    db_query("DELETE FROM {cprofile} WHERE uid=%d", $user->uid);
+    break;
+  case 'login':
+    $node = cprofile_get_member($user->uid);
+    if (module_exists('usercomment')) {
+      if ($num = usercomment_count_unapproved($node->nid)) {
+	$message .= format_plural($num,'You have 1 message waiting for you approval', 
+				  '@count messages are waiting for your approval.');
+	drupal_set_message($message);
+      }
+    }
+    break;
+  case 'register':
+    break;
+  case 'insert':
+    // copy picture to the proper directory now that we have the userid.
+    // imagefield has already copied the file from $_FILES which now 
+    // no longer hold the uploaded file information. So, we need to 
+    // get the info from the node
+    $node = cprofile_get_member($user->uid);
+    $filepath = $node->field_reg_picture[0]['filepath'];
+    $info = image_get_info($filepath);
+
+    if ($file = file_copy($filepath,   // it might be better to use file_move and not keep two copies...
+			  variable_get('user_picture_path', 'pictures') .'/picture-'. $user->uid .'.'. $info['extension'],
+			  FILE_EXISTS_ERROR)) {
+      db_query("UPDATE {users} SET picture='%s' WHERE uid=%d", $filepath, $user->uid);
+    }
+    else {
+      watchdog('creedia', 'Cprofile: failed to set user picture during registration', WATCHDOG_ERROR);
+    }
+
+    // Add default terms to member
+    // Pick the first 3 terms defined for the Ways vocabulary
+    $sql = "SELECT vid FROM {vocabulary} WHERE name = '%s'";
+    $vid = db_result(db_query($sql, 'Ways'));
+    if ($vid) {
+      $sql = "SELECT tid FROM {term_data} WHERE vid = %d ORDER BY weight, tid ASC LIMIT 0, 3";
+      $result = db_query($sql, $vid);
+      while ($data = db_fetch_object($result)) {
+	$sql = "INSERT INTO {term_node} (nid, tid) VALUES (%d, %d)";
+	db_query($sql, $node->nid, $data->tid);
+      }
+    }
+    break;
+  case 'form':
+//       if ($category == "account") {
+//         $form['cprofile_settings'] = array(
+// 	  '#type' => 'fieldset',
+//           '#title' => t('Profile settings'),
+//           '#weight' => 5,
+//           '#collapsible' => 1,
+//         );
+//         $form['cprofile_settings']['cprofile_profile_sharing'] = array(
+//           '#type' => 'select',
+//           '#title' => t('Profile sharing'),
+// 	  '#options' => array(
+// 			      'everyone' => t('Everyone'),
+// 			      'members' => t('Members'),
+// 			      'private' => t('Private'),
+// 			      ),
+//           '#default_value' => isset($edit['cprofile_profile_sharing']) ? $edit['cprofile_profile_sharing'] : 0,
+// 	  '#description' => t('Select who you share your belief profile with.'),
+//         );
+//       }
+      return $form;
+      break;
+
+
+  }
+}
+
+function cprofile_add_js($order, $uid) {
+  static $js_added = FALSE;
+
+  // Add necessary javascript only once per page.
+  if (!$js_added) {
+
+    drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/cprofile.js');
+
+    $settings = array(
+		      //                      'path' => "/cprofile/order",
+		      //                      'path' => url('user/'. $uid . '/order'),
+                      'basepath' => '/user/'. $uid .'/',
+                      'order' => $order,
+                      'orderErrorMessage' => t('Failed to save creed order. No response from server.'),
+                      'attrErrorMessage' => t('Failed to save creed attribute. No response from server.'),
+                      );
+
+    drupal_add_js(array('cprofile' => $settings), 'setting');
+
+    // Add jQuery UI core + sortable
+    drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/jquery-ui-1.6.custom.min.js');
+
+    // Add hover Intent 
+    drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/jquery.hoverIntent.minified.js');
+
+    // jQuery UI core + tabs widget
+    //    drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/jquery-ui-personalized-1.6rc4.js');
+    // Associated CSS
+    //    drupal_add_css(drupal_get_path('module', 'cprofile') .'/tabs.css');
+
+    $js_added = TRUE;
+  }
+}
+
+/**
+ * Profile Facet View
+ *
+ * @Params
+ * $uid - user id
+ * $fid - adopt flag id
+ * $tid - facet id
+ * $num - facet number
+ * $edit - true if user has permission to edit profile
+ * 
+ */
+function cprofile_facet($uid, $fid, $term, $num, $edit){
+  $tid = $term->tid;
+  //
+  //   Get all creed statements adopted by the member
+  //
+  //   wtid  wcnt  wpos   cid   cpos  timestamp  data 
+  //
+  $sql  = "SELECT n.nid, p.position AS cpos, p.wtid, t.position AS wpos, ";
+  $sql .= "f.timestamp, ";
+  $sql .= "n.title, c.field_origin_statement_value, c.delta AS statement_num, ";
+  //  $sql .= "l.field_origin_statement_lang_value, COUNT(c.delta) AS num_statements, ";
+  $sql .= "l.field_origin_statement_lang_value, ";
+  $sql .= "a.terms, a.statement ";
+  $sql .= "FROM {node} n ";
+  $sql .= "LEFT JOIN {flag_content} f ";
+  $sql .= "ON n.nid = f.content_id AND f.uid = %d AND f.fid = %d ";
+  $sql .= "LEFT JOIN {content_field_origin_statement} c ";  // cck multiple value field instance
+  $sql .= "ON c.nid = n.nid AND c.vid = n.vid ";            // of the published version
+  $sql .= "LEFT JOIN {content_field_origin_statement_lang} l ";
+  $sql .= "ON l.nid = n.nid AND l.vid = n.vid AND c.delta = l.delta ";
+  $sql .= "LEFT JOIN {cprofile_ways} p ";
+  $sql .= "ON p.cid = n.nid AND p.uid = f.uid ";
+  $sql .= "LEFT JOIN {cprofile_facets} t ";
+  $sql .= "ON p.wtid = t.wtid AND t.uid = f.uid ";
+  $sql .= "LEFT JOIN {cprofile_attr} a ";
+  $sql .= "ON a.cid = n.nid AND a.uid = f.uid ";
+  $sql .= "WHERE n.type = 'creed' AND n.status = 1 ";  // published creed nodes
+  $sql .= "AND f.uid IS NOT NULL ";
+  $sql .= $tid ? "AND p.wtid = %d " : "AND p.wtid IS NULL ";
+  //  $sql .= "GROUP BY n.nid ";
+  $sql .= $tid ? "ORDER BY t.position ASC, p.position ASC, f.timestamp DESC, c.delta DESC " : 
+    "ORDER BY f.timestamp DESC, c.delta DESC "; // Delta DESC is used below to run over statments 
+
+  $result = db_query(db_rewrite_sql($sql), $uid, $fid, $term->tid);
+  $i = 0;
+  while ($data = db_fetch_object($result)) {
+    //firep($data, 'data on cprofile_facet ');
+    // Gather all origin statements into one entry
+    if ($data->field_origin_statement_value) {
+      $statements[$data->statement_num]['value'] = $data->field_origin_statement_value;
+      $langs[$data->statement_num]['value'] = $data->field_origin_statement_lang_value;
+      if ($data->statement_num != 0) {
+	// Statements are ordered DESC by statement number,
+	// therefore statement number 0 is the last one
+	continue;
+      }
+      else {
+	$data->field_origin_statement_value = $statements;
+	$data->field_origin_statement_lang_value = $langs;
+	$statements = array();
+	$langs = array();
+      }
+    }
+    $content .= theme('cprofile_entry1', $data, $i, $edit);
+    $i += 1;
+  }
+
+  $output .= theme('cprofile_facet', $term, $content, $num, $edit);
+
+  return $output;
+}
+
+/**
+ * Provide a summary of the members profile
+ *
+ * @Params
+ * $node: The member node this profile belongs to.
+ */
+function cprofile_view($node) {
+
+  global $user;
+
+  $teaser = TRUE;  // teaser only
+  $page = TRUE;    // whole page
+  $links = FALSE;
+
+  $view = node_view($node, $teaser, $page, $links);
+
+  $edit = user_access('administer cprofile') || ($user->uid == $node->uid);
+  cprofile_add_js($edit, $node->uid);
+
+  $sharing = $node->field_profile_sharing[0]['value'];
+
+  // Present a profile help message, until closed
+  if ($edit) {
+    $flag = flag_get_flag('profile_howto');
+    if ($flag && !$flag->is_flagged($node->nid)) {
+      $howto = theme('cprofile_howto', $node->nid);
+    }
+  }
+
+  if ($sharing == 1 && $user->uid == 0) {
+    // members only
+    $output .= theme('cprofile_membersonly_tab_message');
+  }
+  else if ($sharing == 255 && $user->uid != $node->uid) {
+    // private profile
+    $output .= theme('cprofile_private_tab_message');
+  }
+  else {
+    // show profile
+
+    // Get facet vocabulary id
+    $sql = "SELECT vid FROM {vocabulary} WHERE name = '%s'";
+    $vid = db_result(db_query($sql, 'Ways'));
+
+    // Get all facets chosen by user, ordered by position
+    $sql  = "SELECT t.tid, t.*, f.position ";
+    $sql .= "FROM {term_data} t ";
+    $sql .= "INNER JOIN {term_node} r ";
+    $sql .= "ON r.tid = t.tid ";
+    $sql .= "LEFT JOIN {cprofile_facets} f ";
+    $sql .= "ON f.wtid = t.tid ";
+    $sql .= "AND f.uid = %d ";
+    $sql .= "WHERE t.vid = %d AND r.nid = %d ";
+    $sql .= "ORDER BY f.position ASC, t.weight, t.tid ";
+
+    // db_rewrite_sql doesn't work as OG tries to add conditions and fails
+    // as it assumes the node table is queried
+    //  $result = db_query(db_rewrite_sql($sql, $vid, $node->nid, $node->uid));
+    $result = db_query($sql, $node->uid, $vid, $node->nid);
+
+    // Get flag fid
+    $flag = flag_get_flag('adopt');
+
+    //   Get all creed statements adopted by the member
+    $j = 0; // facet number
+    while ($data = db_fetch_object($result)) {
+      $output .= cprofile_facet($node->uid, $flag->fid, $data, $j, $edit);
+      $j += 1;
+    }
+    //   All creed statement which do not have a way facet are printed last
+    $output .= cprofile_facet($node->uid, $flag->fid, 0, 255, $edit);
+
+  }
+
+  // Print Profile
+  $title = $node->field_profile_title[0]['view'];
+  $title = $title ? $title : t('My Way');
+
+  $output = theme('cprofile_wrapper', $title, $output, $node);
+
+  return $view . $howto . $output;
+}
+
+/**
+ * Form creating the hidden select elements used in ajax religion attribute settings
+ *
+ * A different form is created per each creed, the same form function is used
+ * with parameters.
+ *
+ * @Params
+ * $terms - array of terms
+ * $en_terms - array of the enabled term ids
+ */
+function cprofile_attr_terms_form(&$form_state, $nid, $terms, $en_terms){
+
+  // options array values and indices are the tids
+  // defaults array values are the indices of the selected (enabled) terms
+  // array_intersect returns the first array index, value pairs                  
+  $options = array_keys($terms);
+  $options = array_combine($options, $options);
+  $defaults = array_values(array_intersect($options, $en_terms));
+  // make sure that one entry is always selected, otherwise when all religions are
+  // deselcted, nothing will be sent and the server will not have the cid info 
+  $options[0] = 0; 
+  array_push($defaults, 0);
+
+  $form['religion'][$nid] = array('#type' => 'select',
+				  '#multiple' => TRUE,
+				  '#options' => $options,
+				  '#default_value' => $defaults,
+				  '#attributes' => array('class' => 'select-init'),
+				  );
+
+  // Do not collapse form. Ensure the IDs of the forms differ
+  $form['religion']['#tree'] = TRUE;
+
+  return $form;
+}
+/**
+ * Form creating the hidden select elements used in ajax origin statement attribute settings
+ *
+ * A different form is created per each creed, the same form function is used
+ * with parameters.
+ *
+ * @Params
+ * $statements - a node with origin statement array (lang & value)
+ * $en_statement - selected statement number
+ */
+function cprofile_attr_os_form(&$form_state, $nid, $node, $en_statement){
+
+  $options = array(OS_OPTION_NONE => 'None');
+  if (is_array($node->field_origin_statement)){
+    foreach ($node->field_origin_statement AS $i => $v) {
+      $options[$i] = truncate_utf8($v['value'], 96, TRUE, TRUE);
+    }
+  }
+
+  $form['os'][$nid] = array('#type' => 'select',
+			    '#multiple' => FALSE,
+			    '#options' => array_reverse($options, TRUE),
+			    '#default_value' => $en_statement, 
+			    '#attributes' => array('class' => 'os-select fancy-select'),
+			    );
+
+  // Do not collapse form. Ensure the IDs of the forms differ
+  $form['os']['#tree'] = TRUE;
+
+  return $form;
+}
+
+/**
+ * Implementation of hook_forms
+ * 
+ * Make multiple forms on a page (for ajax) using a single function
+ * Per: http://www.gtrlabs.org/node/185
+ */
+function cprofile_forms($form_id, $args) {
+/* TODO Your function did not have $args in its signature.
+   Any $args[n] values have been converted to $args[n].
+   You may need to reduce these indices by one. */
+  // Get the form id
+  $args = func_get_args();
+  $form_id = $form_id;
+
+  // Indicate a single function to prepare form
+  $forms = array();
+  if (strpos($form_id, 'cprofile_attr_terms_form') === 0) {
+    $forms[$form_id] = array('callback' => 'cprofile_attr_terms_form');
+  }
+  else if (strpos($form_id, 'cprofile_attr_os_form') === 0) {
+    $forms[$form_id] = array('callback' => 'cprofile_attr_os_form');
+  }
+  
+  return $forms;
+}
+
+function theme_cprofile_facet($term, $content, $position, $edit = false) {
+  $tid = $term ? $term->tid : 0;
+  $position == 255 ? 
+    $output = '<li id ="facet-'. $tid .'" class="cprofile-facet fixed">':
+    $output = '<li id ="facet-'. $tid .'" class="cprofile-facet">';
+
+  // title bar start
+  $output .= '<div class="cprofile-facet-title-bar">';
+
+  // tools
+  $output .= '<div class="cprofile-tools">';
+  $output .= theme('cprofile_tool', 'collapse', $position, t('Collapse'));
+  $output .= theme('cprofile_tool', 'expand', $position, t('Expand'));
+  //  $output .= theme('cprofile_tool', 'more', $position, t('More'));
+  //  $output .= theme('cprofile_tool', 'less', $position, t('Less'));
+  if ($edit) {
+    if ($position != 255) {
+      $output .= theme('cprofile_tool', 'up', $position, t('Move up'));
+      $output .= theme('cprofile_tool', 'down', $position, t('Move down'));
+      //      $output .= theme('cprofile_tool', 'delete', $position, t('Delete'));
+    }
+    $output .= theme('cprofile_tool', 'save', $position, t('Save'));
+    $output .= theme('cprofile_tool', 'throbber', $position);
+  }
+  $output .= '</div>';
+
+  // title
+  $output .= '<div class="cprofile-facet-title">';
+  $name = $term ? $term->name : t('Uncategorized');
+  // taken from menu_css_names module
+  $name_css = 'facet-'. drupal_strtolower(preg_replace('/(\s?&amp;\s?|[^-_\w\d])/i', '-', strip_tags($name)));
+  $output .= '<h4><a href="#'. $name_css .'">'. $name .'</a></h4>'; 
+  $output .= '<a name="'. $name_css .'"></a>';
+  $output .= '</div>';
+
+  // serialize input: always include the facet even if empty
+  $output .= '<input type="hidden" name="'. $position .'" value="0"/>';
+
+  // title bar end
+  $output .= '</div>';
+
+  // List of creed panels
+  // Using div (and not ul/li) as Safari has problem with jQuery slideUp/SlideDown
+  $output .= '<div id ="creed-list-'. $tid .'" class="cprofile-creed-list">';
+  $output .= $content;
+
+  // serialize input to ensure the profile facet is always sent
+  //  $output .= '<li class="creed-panel"  style="display:none; border:none;height:0px;">';
+  //  $output .= '<input type="hidden" name="'. $position .'" value="0"/>';
+  //  $output .= '</li>';
+
+  $output .= '</div>';
+
+  $output .= '</li>';
+  return $output;
+}
+
+/**
+ * Theme a cprofile entry
+ */
+function theme_cprofile_entry1($data, $i = 0, $edit = false) {
+  $node = new stdClass();
+  $node->field_origin_statement = array();
+  $node->field_origin_statement_lang = array();
+  if ($data->field_origin_statement_value) {
+    $node->field_origin_statement = $data->field_origin_statement_value;
+    $node->field_origin_statement_lang = $data->field_origin_statement_lang_value;
+  }
+  $religion = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_RELIGION_VID);
+  $beliefset = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_BELIEFSET_VID);
+  //  $new = !isset($data->position);
+
+  $vars = array();
+  $vars['data'] = $data;
+  $vars['statement'] = $edit ? theme('origin_statement', $node, FALSE, FALSE, $data->statement, TRUE) :
+    theme('origin_statement', $node, TRUE, FALSE, $data->statement, FALSE);
+  $vars['i'] = $i;
+  $vars['node'] = $node;
+  $vars['religion'] = $religion;
+  $vars['en_religion'] = $data->terms ? unserialize($data->terms): array();
+  $vars['beliefset'] = $beliefset;
+  $vars['new'] = $new;
+  $vars['adopt'] = flag_create_link('adopt', $data->nid); 
+  $vars['close'] = theme('image', path_to_theme() .'/images/close.png', '', t('Close footer'));
+  // hidden select for ajax purposes
+  if ($edit) {
+    $vars['form_terms'] = 
+      drupal_get_form('cprofile_attr_terms_form_'. $data->nid, $data->nid, $religion, $vars['en_religion']);
+    $vars['form_os'] = drupal_get_form('cprofile_attr_os_form_'. $data->nid, $data->nid, $node, $data->statement);
+  }
+  return  _phptemplate_callback('cprofile-entry1', $vars);
+}
+
+
+/**
+ * Theme cprofile howto message
+ */
+function theme_cprofile_howto($nid) {
+  $output  = '<div id = "cprofile-howto">';
+  $output .= '<div id = "cprofile-howto-flag-wrapper">';
+  $output .= flag_create_link('profile_howto', $nid); 
+  $output .= '</div>';
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_cprofile_tool($type, $i, $title = '') {
+  //  $output = '<input class="tool tool-'. $type .'" id="tool-'. $type .'-'. $i .'" type="image" title="'. $title .'" ';
+  //  $output .= 'src="'. base_path() . path_to_theme() .'/images/tool-'. $type .'.gif" alt="" ';
+  //  $output .= 'value="'. $type .'" name ="'. $type .'"></input>';
+  $output = '<div class="tool tool-'. $type .'" id="tool-'. $type .'-'. $i .'" title="'. $title .'">';
+  $output .= '<img src="'. base_path() . path_to_theme() .'/images/tool-'. $type .'.gif" alt="" /> ';
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_cprofile_wrapper($title, $content, $node) {
+  $output = '<div id="cprofile">';
+  $output .= theme('cprofile_title_bar', $title, $node);
+  $output .= '<ul id="cprofile-facet-list">';
+  $output .= $content;
+  $output .= '</ul>';
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Spiritual Biography and personal details
+ */
+function cprofile_about($node, $teaser = FALSE) {
+
+  $teaser = FALSE;  // all fields and full spiritual biography
+  $page = TRUE;     // whole page
+  $links = TRUE;
+
+  $output = node_view($node, $teaser, $page, $links);
+
+  return $output;
+}
+
+/**
+ * Edit form for the about details
+ */
+function cprofile_about_edit($node) {
+
+  if (!$node) {
+    return node_add('member');
+  }
+  else {
+    return node_page_edit($node);
+  }
+}
+
+/**
+ * Profile edit tab 
+ */
+function cprofile_profile_edit() {
+  
+}
+
+
+/**
+ * Guest Book (comments)
+ */
+function cprofile_guestbook($node) {
+  global $user;
+  $account = user_load(array('uid' => $node->uid));
+
+  $output = '<h6><p>';
+  $output .= t('View members comments and leave one of your own using the form below. ');
+  if ($account->skip_approval_field != 1) {
+    $output .= t('Submitted comments will be posted once approved by the user. ');
+  }
+  if ($account->contact) {
+    $output .= t('Use the contact form for private communication. ');
+  }
+  if ($user->uid == $node->uid) {
+    $output .= t('The comments settings are available in the usercomment section of the edit preference tab. ');
+    if ($num = usercomment_count_unapproved($node->nid)) {
+      $output .= '<em>'. format_plural($num,'You have 1 comment waiting for your approval', '@count comments are waiting for your approval.') . '</em>';
+    }
+  }
+  $output .= '</p></h6>';
+
+  $output .= usercomment_approval_form($node); 
+  // add wrapper here
+  $output .= '<div id="comments">';
+  $output .= comment_render($node);
+  $output .= '</div>';
+  $output .= drupal_get_form('comment_form', array('nid'=>$node->nid)); 
+
+  return $output;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function cprofile_perm() {
+  return array('administer cprofile');
+}
+
+function theme_cprofile_title_bar($title, $node) {
+  /* FUNCTION IS OVERRIDEN IN PHPTEMPLATE..*/
+  return '';
+}
+
+function theme_cprofile_submit($form, &$form_state) {
+  $output  = '<div id="cprofile-bar-wrapper">';
+  $output  .= '<div id="cprofile-bar">';
+  // theme buttons first as they are right align. This ease the CSS process.
+  if ($order) {
+    $output .= '<div id="cprofile-submit" class="jsonly" title="'. t('Save ordered creed entries.') .'">'. t('Submit') .'</div>';
+  }
+  if ($show) {
+    $output .= '<div id="cprofile-hide" class="jsonly">';
+    $output .= '<span id="cprofile-hide-show" title="'. t('Show adopted interpretations'). '">'. t('Show') .'</span>';
+    $output .= '<span id="cprofile-hide-hide" style="display: none" title="'. t('Hide adopted interpretations.'). '">'. t('Hide') .'</span>';
+    $output .= '</div>';
+  }
+
+  if ($show) {
+    $tip = t('Show or hide adopted interpretations. ');
+  }
+  if ($order) {
+    $tip .= t('Order creed statements using drag and drop. Point at the title of the statement you wish to move and drag it until the mouse points to the title of the target statement and drop. Press submit to save order. ');
+  }
+  $output .= '<span class="jsonly tip">'. $tip .'</span>';
+  if ($order) {
+    $output .= '<span class="jsdisabled tip">'. t('Enable Javascript to order profile entries. ') .'</span>';
+  }
+  $output .= '</div>';
+  $output .= '</div>';
+  $form_state['redirect'] = $output;
+}
+
+function theme_cprofile_menu($lid) {
+  $title = array('negative', 'positive', 'strong', 'core');
+  $num = array(4, 2);
+  $id = array('creed', 'bridge');
+  $path = $_GET['q']; // current path
+
+  $output = "<ul id=\"$id[$lid]-menu\">";
+  //  ronc: Remove support of negative rating
+  //  for ($slid = 0; $slid < $num[$lid]; $slid++) {
+  for ($slid = 1; $slid < $num[$lid]; $slid++) {
+    $image = theme('image', path_to_theme() .'/images/cvote-'. $title[$slid] .'.gif', '', $title[$slid]);
+    $output .= '<li>'. l($image . ' '. $title[$slid], $path, array('fragment' => 
+                         'fragment-'. $lid ."-". $slid, 'html' => TRUE)) .'</li>';
+  }
+  $output .= '</ul>';
+
+  return $output;
+}
+
+function theme_cprofile_tab($content, $lid, $slid) {
+  $itemid = $slid + $lid * ($slid + 4);
+  $output .= '<div id="fragment-'. $lid ."-". $slid .'">';
+  $output .= '<ul id="lid-'. $itemid .'">';
+  $output .= $content;
+  $output .= "</ul>";
+  $output .= "</div >";
+  return $output;
+}
+
+function theme_cprofile_empty_tab_message() {
+  $output = "<li><p>";
+  $output .=  t("No creed statement selected for this category.");
+  $output .= "</p></li>";
+  return $output;
+}
+
+function theme_cprofile_membersonly_tab_message() {
+  $output = "<li><p>";
+  $output .=  t("The profile is available for Creedia members only.");
+  $output .= "</p></li>";
+  return $output;
+}
+
+function theme_cprofile_private_tab_message() {
+  $output = "<li><p>";
+  $output .=  t("The profile is kept private.");
+  $output .= "</p></li>";
+  return $output;
+}
+
+function theme_cprofile_profile_wrapper($content, $node, $lid) {
+  $path = 'user/'. $node->uid;
+  $path .= $lid ? '/profile/bridge' : '/profile/creed';
+  $output = '<div class="cprofile-wrapper">';
+  $output .= $content;
+  $output .= '<div class="morelink">';
+  $output.= /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l('More', $path , array('title' => t('View the complete profile')));
+  $output .= '</div>';
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Theme a cprofile entry
+ * FUNCTION IS OVERRIDEN IN PHPTEMPLATE..
+ */
+function theme_cprofile_entry($data, $i, $interpretations) {
+}
+
+ 
+/**
+ * Delete the attribute columns
+ * @Params
+ * $uid - user id. If not present, all table is deleted
+ * $cid - creed nid. Relevant only if uid is not zero
+ *        if non zero only the specific entry will be deleted.
+ */
+function cprofile_attr_delete($uid = 0, $cid = 0){
+
+  $sql = "DELETE FROM {cprofile_attr} ";
+  $sql .= $uid ? "WHERE uid = %d " . ($cid ? "AND cid = %d" : "") : "";
+  db_query($sql, $uid, $cid);
+}
+
+/**
+ * Set Attribute
+ * @Params
+ * $uid - user id. 
+ * $cid - creed nid. 
+ */
+function cprofile_attr_set($uid, $cid, $tids, $num){
+
+  $sql  = "INSERT INTO {cprofile_attr} (uid, cid, terms) ";
+  $sql .= "VALUES (%d, %d, '%s')";
+  $tids = serialize($tids);
+  db_query($sql, $uid, $cid, $tids);
+}
+
+/**
+ * Resets the Table and reenter default values
+ *
+ * NOT SCALABLE FOR LARGE NUMBER OF USERS
+ * USE CRON INSTEAD
+ */
+function cprofile_attr_reset($uid = 0){
+
+  // First erase relevant columns
+  cprofile_attr_delete($uid);
+
+  $flag = flag_get_flag('adopt');
+
+  $sql  = "SELECT n.nid, f.uid ";
+  $sql .= "FROM {node} n ";
+  $sql .= "INNER JOIN {flag_content} f ";
+  $sql .= "ON n.nid = f.content_id AND f.fid = %d ";
+  $sql .= $uid ? "AND f.uid = %d " : "";
+  $sql .= "WHERE n.type = 'creed' AND n.status = 1 ";
+
+  $result = db_query(db_rewrite_sql($sql), $flag->fid, $uid);
+  while ($data = db_fetch_object($result)) {
+    cprofile_attr_defaults($data->uid, $data->nid);
+  }
+
+  $output = t('Profile attributes set to default for user number '). $uid;
+  return $output;
+
+}
+
+/**
+ * Set the default attributes
+ * @Params
+ * $uid
+ * $cid
+ */
+function cprofile_attr_defaults($uid, $cid) {
+  $tids = array();
+
+  // Get the religion attributes of the member
+  $member = cprofile_get_member($uid);
+  $mtids = taxonomy_node_get_terms_by_vocabulary($member->nid, CREEDIA_RELIGION_VID);
+  $mtids = array_keys($mtids);
+  // Get the religion attributes of the creed statement
+  $ctids = taxonomy_node_get_terms_by_vocabulary($cid, CREEDIA_RELIGION_VID);
+  $ctids = array_keys($ctids);
+
+  // If there is a match, show only the matched ones
+  $tids = array_intersect($mtids, $ctids);
+  // Else show all current creed set religions
+  if (!count($tids)){
+    $tids = $ctids;
+  }
+
+  // select statment number to show in profile
+  // ensure that profile does not change
+  // after adoption
+  $sql  = "SELECT COUNT(c.delta) AS cnt ";
+  $sql .= "FROM {node} n ";
+  $sql .= "INNER JOIN {content_field_origin_statement} c ";
+  $sql .= "ON c.nid = n.nid AND c.vid = n.vid ";
+  $sql .= "WHERE n.status = 1 AND n.nid = %d ";
+
+  $os_cnt = db_result(db_query($sql, $cid));
+  $os = $os_cnt ? 0 : OS_OPTION_NONE;
+
+  // delete columns, just to make sure...
+  cprofile_attr_delete($uid, $cid);
+
+  // set default values. 
+  $sql  = "INSERT INTO {cprofile_attr} (uid, cid, terms, statement) ";
+  $sql .= "VALUES (%d, %d, '%s', %d)";
+  $tids = serialize($tids);
+  db_query($sql, $uid, $cid, $tids, $os);
+
+}
+
+/**
+ * Implementation of hook_flag
+ *
+ * Update the cprofile attribute table once creed is (de)selected
+ */
+function cprofile_flag($event, $flag, $content_id, $account) {
+  $uid = $account->uid;
+  if ($flag->name == 'adopt' && $uid) {
+    // if creed is de-selected, clean the creed attributes
+    if ($event == 'unflag'){
+      cprofile_attr_delete($uid, $content_id);
+    }
+    // if creed is selected, set the initial set of attributes
+    else {
+      cprofile_attr_defaults($uid, $content_id);
+    }
+  }
+}
+
+
+/**
+ * Callback function for cprofile/attr ajax settings.
+ */
+function cprofile_attr() {
+
+  $uid = arg(1);
+  $member = cprofile_get_member($uid);
+  $success = FALSE;
+  $cid = 0;
+  $tids = array(); // enabled religions
+  $os = 0;  // statement number
+
+  $religion = $_POST['religion'];
+  if (is_array($religion)){
+    $cid = key($religion);
+    $tids = $religion[$cid];
+    array_pop($tids);
+  }
+
+  $os = $_POST['os'];
+  if (is_array($os)) {
+    $os = current($os);
+  }
+
+  //$error .= " POST data: " . dpr($_POST, TRUE);
+  //$error = dpr($tids, TRUE);
+  //$error = dpr($cid, TRUE);
+
+  if ($uid && $cid) {
+    // we simply delete the current entry
+    // and add it again with the new attributes
+    cprofile_attr_delete($uid, $cid);
+
+    $sql  = "INSERT INTO {cprofile_attr} (uid, cid, terms, statement) ";
+    $sql .= "VALUES (%d, %d, '%s', %d)";
+    $tids = serialize($tids);
+    db_query($sql, $uid, $cid, $tids, $os);
+
+    $success = TRUE;
+  }
+
+  if ($success) {
+    print drupal_to_js(array('msg' => t('Creed attribute successfully saved.'),
+                             'success' => $success,
+                             ));
+    // clear cache to allow anonymous users to see the changed profile immediately
+    $url = url('user/'. $uid, array('absolute' => TRUE));
+    cache_clear_all($url, 'cache_page');
+
+  }
+  else {
+    $error = t('Oops... Something wrong. Please let us know so we can fix it.');
+    print drupal_to_js(array('msg' => $error,
+ 			     'success' => $success,
+ 			     ));
+  }
+
+  //return;
+  exit();
+}
+
+
+/**
+ * Callback function for cprofile/order ajax callback
+ *
+ */
+function cprofile_order() {
+
+  $uid = arg(1);
+  $member = cprofile_get_member($uid);
+  $success = FALSE;
+  $facets = array();
+  $creeds = array();
+
+  // I read somewhere that you don't need to check_plain
+  // the incoming parameters. 
+  foreach($_POST as $name => $value) {
+    $cid = (int)$value;
+    $temp = explode('-', check_plain($name), 2);
+    $wtid = (int)$temp[0];
+    if ($wtid) {
+      if ($cid) {
+	$creeds[$wtid][] = $cid;
+      }
+      else {
+	$facets[] = $wtid;
+      }
+    }
+  }
+
+  //$error .= " POST data: " . dpr($_POST, TRUE);
+  //$error = dpr($facets, TRUE);
+  //$error = dpr($creeds, TRUE);
+
+  if ($uid) {
+    // we simply delete all current entries
+    // and add them again according to the new order
+    $dsql = "DELETE FROM {cprofile_facets} WHERE uid=%d ";
+    db_query($dsql, $uid);
+
+    $sql  = "INSERT INTO {cprofile_facets} (uid, wtid, position) ";
+    $sql .= "VALUES (%d, %d, %d)";
+
+    foreach($facets as $position => $wtid) {
+      db_query($sql, $uid, $wtid, $position);
+    }
+
+    $dsql = "DELETE FROM {cprofile_ways} WHERE uid=%d ";
+    db_query($dsql, $uid);
+
+    $sql  = "INSERT INTO {cprofile_ways} (uid, cid, wtid, position) ";
+    $sql .= "VALUES (%d, %d, %d, %d)";
+
+    foreach($creeds as $wtid => $m) {
+      foreach($m as $position => $cid) {
+	if ($cid) {
+	  db_query($sql, $uid, $cid, $wtid, $position);
+	}
+      }
+    }
+    $success = TRUE;
+  }
+
+  if ($success) {
+    print drupal_to_js(array('msg' => t('Creed order successfully saved.'),
+                             'success' => $success,
+                             ));
+    // clear cache to allow anonymous users to see the changed profile immediately
+    $url = url('user/'. $uid, array('absolute' => TRUE));
+    cache_clear_all($url, 'cache_page');
+
+  }
+  else {
+    $error = t('Oops... Something wrong. Please let us know so we can fix it.');
+    print drupal_to_js(array('msg' => $error,
+ 			     'success' => $success,
+ 			     ));
+  }
+
+  //return;
+  exit();
+}
+

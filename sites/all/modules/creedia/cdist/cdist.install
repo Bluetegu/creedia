@@ -1,0 +1,56 @@
+<?php
+// $Id$
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function cdist_schema() {
+  $schema['cdist_cache'] = array(
+    'description' => t('TODO'),
+    'fields' => array(
+      'uid' => array(
+        'description' => t('TODO'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'mid' => array(
+        'description' => t('TODO'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cnt' => array(
+        'description' => t('TODO'),
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('uid', 'mid'),
+  );
+
+  return $schema;
+}
+
+function cdist_install() {
+  drupal_set_message(t('Beginning installation of cdist module.'));
+  // Create tables.
+  drupal_install_schema('cdist');
+  if ($success) {
+    drupal_set_message(t('The module installed tables successfully.'));
+  }
+  else {
+    drupal_set_message(t('The installation of the cdist module failed.'), 'error');
+  }
+}
+
+
+function cdist_uninstall() {
+  // Remove tables.
+  drupal_uninstall_schema('cdist');
+
+}

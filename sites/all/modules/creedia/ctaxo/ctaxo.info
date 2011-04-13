@@ -1,0 +1,7 @@
+;$Id$
+name = Creedia Taxonomy 
+description = Creedia Taxonomy Navigation and Assignment
+;dependencies[] = package
+dependencies[] = =
+dependencies[] = "Creedia"
+core = 6.x

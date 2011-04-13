@@ -1,0 +1,6 @@
+;$Id$
+name = Creedia Newsletter Digest
+description = Creedia Newsletter Digest
+dependencies[] = simplenews
+package = "Creedia"
+core = 6.x

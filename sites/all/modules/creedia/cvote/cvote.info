@@ -1,0 +1,7 @@
+;$Id$
+name = Creedia Vote
+description = Creedia creed voting tweaks to Fivestar 
+;dependencies[] = package
+dependencies[] = =
+dependencies[] = "Creedia"
+core = 6.x

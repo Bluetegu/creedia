@@ -1,0 +1,7 @@
+;$Id$
+name = Creedia Profile
+description = Creedia Profile
+;dependencies[] = package
+dependencies[] = =
+dependencies[] = "Creedia"
+core = 6.x

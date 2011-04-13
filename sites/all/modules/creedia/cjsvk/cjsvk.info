@@ -1,0 +1,7 @@
+;$Id$
+name = Creedia Virtual Keyboard
+description = Creedia Virtual Keyboard
+;dependencies[] = package
+dependencies[] = =
+dependencies[] = "Creedia"
+core = 6.x

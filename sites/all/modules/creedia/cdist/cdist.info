@@ -1,0 +1,7 @@
+;$Id$
+name = Creedia Distance
+description = Calculates Distance between Members
+;dependencies[] = package
+dependencies[] = =
+dependencies[] = "Creedia"
+core = 6.x

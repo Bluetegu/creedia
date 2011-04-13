@@ -1,0 +1,1563 @@
+<?php
+// $Id$
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO Remove $row argument from db_result() method
+   The $row argument of db_result() was removed from the database abstraction
+   layer in 6.x core, as it was a database dependent option. Developers need to
+   use other handling to replace the needs of this method. */
+
+/* TODO hook_nodeapi('submit') has been replaced by op='presave'
+   There is no longer a 'submit' op for nodeapi. Instead you may use the newly
+   created 'presave' op. Note, however, that this op is invoked at the beginning
+   of node_save(), in contrast to op='submit' which was invoked at the end of
+   node_submit(). Thus 'presave' operations will be performed on nodes that are
+   saved programatically via node_save(), while in Drupal 5.x op='submit' was
+   only applied to nodes saved via the node form. Note that the node form is now,
+   in effect, a multistep form (for example when previewing), so if you need to
+   fix up the data in the node for re-building the form, use a #submit function
+   added to the node form's $form array. */
+
+/* TODO Change 'Submit' to 'Save' on buttons
+   It has been agreed on that the description 'Submit' for a button is not a
+   good choice since it does not indicate what actually happens. While for
+   example on node editing forms, 'Preview' and 'Delete' describe exactly what
+   will happen when the user clicks on the button, 'Submit' only gives a vague
+   idea. When labelling your buttons, make sure that it is clear what this
+   button does when the user clicks on it. */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function creedia_theme() {
+  return array(
+    'creedia_invite' => array(
+      'file' => 'creedia.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'creedia_invite_default_message' => array(
+      'file' => 'creedia.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+  );
+} */
+
+/* TODO You may want to take advantage of new form-specific alter hooks.
+   The hook_form_alter() is complemented by hook_form_$form-id_alter().
+   Optionally, modules can implement form-specific alteration functions rather
+   than a single hook_form_alter() with many conditional switch statements.
+   This is optional, and is most useful for tidying the code of modules that
+   alter many forms to customize a site's operations.
+   The new function names are built using the following format:
+   [your-module-name]_form_[$form_id]_alter. */
+
+/*
+ * @file
+ * Creedia's general framework
+ *
+ * - Action menu blocks ('add comment', 'add creed', etc.)
+ * - Content edit/add forms alterations
+ * - Content link alterations
+ * - Creed view (and embedded interpretations)
+ *
+ */
+
+if (!defined(CREEDIA_LOGIN_TO_POST_MESSAGE)) {
+  define("CREEDIA_LOGIN_TO_POST_MESSAGE", t('Login or Register to Post Content.'));
+}
+if (!defined(CREEDIA_MAX_ORIGIN_STATEMENTS)) {
+  define("CREEDIA_MAX_ORIGIN_STATEMENTS", 2);
+}
+
+if (!defined(CREEDIA_TEASER_LENGTH)) {
+  define("CREEDIA_TEASER_LENGTH", 480);
+  define("CREEDIA_BLOG_TEASER_LENGTH", 2400);
+  define("CREEDIA_MEMBER_TEASER_LENGTH", 240);
+}
+
+// Max length is used for both title as well as origin statement
+// This should be aligned with CCK and title configurations
+if (!defined(CREEDIA_CREED_MAXLENGTH)) {
+  define("CREEDIA_CREED_MAXLENGTH", 120);
+}
+
+if (!defined(CREEDIA_CREEDIMAGE_DIRECTORY)) {
+  define("CREEDIA_CREEDIMAGE_DIRECTORY", 'files/creeds');
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function creedia_menu() {
+  global $user;
+  $items = array();
+/* TODO
+   Non menu code that was placed in hook_menu under the '!$may_cache' block
+   so that it could be run during initialization, should now be moved to hook_init.
+   Previously we called hook_init twice, once early in the bootstrap process, second
+   just after the bootstrap has finished. The first instance is now called boot
+   instead of init.
+   
+   In Drupal 6, there are now two hooks that can be used by modules to execute code
+   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
+   and runs on each page request, even for cached pages. hook_boot() now only runs
+   for non-cached pages and thus can be used for code that was previously placed in
+   hook_menu() with $may_cache = FALSE:
+   
+   Dynamic menu items under a '!$may_cache' block can often be simplified
+   to remove references to arg(n) and use of '%<function-name>' to check
+   conditions. See http://drupal.org/node/103114.
+   
+   The title and description arguments should not have strings wrapped in t(),
+   because translation of these happen in a later stage in the menu system.
+*/
+  if (!$may_cache) {
+//     if (!$user->uid) {
+//       if (in_array(arg(0), array('creeds', 'opinions', 'members', 'node'))) {
+// 	drupal_set_message(CREEDIA_LOGIN_TO_POST_MESSAGE, 'status');
+//       }
+//     }
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+      if ($node && $node->type == 'creed') {
+      // override node view
+      $items['node/'. '%' ] = array(
+                       'page callback' => 'creedia_creed_view',
+                       'page arguments' => array('node' => $node),
+                       'access arguments' => array('access content'),
+                       );
+
+      $items['node/'. '%' . '/view'] = array(
+                       'page callback' => 'creedia_creed_view',
+                       'page arguments' => array('node' => $node),
+                       'type'     => MENU_DEFAULT_LOCAL_TASK,
+                       'access arguments' => array('access content'),
+                       'weight'   => -10,
+                       );
+      }
+    }
+
+    // Generate creed images
+    $items['creedimage'] = array(
+		     'page callback' => 'creedia_creed_img_reset',
+		     'type'     => MENU_LOCAL_TASK,
+		     'access arguments' => array('administer site configuration'),
+		     'weight'   => -10,
+		     );
+
+  }
+  else {
+
+    $items['invite'] = array(
+		     'title'    => 'Invite your friends and colleagues',
+		     'page callback' => 'drupal_get_form',
+		     'page arguments' => array('creedia_invite'),
+		     'access arguments' => array('invite friends'),
+		     );
+
+    $items['about'] = array(
+		     'page callback' => 'creedia_pages',
+		     'access arguments' => array('access content'),
+		     );
+//     $items[] = array(
+// 		     'path'     => 'legal',
+// 		     'page callback' => 'creedia_pages',
+// 		     'access arguments' => array('access content'),
+// 		     );
+    $items['privacy'] = array(
+		     'page callback' => 'creedia_pages',
+		     'access arguments' => array('access content'),
+		     );
+    $items['credits'] = array(
+		     'page callback' => 'creedia_pages',
+		     'access arguments' => array('access content'),
+		     );
+
+  }
+  return $items;
+}
+
+/**
+ * Implementation of hook_block
+ */
+function creedia_block($op = 'list', $delta = 0, $edit = array()) {
+  global $user;
+  $uid = $user->uid;
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+  case 'list':
+    // If $op is "list", we just need to return a list of block descriptions.
+    // This is used to provide a list of possible blocks to the administrator,
+    // end users will not see these descriptions.
+    $blocks[0]['info'] = t('Creedia: Add Creed');
+    $blocks[1]['info'] = t('Creedia: Add Opinion');
+    $blocks[2]['info'] = t('Creedia: Add Interpretation');
+    $blocks[3]['info'] = t('Creedia: Add Comment');
+    $blocks[4]['info'] = t('Creedia: Add Picture');
+    $blocks[5]['info'] = t('Creedia: Add Blog Post');
+    $blocks[6]['info'] = t('Creedia: Invite Friends');
+    $blocks[7]['info'] = t('Creedia: Add Deed');
+    $blocks[0]['visibility'] = 1; // show only on listed pages
+    $blocks[1]['visibility'] = 1; // show only on listed pages
+    $blocks[2]['visibility'] = 1; // show only on listed pages
+    $blocks[3]['visibility'] = 1; // show only on listed pages
+    $blocks[4]['visibility'] = 1; // show only on listed pages
+    $blocks[5]['visibility'] = 1; // show only on listed pages
+    $blocks[6]['visibility'] = 1; // show only on listed pages
+    $blocks[7]['visibility'] = 1; // show only on listed pages
+    $blocks[0]['pages'] = "creeds\n"."creeds/*\n"."node/*\n";
+    $blocks[1]['pages'] = "opinions\n"."opinions/*\n"."node/*\n";
+    $blocks[2]['pages'] = "creeds\n"."creeds/*\n"."node/*\n";
+    $blocks[3]['pages'] = "node/*\n"; 
+    $blocks[4]['pages'] = "node/*\n"."gallery\n"."gallery/*\n"; 
+    $blocks[5]['pages'] = "user/*/blog\n"."blogs\n"."blogs/*\n";
+    $blocks[6]['pages'] = "user/*\n";
+    $blocks[7]['pages'] = "deeds\n"."deeds/*\n"."node/*\n";
+   
+    return $blocks;
+  case 'configure':
+    // If $op is "configure", we need to provide the administrator with a
+    // configuration form. The $delta parameter tells us which block is being
+    // configured. In this example, we'll allow the administrator to customize
+    // the text of the first block.
+    $form = array();
+    //       if ($delta == 0) {
+    //         // All we need to provide is a text field, Drupal will take care of
+    //         // the other block configuration options and the save button.
+    //         $form['block_example_string'] = array(
+    //           '#type' => 'textfield',
+    //           '#title' => t('Block contents'),
+    //           '#size' => 60,
+    //           '#description' => t('This string will appear in the example block.'),
+    //           '#default_value' =>
+    //             variable_get('block_example_string',  t('Some example content.')),
+    //         );
+    //      }
+    return $form;
+  case 'save':
+    // If $op is "save", we need to save settings from the configuration form.
+    // Since the first block is the only one that allows configuration, we
+    // need to check $delta to make sure we only save it.
+    //       if ($delta == 0) {
+    //         // Have Drupal save the string to the database.
+    //         variable_set('block_example_string', $edit['block_example_string']);
+    //       }
+    return;
+  case 'view': default:
+    // If $op is "view", then we need to generate the block for display
+    // purposes. The $delta parameter tells us which block is being requested.
+
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+      if (!$node) {
+	return $block;
+      }
+      $nid = $node->nid;
+      $type = $node->type;
+    }
+
+    switch ($delta) {
+    case 0:
+      if (!$type || in_array($type, array('opinion', 'interpretation', 'creed', 'deed'))) {
+	$block['content'] = user_access('create creed content') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Creed'), 'node/add/creed', array('title' => t('Add a Creed Statement.'))) : 
+	  l(t('Add Creed'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    case 1:
+      if (!$type || $type == 'opinion' || $type == 'interpretation') {
+	$block['content'] = user_access('create opinion content') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Opinion'), 'node/add/opinion', array('title' => t('Add an Opinion.'))) :
+	  l(t('Add Opinion'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    case 2:
+      if ($type == 'creed') {
+	$block['content'] = user_access('create interpretation content') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Interpretation'), 'node/add/interpretation/'. $nid, array('title' => t('Add an Interpretation.'))) : 
+	  l(t('Add Interpretation'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    case 3:
+      if ($nid) {
+	$block['content'] = user_access('post comments') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Comment'), 'comment/reply/'. $nid, array('title' =>  t('Share your thoughts related to this posting.'), NULL, 'comment-form')) :
+	  l(t('Add Comment'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    case 4:
+      if (!$type || $type == 'image_cck') {
+	$block['content'] = user_access('create image_cck content') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Picture'), 'node/add/image-cck', array('title' => t('Add a Picture to Gallery.'))) : 
+	  l(t('Add Picture'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    case 5:
+      if (!$type || $type == 'member') {
+	$block['content'] = user_access('create dblog content') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Blog Post'), 'node/add/dblog', array('title' => t('Add a Blog Post.'))) : 
+	  l(t('Add Blog Post'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    case 6:
+      if (user_access('invite friends')) {
+	if (arg(0) == 'user' && is_numeric(arg(1)) && arg(1) == $uid) {
+	  $block['content'] = /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Invite Friends'), 'invite', array('title' => t('Invite Friends to Join Creedia.')));  
+	}
+      }
+      break;
+    case 7:
+      if (!$type || in_array($type, array('opinion', 'interpretation', 'creed', 'deed'))) {
+	$block['content'] = user_access('create deed content') ? 
+	  /* TODO
+   Please manually fix the parameters on the l() or url() function on the next line.
+   Typically, this was not changed because of a function call inside an array call like
+   array('title' => t('View user profile.')).*/
+l(t('Add Deed'), 'node/add/deed', array('title' => t('Add a Deed.'))) : 
+	  l(t('Add Deed'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
+      }
+      break;
+    }      
+  }
+  return $block;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function creedia_perm() {
+  return array('invite friends');
+}
+
+/**
+ * Invite friends form
+ */
+function creedia_invite() {
+  global $user;
+
+  if (!$user->uid) return $form;
+  // get member's information
+  $member = cprofile_get_member($user->uid);
+  $from = $user->mail;
+  $fullname = $member->field_full_name[0]['value'];
+
+  firep($member, 'member');
+
+  $form['from'] = array(
+			'#type' => 'item',
+			'#title' => t('From'),
+			'#value' => check_plain($from),
+			);
+
+  $form['subject'] = array(
+			   '#type' => 'textfield',
+			   '#title' => t('Subject'),
+			   '#default_value' => t('!name has sent you an invite!', array('!name' => $fullname)),
+			   '#maxlength' => 64,
+			   '#description' => t('Type the subject of the invitation e-mail.'),
+			   '#required' => TRUE,
+			   );
+
+
+  $form['email'] = array(
+			 '#title' => t('To'),
+			 '#description' => t('Type the e-mail address of the person you would like to invite. You can type multiple email addresses separated by commas.'),
+			 '#required' => TRUE,
+			 '#type' => 'textfield',
+			 '#maxlength' => 64,
+			 );
+
+  $form['imessage'] = array(
+			   '#title' => t('Message'),
+			   '#type' => 'textarea',
+			   '#default_value' => theme('creedia_invite_default_message'),
+			   '#description' => t('This message will be sent to the person you are inviting.'),
+			   '#rows' => 5,
+			   );
+
+  $form['copy'] = array(
+			'#title' => t('Send yourself a copy'),
+			'#type' => 'checkbox',
+			);
+
+  $form['submit'] = array(
+			  '#type' => 'submit',
+			  '#value' => t('Send Invitation')
+			  );
+
+  return $form;
+}
+
+
+/**
+ * Theme function for the invite form.
+ *
+ * @ingroup themeable
+ */
+function theme_creedia_invite($form) {
+  $output = '';
+
+  $output .= '<h6>'. t('Send an invitation to your friends and colleagues.') .'</h6>';
+
+  // Show form elements
+  $output .= drupal_render($form['from']);
+  $output .= drupal_render($form['email']);
+  $output .= drupal_render($form['subject']);
+  $output .= drupal_render($form['imessage']);
+  $output .= drupal_render($form['copy']);
+
+  // Render all missing form elements
+  $output .= drupal_render($form);
+
+  return $output;
+}
+
+/**
+ * Forms API callback; validates the incoming form data.
+ *
+ */
+function creedia_invite_validate($form, &$form_state) {
+
+  $email = $edit['email'];
+  $email = creedia_get_email($email);
+
+  if (!$email) {
+    $error = check_plain(t('Invalid email address. Valid email address is of the form: foo@example.com or Some Name <foo@example.com>.'));
+    form_set_error('email', $error);
+    return;
+  }
+}
+
+/**
+ * Forms API callback; processes the incoming form data.
+ *
+ * Sends out invitation e-mails.
+ */
+function creedia_invite_submit($form, &$form_state) {
+  global $user;
+
+  $subject = trim($edit['subject']); 
+  $message = trim($edit['imessage']);
+  $to = trim($edit['email']);
+  $from = $user->mail;
+
+  $headers = array();
+  $headers['Reply-To'] = $from;
+  // Send a copy if requested:
+  if ($edit['copy']) {
+    $headers['Bcc'] = $from;
+  }
+
+  if (module_exists('mimemail')) {
+    $success = mimemail($from, $to, $subject, wordwrap($message, 72), FALSE, $headers);
+  }
+  
+  if (!$success) {
+    drupal_set_message(t('Problems occurred while sending the invitation. Please contact the site administrator.'), 'error');
+    watchdog('creedia', 'Failed sending invitation. To: @email From: @from', array('@email' => $to, '@from' => $from), WATCHDOG_ERROR);
+  }
+  else {
+    drupal_set_message(t('Your invitation has been successfully sent.'));
+    watchdog('creedia', 'Invitation sent. To: @email From: @from', array('@email' => $to, '@from' => $from), WATCHDOG_NOTICE);
+  }
+
+  $form_state['redirect'] = 'user/'. $user->uid;
+}
+
+function theme_creedia_invite_default_message() {
+  global $user;
+
+  // get member's information
+  $member = cprofile_get_member($user->uid);
+  if (!$member) return '';
+  $fullname = $member->field_full_name[0]['value'];
+  
+  $output .= '<p>'. t('Dear Friend,') .'</p>';
+  $output .= '<p>'. t("I have just created my profile on Creedia. Check it out:  !profile.", 
+	       array('!profile' => l($fullname ."'s Profile", 'user/'. $user->uid, array('absolute' => TRUE))));
+  $output .= '<br />';
+  $output .= t("Creedia is a great place to connect on values and belief. ") .'</p>';
+  $output .= '<p>'. t('I hope to see you there! ') .'<br />';
+  $output .= $fullname .'</p>';
+
+  return $output;
+}
+
+
+/**
+ * ....From invite module.....
+ * Extract valid e-mail addresses from a string.
+ *
+ * E-mails must be separated by newlines or commas. E-mails are allowed to
+ * include a display name (eg. Some Name <foo@example.com>). Invalid addresses
+ * are filtered out and stored in a session variable for re-display.
+ *
+ * @param $string
+ *   The string to process. 
+ * @return
+ *   valid e-mail addresses.
+ */
+function creedia_get_email($string) {
+  $user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
+  $domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
+  $ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
+  $ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+  $rx = "/($user@($domain|(\[($ipv4|$ipv6)\])))>?$/";
+
+  $email = '';
+  $string = trim($string);
+  if (preg_match($rx, $string, $match)) {
+        $email = $match[1];
+  }
+  else {
+    $email = '';
+  }
+  return $email;
+}
+
+/**
+ * Callback to a list of pages. Calls the associated page, with url convention of url-page. E.g., the url=about
+ * calls a page with url of about-page.
+ * This is done to allow blocks to be configured per URL while the pages configured through Drupal's page
+ * content type. Otherwise, the internal URL of pages would be node/node-id, and this is not a portable URL (i.e.
+ * the node-id may differ between sites. 
+ */
+function creedia_pages() {
+  $alias = 'content/'. arg(0);
+  $url = drupal_get_normal_path($alias);
+  if ($url) {
+    $args = explode('/', $url);
+  }
+  $nid = $args[1];
+  if ($nid) {
+    $node = node_load($nid);
+  }
+  if ($node) {
+    return node_view($node, FALSE, TRUE, FALSE);
+  }
+  return ''; // this shouldn't happen
+}
+
+function creedia_creed_view($node) {
+
+  $teaser = FALSE;
+  $page = TRUE;
+  $links = TRUE;
+  $output  = node_view($node, $teaser, $page, $links);
+  $output .= comment_render($node, $node->cid);
+  $output .= creedia_interpretation_render($node);
+
+  return $output;
+}
+
+function creedia_interpretation_render($node) {
+  global $pager_total_items; // total items paged
+  $sort = $_GET["sort"];
+  $content = cviews_interpretation_view($node->nid, $sort);
+  $tabs .= '<div class="tabs">';
+  $tabs .= theme('pager_results', CREEDIA_INTERPRETATION_PER_PAGE, 1);
+  $tabs .= '<span id="subtabs-title">'. t('Sort by:') .'</span>';
+  $tabs .= creedia_interpretation_tabs($sort);
+  $tabs .= '</div>';
+  if ($content) {
+    $content = $tabs . $content;
+  }
+  $output = theme('interpretation_wrapper', $content, $pager_total_items[1]);
+  return $output;
+}
+
+
+/**
+ * Theme the interpretation tab
+ * There must be a better way to do this using the menu system, instead of
+ * copying the code to here.
+ */
+function creedia_interpretation_tabs($activesort) {
+  $activesort = $activesort ? $activesort : 'adopted';
+  $path = 'node/'. arg(1) .'/view';
+  $title = array(t('Adopted'), t('Recent'));
+  $sort = array('adopted', 'recent');
+  $activesort = $activesort ? $activesort : 'recent';
+
+  $output ="\n<ul class=\"menu primary\">\n";
+  for ($i = 0; $i < count($title); $i++) {
+    $query = drupal_query_string_encode(array('sort' => $sort[$i]));
+    $output .= ($sort[$i] == $activesort) ? '<li class="active">' : '<li>';
+    $output .= l($title[$i], $path, array('attributes' => array('title' => $title[$i]), 'query' => $query, 'fragment' => 'interpretations'));
+    $output .= "</li>\n";
+  }
+  $output .= "\n</ul>\n";
+  return $output;
+}
+
+/**
+ * Implementation of hook_nodeapi
+ */
+function creedia_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+
+  switch ($op) {
+  case 'insert':
+  case 'update':
+    // prepare creed image
+    // this must be done here in not in 'submit' as there the nid is not defined yet for new nodes.
+    if ($node->type == 'creed') {
+      creedia_creed_img_generate($node);
+    }
+    break;
+  case 'rss item':
+    // add node type to the title
+    switch ($node->type) {
+    case 'opinion':
+      $pre = t('Opinion: ');
+      break;
+    case 'creed':
+      $pre = t('Creed: ');
+      break;
+    case 'interpretation':
+      $pre = t('Interpretation: ');
+      break;
+    case 'image_cck':
+      $pre = t('Image: ');
+      break;
+    case 'member':
+      $pre = t('Member: ');
+      break;
+    case 'blog': case 'dblog':
+      $pre = t('Blog: ');
+      break;
+    case 'deed':
+      $pre = t('Deed: ');
+      break;
+    }
+    $node->title = $node->type == 'member' ? $pre . $node->field_full_name[0]['view'] : $pre . $node->title;
+    break;
+  case 'submit':
+    // Teaser length is 480 for all node types appart from member ... and blog ...
+    // node_teaser doesn't close tags which leads to xhtml validation
+    // errors, so I'm overriding teasers here.
+    switch ($node->type) {
+    case 'member':
+      $size = CREEDIA_MEMBER_TEASER_LENGTH;
+      break;
+    case 'blog': case 'dblog':
+      $size = CREEDIA_BLOG_TEASER_LENGTH;
+      break;
+    default:
+      $size = CREEDIA_TEASER_LENGTH;
+      break;
+    }
+
+    // Find where the delimiter is in the body
+    $delimiter = strpos($node->body, '<!--break-->');
+    // If a valid delimiter has been specified, use it to chop off the teaser.
+    if ($delimiter !== FALSE && $delimiter < $size) {
+      $size = $delimiter;
+    }
+    else {
+      $delimiter = FALSE;
+    }
+    if (drupal_strlen($node->body) > $size) {
+      if ($delimiter !== FALSE) {
+	$node->teaser = substr($node->body, 0, $delimiter);
+      }
+      else {
+	$node->teaser = smarty_modifier_html_substr($node->teaser, $size );
+      }
+      $node->readmore = TRUE;
+    }
+    else {
+      $node->teaser = $node->body;
+      $node->readmore = FALSE;
+    }
+    break;
+  case 'delete':
+    if ($node->type == 'creed') {
+      creedia_creed_img_delete($node->nid);
+    }
+    break;
+  case 'view':
+    if ($a4) { // page 
+      creedia_node_meta_tags($node);
+    }
+    break;
+
+  }
+  return;
+}
+
+/**
+ * Complements meta tags to be placed in header for node pages.
+ *
+ * Nodewords description meta tag doesn't provide satisfactory results
+ * This meta tag is used by Facebook (and some search enginers) as
+ * the node teaser.
+ *
+ */
+function creedia_node_meta_tags($node){
+  static $done = FALSE;
+  if (!$done) {
+    
+    // meta description tag is used by Facebook (and some search engines)
+    // as teaser
+    $description = truncate_utf8d(strip_tags($node->teaser), 120, TRUE, TRUE);
+    if ($node->type == 'creed') {
+      // override the teaser if an origin statement is set
+      if ($node->field_origin_statement[0]['view']) {
+	$description = $node->field_origin_statement[0]['view'];
+      }
+    }
+    if ($description) {
+      $meta_description = '<meta name="description" content="'. $description .'"/>';
+      drupal_set_html_head($meta_description);
+    }
+
+    if ($node->type == 'creed') {
+      // url shuld not include the language part.
+      $url = url('', array('absolute' => TRUE));
+      $url .= CREEDIA_CREEDIMAGE_DIRECTORY .'/'. $node->nid .'-00.png';
+      // meta title is required for thumbnail image
+      // per http://www.labnol.org/internet/design/set-thmbnail-images-for-web-pages
+      $meta_title = '<meta name="title" content="'. $node->title .'"/>';
+      drupal_set_html_head($meta_title);
+      $image_src = '<link rel="image_src" href="'. $url .'"/>';
+      drupal_set_html_head($image_src);
+    }
+
+    $done = TRUE;
+  }
+  return;
+}
+
+/**
+ * Implementation of hook_link_alter
+ */
+
+function creedia_link_alter(&$links, $node) {
+  //  firep($node, 'node in link alter'); // node is null in comment links
+  foreach ($links as $name => $link) {
+    //        firep($link, 'link in link alter');
+    //        firep($name, 'link name in link alter');
+    //        if ($links[$name]['html']) {
+    //  	$html = '<textarea rows="20" cols="40">'. $links[$name]['title'] . '</textarea>';
+    //  	firep($html, 'title');
+    //        }
+    //        firep($links[$name], 'link in link alter');
+
+    // add images to links.
+    $links[$name]['pre'] = theme('image', path_to_theme() . '/images/link-'. $name .'.png', '', '');
+    // guestbook comments require redirection to user/uid/guestbook. Otherwise they are redirected to node/nid
+    // for the member node, which is then redirected to user/uid/view and not back to the guestbook.
+    if (arg(0) == 'user' && is_numeric(arg(1)) && arg(2) == 'guestbook') {
+      $links[$name]['query'] = drupal_get_destination();
+    }
+    // args are used to create comment fragment (named anchor)
+    $args = explode('/', $link['href']);
+    switch ($name) {
+    case 'comment_add':   
+    case 'flag-adopt':
+    case 'blog_usernames_blog':
+      unset($links[$name]);
+      break;
+    case 'abuse_flag_comment':
+      $links[$name]['title'] = t('flag');
+      $links[$name]['attributes']['title'] = ''; // to be consistent with comment links
+      $links[$name]['fragment'] = 'comment-'. $args[3];
+      break;
+    case 'abuse_flag_node':
+      $links[$name]['title'] = t('Flag');
+      break;
+    case 'comment_edit':
+    case 'usercomment_approve':
+      $links[$name]['fragment'] = 'comment-'. $args[2];
+      break;
+    case 'comment_reply':
+      $links[$name]['fragment'] = 'comment-'. $args[3];
+      break;
+    case 'comment_delete':
+    case 'usercomment_delete':
+      $links[$name]['fragment'] = 'comments';
+      break;
+    case 'addtoany':
+      // Don't share pages (about, legal, etc.)
+      if ($node && $node->type == 'page') {
+	unset($links[$name]);
+      }
+      break;
+    case 'flag-featured':
+    case 'flag-default_image':
+      // all it needs is the addition of image done for all links.
+    case 'comment_forbidden':
+      break;
+    default:
+      // drupal_set_message('link '. $name .' not handled in link alter.');
+      break;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_alter
+ *
+ * It is assumed that module weight is set to high enough value such that this function is 
+ * called after CCK and other form alterations are already done (in particular after 
+ * CCK Fieldgroup which by default is configured to weight 9).
+ *
+ * For creed editing, the religion field is hidden. For new creed forms, all fields besides religion
+ * are unsset at first step, and religion fields is unset in second step.
+ */
+function creedia_form_alter(&$form, &$form_state, $form_id) {
+  if (arg(0) != 'admin') {
+    //    firep($form_id, 'form_id in creedia form alter');
+    //    firep($form, 'form in creedia form alter');
+    switch ($form_id) {
+    case 'interpretation_node_form':
+      // Set the default value of the creed reference
+      if (is_numeric(arg(3))) {
+	if (!$form['field_creed_reference1'][0]['node_name']['#default_value']) {
+	  $node = node_load(arg(3));
+	  if ($node) {
+	    $form['field_creed_reference1'][0]['node_name']['#default_value'] = $node->title;
+	  }
+	}
+      }
+      break;
+    case 'creed_node_form':
+      if (!user_access('revert revisions')) {
+	unset($form['delete']);
+      }
+//       // Figure out whether this is node add vs. node edit. 
+//       $edit = isset($form['nid']['#value']) ? TRUE : FALSE;
+//       $step = (int) $form['step']['#value'];
+//       if ($edit || $step > 1) {
+// 	// Hide the religion field.
+// 	// Readonly attribute is not defined for select elements. Setting the disabled attribute
+// 	// doesn't work either as the setting of disabled input elements in POST is non-standard
+// 	// and browser dependent. It led to error when I tried it.
+// 	// Note that array values expected by the CCK fields are created only if the name attribute
+// 	// includes a [], hence the [tids] array used. Setting a #value attribute to an array
+// 	// generates a warning down deep from bootstrap.inc for 'hidden' type elements. 
+// 	// Unsetting the entire field doesn't work either, as the field is required and validation 
+// 	// fails upon submit. Validation happens before submit processing, and therefore there is 
+// 	// no chance for readjusting the form_values to the expected format in a special constructed
+// 	// submit function.
+// 	//           $form['field_religion_single']['#type'] = 'hidden';
+// 	//           $form['field_religion_single']['#value'] = $form['field_religion_single']['tids']['#default_value'][0];
+// 	//           unset($form['field_religion_single']['tids']);
+// 	// Eventually I set #required to false in the CCK definition and add the validation 
+// 	// through custom validation function. So it is enough to unset the entire religion field in
+// 	// this step.
+// 	// steps > 2 should function as step == 2 as preview may increase the step number.
+// 	$religion_tid = $form['field_religion_single']['tids']['#default_value'][0];
+// 	$religion_tid = $religion_tid ? $religion_tid : $form['hidden_field_religion_single']['#value'];
+// 	if ($edit) {
+// 	  $form['hidden_field_religion_single'] = array('#type' => 'hidden', '#value' => $religion_tid);
+// 	}
+// 	else {
+// 	  // can't make preview work. The beliefset field gets crazy. 
+// 	  unset($form['preview']);
+// 	}
+// 	unset($form['field_religion_single']);
+      
+// 	// prepare origin statements per configured religin settings.
+// 	// first find the religion info nid
+// 	$sql  = "SELECT n.nid FROM {node} n INNER JOIN {term_node} t ";
+// 	$sql .= "ON n.nid = t.nid ";
+// 	$sql .= "WHERE n.type = '%s' AND t.tid = %d";
+// 	$religion_nid = db_result(db_query($sql, 'religion_info', $religion_tid));
+      
+// 	// find the configured languages for the origin statements
+// 	if ($religion_nid) {
+// 	  $sql  = "SELECT field_origin_langs_value ";
+// 	  $sql .= "FROM {content_field_origin_langs} ";
+// 	  $sql .= "WHERE nid = %d";
+// 	  $result = db_query($sql, $religion_nid);
+// 	  while ($data = db_fetch_object($result)) {
+// 	    $langs[] = $data->field_origin_langs_value;
+// 	  }
+// 	}
+// 	switch (count($langs)) {
+// 	case 0:
+// 	  // no origin statements
+// 	  unset($form['group_origin_statements']);
+// 	  break;
+// 	case 1:
+// 	  // no need for language selector.
+// 	  // single language. no need for user configuration. hide the language value
+// 	  $form['hidden_field_origin_statement_lang'] = array('#type' => 'hidden', '#value' => $langs[0]);
+// 	  unset($form['group_origin_statements']['field_origin_statement_lang']);
+
+// 	  // optimize the origin statement accordingly
+// 	  $form['group_origin_statements']['field_origin_statement']['#description'] = 
+// 	    t('Enter the creed statement in !lang. The maximum length is limited to !maxlen characters', 
+// 	      array('!lang' => i18n_language_property($langs[0], 'name'), '!maxlen' => CREEDIA_CREED_MAXLENGTH));
+// 	  // set language, direction and virtual keyboard
+// 	  $form['group_origin_statements']['field_origin_statement'][0]['value']['#attributes'] = 
+// 	    array('lang' => $langs[0], 
+// 		  'dir' => i18n_language_rtl($langs[0]) ? 'rtl' : 'ltr', 
+// 		  'class' => 'jsvk-textfield' ); 
+	  
+// 	  // only one statement allowed. override all others
+// 	  for ($i = 1; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
+// 	    unset($form['group_origin_statements']['field_origin_statement'][$i]);
+// 	  }
+// 	  cjsvk_add_js($langs[0]);
+// 	  break;
+// 	default:
+// 	  $form['group_origin_statements']['field_origin_statement']['#description'] .= 
+// 	    t('Enter the creed statement in its original language. The maximum length is limited to !maxlen characters',
+// 	      array('!maxlen' => CREEDIA_CREED_MAXLENGTH));
+// 	  // create a combined origin statement field, with statement text and language selector.
+// 	  // prepare the select form element
+// 	  $select = array( '#type' => 'select',
+// 			   '#title' => t('Statement Language'),
+// 			   '#options' => array_intersect_key(i18n_language_list(TRUE), array_flip($langs)),
+// 			   '#required' => FALSE,
+// 			   '#multiple' => FALSE,
+// 			   '#description' => $form['group_origin_statements']['field_origin_statement_lang']['#description'],
+// 			   );
+// 	  // copy the textfield form element from the first CCK element and override the default value at 
+// 	  // later. This allows to maintain the title at each step.
+// 	  $statement = $form['group_origin_statements']['field_origin_statement'][0]['value'];
+// 	  // copy the overall origin statement attributes
+// 	  $form['group_origin_statements']['origin_statement_combo'] = 
+// 	    $form['group_origin_statements']['field_origin_statement'];
+// 	  // copy from the content from the statement and statement_lang CCK structures
+// 	  for ($i = 0; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
+// 	    if ($i < count($langs) && $i < CREEDIA_MAX_ORIGIN_STATEMENTS) {
+// 	      // first set a language selector
+// 	      $lang = $form['group_origin_statements']['field_origin_statement_lang'][$i]['value']['#default_value'];
+// 	      $select['#default_value'] = array($lang);
+// 	      // indicate language selector for virtual keyboard
+// 	      $select['#attributes'] = array('class' => 'jsvk-lang jsvk-lang-'. $i);
+// 	      $form['group_origin_statements']['origin_statement_combo'][2*$i] = 
+// 		array('value' => array($select));
+// 	      // and an origin statement text field.
+// 	      $statement['#default_value'] = 
+// 		$form['group_origin_statements']['field_origin_statement'][$i]['value']['#default_value'];
+// 	      // add virtual keyboard
+// 	      $statement['#attributes'] = array('class' => 'jsvk-textfield jsvk-textfield-'. $i);
+// // 	      $statement['#field_suffix'] = theme('cjsvk_keyboard', 
+// // 						  'edit-body',
+// // 						  'edit-field-origin-statement-'. $i .'-value' 
+// // 						  );
+// 	      $form['group_origin_statements']['origin_statement_combo'][2*$i+1] = 
+// 		array('value' => $statement);
+// 	      if (isset($lang) && i18n_language_rtl($lang)) {
+// 		$form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes'] = 
+// 		  array_merge(array('lang' => $lang, 'dir' => 'rtl'),
+// 			      $form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes']);
+// 	      }
+// 	    }
+// 	    else {
+// 	      // erase leftover copied from the origin statement
+// 	      if (isset($form['group_origin_statements']['origin_statement_combo'][2*$i])) {
+// 		unset($form['group_origin_statements']['origin_statement_combo'][2*$i]);
+// 	      }
+// 	      else {
+// 		break;
+// 	      }
+// 	    }
+// 	  }
+// 	  unset($form['group_origin_statements']['field_origin_statement']);
+// 	  unset($form['group_origin_statements']['field_origin_statement_lang']);
+// 	  cjsvk_add_js();
+
+// 	  // add limitation to the length of the creed statement (title)
+// 	  $form['title']['#maxlength'] = CREEDIA_CREED_MAXLENGTH;
+
+// 	  break;
+// 	}
+//       }
+//       else {
+// 	// new creed, step 1: unset all other fields 
+// 	foreach ($form as $key => $element) {
+// 	  if (in_array($key, array('group_origin_statements', 
+// 				   'group_classification',
+// 				   'body_filter',
+// 				   'title',
+// 				   'log',
+// 				   'preview',
+// 				   'comment_settings',
+// 				   'menu',
+// 				   'path',
+// 				   '#after_build',
+// 				   ))) {
+// 	    unset($form[$key]);
+// 	  }
+// 	}
+// 	$form['field_religion_single']['tids']['#required'] = TRUE;
+//       }
+
+
+
+      $form['group_origin_statements']['field_origin_statement']['#description'] .= 
+	t('The maximum length is limited to !maxlen characters',
+	  array('!maxlen' => CREEDIA_CREED_MAXLENGTH));
+      // create a combined origin statement field, with statement text and language selector.
+      // prepare the select form element
+      $select = array( '#type' => 'select',
+		       '#title' => t('Statement Language'),
+		       '#options' => i18n_language_list(TRUE),
+		       '#required' => FALSE,
+		       '#multiple' => FALSE,
+		       '#description' => $form['group_origin_statements']['field_origin_statement_lang']['#description'],
+		       );
+      // copy the textfield form element from the first CCK element and override the default value at 
+      // later. This allows to maintain the title at each step.
+      $statement = $form['group_origin_statements']['field_origin_statement'][0]['value'];
+      // copy the overall origin statement attributes
+      $form['group_origin_statements']['origin_statement_combo'] = 
+	$form['group_origin_statements']['field_origin_statement'];
+      // copy from the content from the statement and statement_lang CCK structures
+      for ($i = 0; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
+
+	// first set a language selector
+	$lang = $form['group_origin_statements']['field_origin_statement_lang'][$i]['value']['#default_value'];
+	$select['#default_value'] = array($lang);
+	// indicate language selector for virtual keyboard
+	$select['#attributes'] = array('class' => 'jsvk-lang jsvk-lang-'. $i);
+	$form['group_origin_statements']['origin_statement_combo'][2*$i] = array('value' => array($select));
+	// and an origin statement text field.
+	$statement['#default_value'] = 
+	  $form['group_origin_statements']['field_origin_statement'][$i]['value']['#default_value'];
+	// add virtual keyboard
+	$statement['#attributes'] = array('class' => 'jsvk-textfield jsvk-textfield-'. $i);
+	$form['group_origin_statements']['origin_statement_combo'][2*$i+1] = 
+	  array('value' => $statement);
+	if (isset($lang) && i18n_language_rtl($lang)) {
+	  $form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes'] = 
+	    array_merge(array('lang' => $lang, 'dir' => 'rtl'),
+			$form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes']);
+	}
+      }
+
+      unset($form['group_origin_statements']['field_origin_statement']);
+      unset($form['group_origin_statements']['field_origin_statement_lang']);
+      cjsvk_add_js();
+
+      // add limitation to the length of the creed statement (title)
+      $form['title']['#maxlength'] = CREEDIA_CREED_MAXLENGTH;
+      // Submit function adapts form_values parameter to the format expected by CCK
+      $form['#submit'] = array('creed_submit' => array());  
+      break;
+    case 'member_node_form':
+//      $form['#redirect'] = 'user/'. $form['uid']['#value'] .'/about';
+      // Hide the registeration picture edit form element after registeration
+      // There is probably a better way to do this, but since the field is a required
+      // it can not be simply removed from the form. If I change the type of the field
+      // from fieldset to hidden js on this page fails due to failure to find a js
+      // behavior to the imagefield upload button.
+      if (arg(0) != 'user' || arg(1) != 'register') {
+	$form['group_personal_information_0']['field_reg_picture']['#prefix'] = 
+	  '<div id="hide-image-wrapper" style="display:none">';
+	$form['group_personal_information_0']['field_reg_picture']['#suffix'] = '</div>';
+
+	// remove the registration only survey field.
+	unset($form['group_personal_information_0']['field_howdidyouhear']);
+      }
+      break;
+    case 'image_cck_node_form':
+      if (!user_access('administer creedia gallery')) {
+	unset($form['field_front_num']);
+      }
+      break;
+    case 'contact_mail_page':
+      $form['contact_information']['#prefix'] = '<h6>';
+      $form['contact_information']['#value'] = t('You can leave a message using the contact form below. To report a bug or provide feedback on the content of a specific page please click the green feedback button on that page.');
+      $form['contact_information']['#suffix'] = '</h6>';
+      break;
+    }
+  }
+}
+
+// /**
+//  * Turn creed node add form into a multipage form; the creed religion
+//  * is set in first step and all other fields are set in step 2.
+//  * CCK fields are inserted later through hook alter therefore there
+//  * is no point in unsetting or hiding fields here.
+//  *
+//  * Per http://drupal.org/node/101707
+//  *     http://drupal.org/node/162373
+//  *
+//  * Note for debugging: For no apperant reason the forms api calls 
+//  * the form function (creed_node_form) twice in each step, one with pervious step params 
+//  * and once with current step params. For example, in the last step creed_node_form is 
+//  * first called with religion field in form_values (step 1) and then again with form_values
+//  * carrying all the rest of the creed parameters.
+//  * see http://drupal.org/node/101707#comment-221773
+//  * 
+//  */
+
+// function creed_node_form ($node, $form_values = NULL) {
+//   //  firep($form_values, 'form values in creed node form');
+//   //  firep($node, 'node in creed node form');
+//   // first get the node form
+//   $form = node_form($node);
+//   // Figure out whether this is node-add or node-edit. 
+//   $edit = isset($form['nid']['#value']) ? TRUE : FALSE;
+//   // Submit function adapts form_values parameter to the format expected by CCK
+//   $form['#submit'] = array('creed_submit' => array());  
+
+//   $step = isset($form_values['step']) ? (int)$form_values['step'] : 0;
+//   if ($edit) {
+//     // indicate this is the last step
+//     $step = 2;
+//   }
+//   else {
+//     // Only new forms are two step 
+//     // multistep must be set to TRUE on all steps. If set to FALSE on last step
+//     // errors will occur.
+/* TODO #multistep is gone, use $form_state instead.
+   Move the rebuild statement to the submit function for this form. */
+	$form_state['rebuild'] = TRUE;
+////     $form['#multistep'] = TRUE;
+//     $step += 1;
+//     switch ($step) {
+//     case 1:
+//       // redirect should not be set to FALSE on last step, otherwise the return
+//       // value of the submit function will not take effect.
+////       $form['#redirect'] = FALSE;
+//       // validate function checks that religion field is set
+//       $form['#validate'] = array('creed_validate' => array());
+//       break;
+//     default:
+//       // set the religion field added at first step to a special hidden field
+//       $value = $form_values['field_religion_single']['tids'];
+//       // for $step > 2 (preview used) the religion is maintained in the hidden field
+//       $value = $value ? $value : $form_values['hidden_field_religion_single'];
+//       $form['hidden_field_religion_single'] = array('#type' => 'hidden', '#value' => $value);
+//       break;
+//     }
+//   }
+//   // step number is kept in hidden field
+//   $form['step'] = array('#type' => 'hidden', '#value' => $step);
+//   return $form;
+// }
+
+/**
+ * creed multipage submit function. 
+ */
+function creed_submit($form, &$form_state) {
+  //dpr($form_state['values']);
+//   if ((int)$form_state['values']['step'] < 2) {
+//     return;
+//   }
+//   // convert the saved religion settings from step 1 to the expected CCK format.
+//   $value = $form_state['values']['hidden_field_religion_single'];
+//   $form_state['values']['field_religion_single']['tids'] = $value;
+//   // convert the saved origin statement language
+//   $value = $form_state['values']['hidden_field_origin_statement_lang'];
+//   if ($value) {
+//     // the language field is hidden only when a single language is allowed 
+//     $form_state['values']['field_origin_statement_lang'] = array(array('value' => $value));
+//   }
+  // convert the origin statement combo back to cck
+  if (isset($form_state['values']['origin_statement_combo'])) {
+    foreach ($form_state['values']['origin_statement_combo'] as $i => $value) {
+      if ($i % 2) {
+	$form_state['values']['field_origin_statement'][] = $form_state['values']['origin_statement_combo'][$i];
+      }
+      else {
+	$form_state['values']['field_origin_statement_lang'][] = 
+	  array('value' => $form_state['values']['origin_statement_combo'][$i]['value'][0]);
+      }
+    }
+    unset($form_state['values']['origin_statement_combo']);
+  }
+
+  // submit once on final step 
+  return node_form_submit($form_state['values']['form_id'], $form_state['values']);
+}
+
+// /**
+//  * creed validate function
+//  */
+// function creed_validate($form_id, $form_values) {
+//   //  dpr($form_values);
+//   $selected = $form_values['field_religion_single']['tids'];
+//   if (!$selected) {
+//     form_set_error('field_religion_single[tids]', t('Religion field is required'));
+//   }
+// }
+
+/*
+ * Per http://drupal.org/node/8456 and
+ * Per http://www.phpinsider.com/smarty-forum/viewtopic.php?p=3349
+ * Code by: Edward Dale <scompt@scompt.com>
+ */
+function smarty_modifier_html_substr($string, $length){
+  if (!empty($string) && $length>0) {
+    $isText = true;
+    $ret = "";
+    $i = 0;
+    $currentChar = "";
+    $lastSpacePosition = -1;
+    $lastChar = "";
+    $tagsArray = array();
+    $currentTag = "";
+    $tagLevel = 0;
+    $noTagLength = strlen(strip_tags($string));
+
+    // Parser loop
+    for ($j=0; $j<strlen($string); $j++) {
+      $currentChar = substr($string, $j, 1);
+      $ret .= $currentChar;
+      // Lesser than event
+      if ($currentChar == "<") {
+	$isText = false;
+      }
+      // Character handler
+      if ($isText) {
+	// Memorize last space position
+	if( $currentChar == " " ) {
+	  $lastSpacePosition = $j;
+	}
+	else {
+	  $lastChar = $currentChar;
+	}
+	$i++;
+      }
+      else {
+	$currentTag .= $currentChar;
+      }
+      // Greater than event
+      if ($currentChar == ">") {
+	$isText = true;
+	// Opening tag handler
+	if (( strpos($currentTag, "<") !== FALSE) &&
+	    ( strpos($currentTag, "/>") === FALSE) &&
+	    ( strpos($currentTag, "</") === FALSE)) {
+	  // Tag has attribute(s)
+	  if (strpos($currentTag, " ") !== FALSE) {
+	    $currentTag = substr($currentTag, 1, strpos($currentTag, " ") - 1);
+	  }
+	  else {
+	    // Tag doesn't have attribute(s)
+	    $currentTag = substr($currentTag, 1, -1);
+	  }
+	  array_push($tagsArray, $currentTag);
+	}
+	else if (strpos($currentTag, "</") !== FALSE) {
+	  array_pop($tagsArray);
+	}
+	$currentTag = "";
+      }
+      if ($i >= $length) {
+	break;
+      }
+    }
+    // Cut HTML string at last space position
+    if ($length < $noTagLength) {
+      if ($lastSpacePosition != -1) {
+	$ret = substr($string, 0, $lastSpacePosition);
+      }
+      else {
+	$ret = substr($string, $j);
+      }
+      $ret .= " ...";
+    }
+    // Close broken XHTML elements
+    while (sizeof($tagsArray) != 0 ) {
+      $aTag = array_pop($tagsArray);
+      $ret .= "</". $aTag .">\n";
+    }
+  }
+  else {
+    $ret = "";
+  }
+  return $ret;
+}
+
+/**
+ * Regenerate creed images
+ */
+function creedia_creed_img_reset($nid = 0) {
+
+  if ($nid != 0) {
+    $node = node_load($nid);
+    if ($node) {
+      creedia_creed_img_generate($node);
+    }
+  }
+  else {
+    $sql = "SELECT n.nid FROM {node} n WHERE n.type = 'creed' AND n.status = 1";
+    $result = db_query(db_rewrite_sql($sql));
+    while ($data = db_fetch_object($result)) {
+      $node = node_load($data->nid);
+      creedia_creed_img_generate($node);
+    }
+  }
+
+  return t('Creed images were reset');
+}
+
+/**
+ * Generates an image out of the creed's religion and belief set taxonomy images.
+ * The image is saved in the files/creeds directory under the name $nid-0.gif
+ * This function is called whenever a creed statement is saved.
+ *
+ * THIS FUNCTION USES THE GD LIBRARY 
+ */
+function creedia_creed_img_generate($node) {
+
+  $rterms = array();
+  $bterms = array();
+
+  if (is_array($node->field_religion_single['tids'])){
+    // update through hook_nodeapi
+    $rterms = $node->field_religion_single['tids'];   // the 'single' part is no longer valid. It is multiple valued
+  }
+  else if (is_array($node->field_religion_single[0])){
+    // Direct update after node_load
+    $rterms = array_keys($node->field_religion_single[0]);
+  }
+
+  if (is_array($node->field_beliefset['tids'])){
+    $bterms = $node->field_beliefset['tids'];
+  }
+  else if (is_array($node->field_beliefset[0])){
+    $bterms = array_keys($node->field_beliefset[0]);
+  }
+
+  $rfiles = array();
+  $bfiles = array();
+
+  // Add taxonomy images path info
+  foreach($rterms as $tid) {
+    $rfiles[$tid] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $tid));
+  }
+  foreach($bterms as $tid) {
+    $bfiles[$tid] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $tid));
+  }
+
+  // Generate a true color image
+  // Required for alpha blending (transparency) to work well
+  $im = imagecreatetruecolor(54, 88);
+  if (!$im) {
+    watchdog('Creedia', 'Failed to generate creed image; failed to create image.', WATCHDOG_ERROR);
+    return;
+  }
+  imagealphablending($im, TRUE);  
+  
+  // Get background image
+  $br = imagecreatefromgif(path_to_theme() .'/images/creed-base.gif');
+  if (!$br) {
+    watchdog('Creedia', 'Failed to generate creed image; base image not found.', WATCHDOG_ERROR);
+    return;
+  }
+
+  if (!imagecopy($im, $br, 0, 0, 0, 0, imagesx($br), imagesy($br))){
+    watchdog('Creedia', 'Failed to generate creed image; background image copy failure.', WATCHDOG_ERROR);
+    return;
+  }
+
+  // Add the religion tags
+  $count = count($rterms);
+  $single_firstrow = ($count == 1);
+  $single_secondrow = ($count == 3);
+  $i = 0;
+  foreach($rfiles as $tid => $filename) {
+
+    $yr = imagecreatefrompng($filename);  // create the resource
+    if (!$yr) {
+      watchdog('Creedia', 'Failed to generate creed image; religion term image not found.', WATCHDOG_ERROR);
+      return;
+    }
+
+    // Calculate offsets, measured from the top left corner.
+    switch ($i) {
+    case 0:
+      $offset_x = $single_firstrow ? 19 : 7;
+      $offset_y = 12;
+      break;
+    case 1:
+      $offset_x = 31;
+      $offset_y = 12;
+      break;
+    case 2:
+      $offset_x = $single_secondrow ? 19 : 7;
+      $offset_y = 32;
+      break;
+    case 3:
+      $offset_x = 31;
+      $offset_y = 32;
+      break;
+    }
+
+    // bool imagecopyresized(resource $dst_im, resource $src_im, int $dst_x, int $dst_y, int $src_x, 
+    //                int $src_y, int $dst_w, int $dst_h, int $src_w, int $src_h)
+    if (!imagecopyresized($im, $yr, $offset_x, $offset_y, 0, 0, 16, 16, imagesx($yr), imagesy($yr))){
+      watchdog('Creedia', 'Failed to generate creed image; image copy failure.', WATCHDOG_ERROR);
+      return;
+    }
+    imagedestroy($yr);
+
+    $i++;
+    if ($i > 4) break;
+  }
+
+  // Add the belief set tags
+  $two_rows = ($i < 3); // how many rows are left for belief set tags.
+  $count = count($bterms);
+  $single_firstrow = ($count == 1); 
+  $single_secondrow = ($count == 3);
+  $start_y = $two_rows ? 36 : 56;
+  $i = 0;
+  foreach($bfiles as $tid => $filename) {
+
+    $yr = imagecreatefromgif($filename);  // create the resource
+    if (!$yr) {
+      watchdog('Creedia', 'Failed to generate creed image; belief term image not found.', WATCHDOG_ERROR);
+      return;
+    }
+
+    // Calculate offsets, measured from the top left corner.
+    switch ($i) {
+    case 0:
+      $offset_x = $single_firstrow ? 19 : 7;
+      $offset_y = $start_y;
+      break;
+    case 1:
+      $offset_x = 31;
+      $offset_y = $start_y;
+      break;
+    case 2:
+      $offset_x = $single_secondrow ? 19 : 7;
+      $offset_y = $start_y + 20;
+      break;
+    case 3:
+      $offset_x = 31;
+      $offset_y = $start_y + 20;
+      break;
+    }
+
+    // bool imagecopy(resource $dst_im, resource $src_im, int $dst_x, int $dst_y, int $src_x, 
+    //                int $src_y, int $src_w, int $src_h)
+    if (!imagecopy($im, $yr, $offset_x, $offset_y, 0, 0, imagesx($yr), imagesy($yr))){
+      watchdog('Creedia', 'Failed to generate creed image; image copy failure.', WATCHDOG_ERROR);
+      return;
+    }
+    imagedestroy($yr);
+
+    $i++;
+    if (($two_rows && $i > 3) || (!$two_rows && $i > 1)) break;
+  }
+
+  $directory = CREEDIA_CREEDIMAGE_DIRECTORY;
+  if (!file_check_directory($directory, FILE_CREATE_DIRECTORY)) {
+    watchdog('Creedia', 'Failed to generate creed image; Failed to open image directory.', WATCHDOG_ERROR);
+    return;
+  }
+
+  //  imagesavealpha($im, TRUE);  
+
+  $filename = $directory .'/'. $node->nid .'-00.png';
+  file_delete($filename);
+
+  if (!imagepng($im, $filename)) {
+    watchdog('Creedia', 'Failed to generate creed image; Failed to write image file.', WATCHDOG_ERROR);
+    return;
+  }
+
+  return;
+}
+
+/**
+ * Delete the generated creed image
+ */
+function creedia_creed_img_delete($nid) {
+  $filename = CREEDIA_CREEDIMAGE_DIRECTORY .'/'. $nid .'-00.png';
+  file_delete($filename);
+  return;
+}
+
+/**
+ * modification of truncate_utf8 to correctly present non-english strings for display
+ * purposes. Per http://drupal.org/node/180452
+ */
+function truncate_utf8d($string, $len, $wordsafe = FALSE, $dots = FALSE) {
+  $slen = drupal_strlen($string);
+  if ($slen <= $len) {
+    return $string;
+  }
+  if ($wordsafe) {
+    $end = $len;
+    while (($string[--$len] != ' ') && ($len > 0)) {};
+    if ($len == 0) {
+      $len = $end;
+    }
+  }
+  if ((ord($string[$len]) < 0x80) || (ord($string[$len]) >= 0xC0)) {
+    return drupal_substr($string, 0, $len) . ($dots ? ' ...' : '');
+  }
+  while (--$len >= 0 && ord($string[$len]) >= 0x80 && ord($string[$len]) < 0xC0) {};
+  return drupal_substr($string, 0, $len) . ($dots ? ' ...' : '');
+}
+

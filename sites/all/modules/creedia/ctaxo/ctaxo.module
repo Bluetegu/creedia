@@ -1,0 +1,702 @@
+<?php
+// $Id$
+/* TODO Automatically add Drupal.settings.basePath
+   In Drupal 5, you would have to add the base path to Drupal.settings yourself
+   if you needed it (it's needed for just about every AHAH/AJAX enabled module
+   if you did it right). Now in Drupal 6, it's added automatically. You can always
+   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
+   called at least once, so this is similar to the way we automatically add
+   drupal.js and jquery.js. */
+
+/* TODO Use drupal_set_breadcrumb() instead of menu_set_location() to set
+   custom breadcrumbs.
+   Currently in D5, menu_set_location() is 'misused' in several modules to set
+   a custom breadcrumb, drupal_set_breadcrumb() should be used instead, as
+   discussed in #177497.
+   Note, when using drupal_set_breadcrumb(), you need to include 'home' but
+   not the current page.
+   Alternatively, if you do want to set the current location in the menu tree
+   as well as affect breadcrumbs, use menu_set_item(). */
+
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO Remove $row argument from db_result() method
+   The $row argument of db_result() was removed from the database abstraction
+   layer in 6.x core, as it was a database dependent option. Developers need to
+   use other handling to replace the needs of this method. */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function ctaxo_theme() {
+  return array(
+    'ctaxo_list' => array(
+      'file' => 'ctaxo.module',
+      'arguments' => array(
+        'vid' => NULL,
+        'content' => NULL,
+      ),
+    ),
+    'ctaxo_term' => array(
+      'file' => 'ctaxo.module',
+      'arguments' => array(
+        'term' => NULL,
+        'content' => NULL,
+      ),
+    ),
+    'ctaxo_sterm' => array(
+      'file' => 'ctaxo.module',
+      'arguments' => array(
+        'term' => NULL,
+        'content' => NULL,
+      ),
+    ),
+    'ctaxo_bar' => array(
+      'file' => 'ctaxo.module',
+      'arguments' => array(
+        'content' => NULL,
+        'go' => NULL,
+      ),
+    ),
+  );
+} */
+
+/*
+ * @file
+ * Provides Creedia's taxonomy-based navigation
+ *
+ * This module provides navigation menus composed of taxonomy
+ * selectors and a taxonomy bar.
+ *
+ * The user selects the term by clicking on the icons. Each click
+ * moves a term from the selector to the bar, and vice versa.
+ * Once the user selects all relevant terms for the query, he/she
+ * press the 'go' button.
+ *
+ * When JS is disabled, the functionality is limitted to selection
+ * of a single term only. The selectors behaves as menus (links)
+ * and the bar shows the current selected term. The 'go' button
+ * is hidden.
+ *
+ * Todos:
+ * - Add support for hierarchy - Can not select 'movements' within
+ *   religions
+ * - Add support for free tags
+ * - Add support for taxonomy assignment wizard
+ *
+ */
+
+// if (!defined(CREEDIA_RELIGION_VID)) {
+//   define("CREEDIA_RELIGION_VID", 2);
+//   define("CREEDIA_BELIEFSET_VID", 3);
+//   define("CREEDIA_FREETAG_VID", 4);
+//   define("CREEDIA_COUNTRY_VID", 5);
+//   define("CREEDIA_GENDER_VID", 6);
+// }
+if (!defined(CREEDIA_RELIGION_VID)) {
+  define("CREEDIA_RELIGION_VID", ctaxo_get_voc_by_name('Religion'));
+  define("CREEDIA_BELIEFSET_VID", ctaxo_get_voc_by_name('Belief Set'));
+  define("CREEDIA_FREETAG_VID", ctaxo_get_voc_by_name('Free Tags'));
+  define("CREEDIA_COUNTRY_VID", ctaxo_get_voc_by_name('Country'));
+  define("CREEDIA_GENDER_VID", ctaxo_get_voc_by_name('Gender'));
+}
+
+if (!defined(CREEDIA_DEFAULTSORT_ID)) {
+  define("CREEDIA_DEFAULTSORT_ID", 'default');
+}
+
+if (!defined(CREEDIA_TAGADELIC_MAX_TERMS)) {
+  define("CREEDIA_TAGADELIC_MAX_TERMS", 320);
+  define("CREEDIA_TAGADELIC_AUTOCOMPLETE_MIN", 1);
+}
+
+function ctaxo_get_voc_by_name($name) {
+  static $vocid = array();
+  if (isset($vocid[$name])) {
+    return $vocid[$name];
+  }
+  else {
+    $sql = "SELECT vid FROM {vocabulary} WHERE name = '%s'";
+    $vid = db_result(db_query($sql, $name));
+    if ($vid) {
+      $vocid[$name] = $vid;
+    }
+    return $vid;
+  }
+}
+
+function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+    case 'list':
+      // If $op is "list", we just need to return a list of block descriptions.
+      // This is used to provide a list of possible blocks to the administrator,
+      // end users will not see these descriptions.
+      $blocks[0]['info'] = t('Creedia: Taxonomy Bar');
+      $blocks[1]['info'] = t('Creedia: Belief-Set Selector');
+      $blocks[2]['info'] = t('Creedia: Religion Selector');
+      $blocks[3]['info'] = t('Creedia: Free Tag Selector');
+      $blocks[4]['info'] = t('Creedia: Country Selector');
+      $blocks[0]['visibility'] = 1; // show only on listed pages
+      $blocks[1]['visibility'] = 1; // show only on listed pages
+      $blocks[2]['visibility'] = 1; // show only on listed pages
+      $blocks[3]['visibility'] = 1; // show only on listed pages
+      $blocks[4]['visibility'] = 1; // show only on listed pages
+      $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."taxonomy\n"."taxonomy/*\n";;
+      $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."opinions\n"."opinions/*\n";
+      $blocks[2]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n";
+      $blocks[3]['pages'] = "opinions\n"."opinions/*\n";
+      $blocks[4]['pages'] = "members\n"."members/*\n";
+      $blocks[0]['weight'] = -5;
+      $blocks[1]['weight'] = -3;
+      $blocks[2]['weight'] = -4;
+      $blocks[3]['weight'] = -2;
+      $blocks[4]['weight'] = -1;
+
+      return $blocks;
+    case 'configure':
+      // If $op is "configure", we need to provide the administrator with a
+      // configuration form. The $delta parameter tells us which block is being
+      // configured. In this example, we'll allow the administrator to customize
+      // the text of the first block.
+      $form = array();
+//       if ($delta == 0) {
+//         // All we need to provide is a text field, Drupal will take care of
+//         // the other block configuration options and the save button.
+//         $form['block_example_string'] = array(
+//           '#type' => 'textfield',
+//           '#title' => t('Block contents'),
+//           '#size' => 60,
+//           '#description' => t('This string will appear in the example block.'),
+//           '#default_value' =>
+//             variable_get('block_example_string',  t('Some example content.')),
+//         );
+//      }
+      return $form;
+    case 'save':
+      // If $op is "save", we need to save settings from the configuration form.
+      // Since the first block is the only one that allows configuration, we
+      // need to check $delta to make sure we only save it.
+//       if ($delta == 0) {
+//         // Have Drupal save the string to the database.
+//         variable_set('block_example_string', $edit['block_example_string']);
+//       }
+      return;
+    case 'view': default:
+
+      // If $op is "view", then we need to generate the block for display
+      // purposes. The $delta parameter tells us which block is being requested.
+      switch ($delta) {
+      case 0:
+        // The subject is displayed at the top of the block. Note that it
+        // should be passed through t() for translation.
+        //          $block['subject'] = t('Navigation');
+        // The content of the block is typically generated by calling a custom
+        // function.
+
+	// in taxonomy page the taxo bar is used to display already selected
+	// taxonomies, not for dynamically add or remove terms
+	$go = arg(0) == 'taxonomy' ? FALSE : TRUE;
+	if ($go) {
+	  // add js for dynamic selection
+	  ctaxo_add_js();
+	}
+
+        $block['content'] = ctaxo_bar($go);
+        break;
+      case 1:
+        $block['content'] = ctaxo_firstlevel(CREEDIA_BELIEFSET_VID);
+        $block['subject'] = t('Belief Set');
+        break;
+      case 2:
+        $block['content'] = ctaxo_firstlevel(CREEDIA_RELIGION_VID);
+        $block['subject'] = t('Religion');
+        break;
+      case 3:
+        $block['content'] = ctaxo_tagadelic(CREEDIA_FREETAG_VID);
+        $block['subject'] = t('Free Tag');
+        break;
+      case 4:
+        $block['content'] = ctaxo_firstlevel(CREEDIA_COUNTRY_VID, FALSE);
+        $block['subject'] = t('Country');
+        break;
+      }
+
+      return $block;
+  }
+}
+
+
+/**
+ * Implementation of hook_menu
+ */
+function ctaxo_menu() {
+  $items = array();
+
+/* TODO
+   Non menu code that was placed in hook_menu under the '!$may_cache' block
+   so that it could be run during initialization, should now be moved to hook_init.
+   Previously we called hook_init twice, once early in the bootstrap process, second
+   just after the bootstrap has finished. The first instance is now called boot
+   instead of init.
+   
+   In Drupal 6, there are now two hooks that can be used by modules to execute code
+   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
+   and runs on each page request, even for cached pages. hook_boot() now only runs
+   for non-cached pages and thus can be used for code that was previously placed in
+   hook_menu() with $may_cache = FALSE:
+   
+   Dynamic menu items under a '!$may_cache' block can often be simplified
+   to remove references to arg(n) and use of '%<function-name>' to check
+   conditions. See http://drupal.org/node/103114.
+   
+   The title and description arguments should not have strings wrapped in t(),
+   because translation of these happen in a later stage in the menu system.
+*/
+  if ($may_cache) {
+  }
+  else {
+    // for unknown reason if I place this in may_cache section it doesn't work
+    $items['taxonomy/term'] = array(
+		     'title' => 'Taxonomy override',
+		     'page callback' => 'ctaxo_taxonomy_page',
+		     'type' => MENU_CALLBACK,
+		     'access arguments' => array('access content'),
+		     );
+
+    $items['d'] = array(
+                     'title' => 'Dynamic Views',
+                     'page callback' => 'ctaxo_dynamic',
+                     'type' => MENU_CALLBACK,
+		     'access arguments' => array('access content'),
+                     'weight' => 1, );
+
+  }
+  return $items;
+
+}
+
+
+
+/**
+ * Creedia dynamic view
+ */
+function ctaxo_dynamic($view) {
+
+  switch($view) {
+  case 'creeds':
+    $type = 'creed';
+    break;
+  case 'opinions':
+    $type = 'opinion';
+    break;
+  case 'members':
+    $type = 'member';
+    break;
+  case 'blogs':
+    $type = 'blog';
+    break;
+  }
+
+  // Remove the /d from the path
+  // Views process the URL written in $_GET
+  $_GET['q'] = strstr($_GET['q'], $view);
+  // reset the menu system
+  $mid = menu_set_active_item($_GET['q']);
+  $item = menu_get_item($mid);
+  $path = $item['path'];
+  $path_terms = explode('/', $path);
+
+  //  menu_set_location(array(array('path' => $view), array('path' => $_GET['q'])));
+  //  watchdog(WATCHDOG_NOTICE, dpr($_GET, TRUE));
+
+  $arg_list = func_get_args();
+  if ($path_terms[1]) {
+    $sort = $path_terms[1];
+    array_shift($arg_list);
+  }
+  else {
+    $sort = CREEDIA_DEFAULTSORT_ID;
+  }
+  $cargs['type'] = $type;
+  $cargs['sort'] = $sort;
+
+  $answer = array();
+  if ($view == 'gallery') {
+    $answer['view'] = cgallery_view($arg_list);
+    $answer['pager'] = theme('pager_results', CREEDIA_IMAGES_PER_GALLERY);
+  }
+  else {
+    if ($sort == 'byway') {
+      $answer['view'] = cdist_byway($arg_list);
+    }
+    else {
+      $answer['view'] = cviews_generate_page($cargs, $arg_list);
+    }
+    $answer['pager'] = theme('pager_results', CREEDIA_NODES_PER_PAGE);
+  }
+  $answer['blocks'] = theme('blocks', 'sidebar_right');
+  //  $html = '<textarea rows="20" cols="80">'. $answer['blocks']  . '</textarea>';
+  //  drupal_set_message($html);
+  //  $answer['feeds'] = drupal_get_feeds();
+  //  $answer['head'] = drupal_get_html_head();
+  //  watchdog(WATCHDOG_NOTICE, $answer['feeds']);
+
+  // pass multiple html pieces in a json array
+  print drupal_to_js($answer);
+  exit();
+}
+
+
+/**
+ * Taxonomy override view (depth 0)
+ */
+function ctaxo_taxonomy_page($terms = '', $op = '') {
+
+  // The view description appears in RSS feeds below the feed title.
+  $view = views_create_view(t('Taxonomy view'), t('The World\'s Creed As People See It.'));
+  views_view_add_page($view, t('Taxonomy'), 'taxonomy/term', 'teaser', TRUE, CREEDIA_NODES_PER_PAGE, '', 1, TRUE);
+
+  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
+  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
+  if ($op != 'feed') {
+    views_view_add_filter($view, 'node', 'type', 'OR',
+			  array('opinion', 'interpretation', 'member', 'image_cck', 'creed', 'blog', 'dblog'), '') ;
+  }
+  else {
+    // no point in feeding members or images
+    views_view_add_filter($view, 'node', 'type', 'OR', array('opinion', 'interpretation', 'creed', 'blog', 'dblog'), '') ;
+  }
+
+  $view->argument = array(
+			  // The taxid title appears by default as the RSS Feed page title
+			  array(
+				'type' => 'taxid',
+				'argdefault' => 2,
+				'title' => (!arg(2) || (arg(2) == 'all') || (arg(2) == '*')) ?
+				t('Creedia Content Feed') : t('Creedia ') .'%1'. t(' Feed'),
+				'options' => 0,
+				'wildcard' => 'all',
+				'wildcard_substitution' => '',
+				),
+			  array(
+				'type' => 'node_feed',
+				'argdefault' => 2,
+				'title' => '',
+				'options' => '',
+				'wildcard' => '',
+				'wildcard_substitution' => '',
+				),
+			  );
+
+  views_view_add_sort($view, 'node', 'created', 'DESC', '');
+
+  views_load_cache();
+  views_sanitize_view($view);
+  return views_build_view('page', $view, array($terms, $op), $view->use_pager, $view->nodes_per_page);
+}
+
+function _ctaxo_base_path() {
+  $mid = menu_get_active_item();
+  $item = menu_get_item($mid);
+  return $item['path'];
+}
+
+/**
+ * Parse URL to a list of terms.
+ * Ignores OR and AND indications.
+ */
+function ctaxo_url_to_terms() {
+
+  $mterm_ids = cviews_url_to_terms_filtered();
+  if ($mterm_ids) {
+    foreach ($mterm_ids as $vid => $vterm_ids) {
+      if ($vterm_ids) {
+	foreach ($vterm_ids as $term_id) {
+	  $terms[] = taxonomy_get_term($term_id);
+	}
+      }
+    }
+  }
+  return $terms;
+}
+
+function ctaxo_add_js() {
+  static $js_added = FALSE;
+  global $locale;
+  if (!$js_added) {
+    drupal_add_js(drupal_get_path('module', 'ctaxo') .'/js/jquery.scrollable-1.0.1.js');
+    drupal_add_js(drupal_get_path('module', 'ctaxo') .'/js/jquery.mousewheel.min.js');
+    drupal_add_js(drupal_get_path('module', 'ctaxo') .'/js/ctaxo.js');
+    //    $settings = array('path' => $locale .'/'._ctaxo_base_path());
+    //    drupal_add_js(array('ctaxo' => $settings), 'setting');
+    $js_added = TRUE;
+  }
+}
+
+function ctaxo_tagadelic($vid) {
+ $path = _ctaxo_base_path() .'/';
+
+ // hopefully number of terms is less than 320
+ $terms = tagadelic_get_weighted_tags(array($vid),
+				      variable_get('tagadelic_levels', 6),
+				      variable_get('tagadelic_page_amount', CREEDIA_TAGADELIC_MAX_TERMS));
+ $terms = tagadelic_sort_tags($terms); // sorting according tagadelic module sort order
+
+ if ($terms) {
+   foreach ($terms as $term) {
+     $entry = theme('freetag', $term, 'tagadelic', $path);
+     $content .= theme('ctaxo_term', $term, $entry);
+   }
+ }
+ return theme('ctaxo_list', $vid, $content);
+}
+
+/**
+ * Return an array of taxonomy terms which are used by at least one node
+ */
+function ctaxo_only_used($vid) {
+  $sql = "SELECT DISTINCT n.tid, d.* FROM {term_node} n ";
+  $sql .= "INNER JOIN {term_data} d ";
+  $sql .= "ON d.tid = n.tid WHERE d.vid = %d ";
+  $sql .= "ORDER BY n.tid";
+
+  $result = db_query(db_rewrite_sql($sql),$vid);
+
+  while ($data = db_fetch_object($result)) {
+    $terms[] = $data;
+  }
+  return $terms;
+}
+
+
+function ctaxo_firstlevel($vid, $all = TRUE) {
+
+  $path = _ctaxo_base_path() .'/';
+  if ($all) {
+    $terms = taxonomy_get_tree($vid, 0, -1, 1); // Get only top hierarchy terms
+  }
+  else {
+    $terms = ctaxo_only_used($vid);
+  }
+
+  if ($terms) {
+    foreach ($terms as $term) {
+      if (drupal_strlen($term->name) > 19) {
+	$term->name = drupal_substr($term->name, 0, 19) . '.';
+      }
+      switch ($vid) {
+      case CREEDIA_RELIGION_VID:
+      case CREEDIA_BELIEFSET_VID:
+      case CREEDIA_COUNTRY_VID:
+	$entry = theme('term', $term, 'both', $path);
+	break;
+      }
+      $content .= theme('ctaxo_term', $term, $entry);
+    }
+  }
+  return theme('ctaxo_list', $vid, $content);
+}
+
+
+function ctaxo_bar($go = TRUE) {
+  // populate the already selected terms
+  $terms = ctaxo_url_to_terms();
+  $path = _ctaxo_base_path()  .'/';
+  if ($terms) {
+    foreach ($terms as $term) {
+      $sterm = TRUE;
+      $parent = NULL;
+      switch ($term->vid) {
+      case CREEDIA_RELIGION_VID:
+	$parents =  taxonomy_get_parents($term->tid, $key = 'vid');
+	$parent = $parents[$term->vid];
+	$sterm = $parent ? FALSE : TRUE;
+	break;
+      case CREEDIA_GENDER_VID:
+	$sterm = FALSE;
+	break;
+      }
+      $entry =  theme('term', $term, 'taxobar', $path, $parent);
+      if ($sterm) {
+	$output .= theme('ctaxo_sterm', $term, $entry);
+      }
+      else {
+	$output .= theme('ctaxo_term', $term, $entry);
+      }
+    }
+  }
+  return theme('ctaxo_bar', $output, $go);
+}
+
+function theme_ctaxo_list($vid, $content) {
+  $output = '<div id="vid_'. $vid .'" class="taxolist items" >';
+  $output .= $content;
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_ctaxo_term($term, $content) {
+  $output = '<div id = "term_'. $term->tid .'" class = "taxoterm vid_'. $term->vid .'">';
+  $output .= $content;
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_ctaxo_sterm($term, $content) {
+  $output = '<div id = "sterm_'. $term->tid .'" class = "staxoterm">';
+  $output .= $content;
+  $output .= '</div>';
+  return $output;
+}
+
+function theme_ctaxo_bar($content, $go) {
+  $output =  '<div id="taxobar">';
+  if ($go) {
+    // set the submit bottom first such that it will not be pushed down by overflowing symbols
+    $output .= '<div id="taxobar-submit" class="jsonly" >'. t('Go') .'</div>';
+    $output .= '<div id="taxobar-throbber" style="display:none;" ></div>';
+    $output .= '<span class = "jsonly taxobar-tip" >'. t('<em>Select</em> terms on the left to filter list.') .'</span>';
+    //  $output .= '<span class="jsdisabled tip">'. t('Enable Javascript to select multiple terms.') .'</span>';
+    $output .= l('', _ctaxo_base_path(), array('attributes' => array('class' => 'jsonly')));
+  }
+  $output .= '<div class="taxobar-target">';
+  $output .= $content;
+  $output .= '</div>';
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * A utility function: Groups node's taxonomy according to vocabulary
+ */
+function ctaxo_node_taxonomy($node) {
+  $terms = array();
+  if ($node->op == 'Preview') {
+    if (isset($node->field_religion_single)) {
+      foreach ($node->field_religion_single['tids'] as $tid) {
+	if (is_numeric($tid)) {
+	  $term = taxonomy_get_term($tid);
+	  $terms['religion'][$term->tid] = $term;
+	}
+      }
+    }
+    else if (isset($node->field_religion)) {
+      foreach ($node->field_religion['tids'] as $tid) {
+	if (is_numeric($tid)) {
+	  $term = taxonomy_get_term($tid);
+	  $terms['religion'][$term->tid] = $term;
+	}
+      }
+    }
+    else if (isset($node->field_religion_affiliation)) {
+      foreach ($node->field_religion_affiliation['tids'] as $tid) {
+	if (is_numeric($tid)) {
+	  $term = taxonomy_get_term($tid);
+	  $parents =  taxonomy_get_parents($term->tid, $key = 'vid');
+	  $parent = $parents[$term->vid];
+	  if ($parent) {
+	    $terms['movement'][$parent->tid][$term->tid] = $term;
+	  }
+	  else {  // Religion
+	    $terms['religion'][$term->tid] = $term;
+	  }
+	}
+      }
+    }
+    if (isset($node->field_beliefset)) {
+      foreach ($node->field_beliefset['tids'] as $tid) {
+	if (is_numeric($tid)) {
+	  $term = taxonomy_get_term($tid);
+	  $terms['beliefset'][$term->tid] = $term;
+	}
+      }
+    }
+    if (isset($node->field_country)) {
+      foreach ($node->field_country['tids'] as $tid) {
+	if (is_numeric($tid)) {
+	  $term = taxonomy_get_term($tid);
+	  $terms['country'][$term->tid] = $term;
+	}
+      }
+    }
+    if (isset($node->field_free_tag)) {
+      foreach ($node->field_free_tag['tids'] as $tid) {
+	if (is_numeric($tid)) {
+	  $term = taxonomy_get_term($tid);
+	  $terms['freetag'][$term->tid] = $term;
+	}
+      }
+    }
+    if (isset($node->field_gender['tids'][0])) {
+      $term = taxonomy_get_term($node->field_gender['tids'][0]);
+      $terms['gender'][$term->tid] = $term;
+    }
+  }
+  else {
+    foreach ((array)$node->taxonomy as $term) {
+      switch ($term->vid) {
+      case CREEDIA_RELIGION_VID:
+	$parents =  taxonomy_get_parents($term->tid, $key = 'vid');
+	$parent = $parents[$term->vid];
+	if ($parent) {
+	  $terms['movement'][$parent->tid][$term->tid] = $term;
+	}
+	else {  // Religion
+	  $terms['religion'][$term->tid] = $term;
+	}
+	break;
+      case CREEDIA_BELIEFSET_VID:
+	$terms['beliefset'][$term->tid] = $term;
+	break;
+      case CREEDIA_FREETAG_VID:
+	$terms['freetag'][$term->tid] = $term;
+	break;
+      case CREEDIA_COUNTRY_VID:
+	$terms['country'][$term->tid] = $term;
+	break;
+      case CREEDIA_GENDER_VID:
+	$terms['gender'] = $term;
+	break;
+      default:
+	break;
+      }
+    }
+  }
+  return $terms;
+}

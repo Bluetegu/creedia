@@ -1,0 +1,1176 @@
+@charset "utf-8";
+/**
+ * Tendu Drupal 5.x Theme For Developers CSS
+ * Updated: $Date: 2008/06/04 00:50:12 $
+ * Author: Tom Bigelajzen - http://tombigel.com
+ */
+
+/* Basic CSS Reset */
+body, div,  dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, p, a,
+pre, code, form, fieldset, legend, input, textarea, p, blockquote, table, th, td {margin:0;padding:0;}
+img, fieldset, legend, table, tr, td, th {border:none;}
+ol, ul, li {list-style-type:none;}
+table, td{vertical-align:top;text-align:left;}
+th{vertical-align:middle;text-align:left;}
+fieldset{padding:0;margin:0;}
+
+/* Drupal CSS Defaults reset */
+.profile,
+.node-form .standard{clear:none;}
+ul.menu{padding:0 0 0 1em;}
+ul.menu li{margin:0 0 0 .5em;}
+.item-list ul li{list-style-image:none;list-style-type:none;padding:0;margin:0;}
+li.leaf{list-style-image:none;list-style-type:none;}
+
+ /* Page layout:
+  *****************************************************
+  * In this section the only changes you need to do are:
+  * 1. Comment/Uncomment the lines that relate to full viewport height
+  * 2. Comment/Uncomment the lines that relate to fixed width or fluid width layout
+  * 3. Set the widths of the page, the content area and the sidebars.
+  *
+  * For readability reasons some selectors has multiple style declerations.
+  * Keep this section clean, add your design CSS in the next section.
+  *
+  * Note:
+  * In many places I'm Using the fact IE6 ignores the !important decleration if the same
+  * attribute appears twice for the same selector to avoid using non-standard hacks.
+  */
+
+/* Fonts
+ * Notes:
+ * - I'm using relative font sizes for 2 reasons:
+ *   1. Accessibility - So users of IE6 will be able to resize fonts.
+ *   2. Font sizes are easier to track this way.
+ * - Note that "line-height" unlike "font-size" is relative to the current element and not to a global line height.
+ * - Basic font size 12px, set as .75em of browsers default 16px size
+ * - Font sizes (when base size is .75em, calculated as desired font size devided by 12):
+ *	 10px = .83em
+ *	 11px = .916em
+ *	 12px = 1em
+ *	 13px = 1.083em
+ *	 14px = 1.166em
+ *	 16px = 1.333em
+ *	 18px = 1.5em
+ *	 20px = 1.666em
+ *   etc...
+ */
+body{font-family:Arial, Helvetica, sans-serif;font-size:100%;}
+#page{font-size:.75em;line-height:1.333em;}
+
+/* Main Layout: */
+
+/* Page width: For fixed width Layout */
+/*#page{width:980px;margin:0 auto;position:relative;}*/
+
+/* Page width: For Fluid width Layout
+  * Notes:
+  * - min and max widths must be set on #content too, calculated according to sidebars widths.
+  * - As a thumb rule I don't deal with non-standard IE hacks so this design degrades to a fixed width in IE6
+  * - To have a full page width in IE6, remove the "width" declerations from #page and #content,
+  *   add "height:1%" to trigger "hasLayout" (For more info - http://www.satzansatz.de/cssd/onhavinglayout.html)
+  * - (For fluid width in IE6 you can use the "width:expression()" hack. But you really shouldn't.)
+  */
+#page{position:relative;width:960px;margin:0 auto;background:#f3f4f7}
+
+/* Content: set hasLayout for IE */
+
+ #content{height:1%}
+
+/* Sidebars widths
+ * - TODO: overcome IE6 "3px float gap" bug without hacks.
+ */
+#sidebar-left{float:left;width:188px;}
+#sidebar-right{float:right;width:214px;}
+
+.one-sidebar #content{margin-right:214px;padding-right:56px;padding-left:35px;}
+.two-sidebars #content{margin-right:214px;padding-right:20px;margin-left:188px;padding-left:20px;}
+
+/* Set hasLayout in IE and clear floats for all main areas
+ * Notes:
+ * "overflow:hidden" is set to clear floats, if it breaks your design,
+ * for example - you are using floating tooltips or dropdown menus,
+ * it can be removed from the corresponding element.
+ * Many times "clear:both" gives the same results.
+ */
+#content-header,
+#content-top,
+#content-area,
+#content-bottom,
+#footer,
+#header,
+#main{width:100%;overflow:hidden;}
+
+/* End of Layout section
+ *****************************************************
+ */
+
+/* Page Design
+ *****************************************************
+ */
+
+/* General Tags */
+body{color:#535d66;background:#fff;}
+h1{font-size:1.833em;line-height:1.333em;font-weight:bold;}
+h2{font-size:1.5em;line-height:1.333em;font-weight:bold;}
+h3{font-size:1.333em;line-height:1.333em;font-weight:bold;}
+h4{font-size:1em;line-height:1.333em;font-weight:bold;}
+h6{font-size:.85em;}
+p{padding-bottom:.5em;}
+td{padding:.2em .5em;}
+dt{font-style:italic;}
+dd{padding:.5em;}
+ul.bullets{padding:.5em 1em;}
+ul.bullets li{margin-left:1.5em;list-style:disc;line-height:1.5em;}
+tr.odd, tr.even{border-bottom:none;}
+tr.even{background:#f8f8f8;}
+
+/* Form Elements  */
+input, select, textarea{font-family:Arial, Helvetica, sans-serif;font-weight:normal;line-height:1em;font-size:1em;}
+textarea{line-height:1.2em;}
+button{font-family:Arial, Helvetica, sans-serif;font-weight:bold;line-height:1em;font-size:13px}
+button{cursor:pointer;}
+
+/* Links */
+a{color:#5297dd;text-decoration:none;}
+/*a{color:#0062a0;text-decoration:none;}*/
+a:hover, a:focus{text-decoration:underline;}
+/*li a.active{color:#0062a0;text-decoration:underline;}*/
+/*li a:visited{color:#0062a0;}*/
+
+/* em styling */
+div.description em {color:red;}
+
+/* Header and Navagation */
+#header{background:#28517a url(images/bg_header.gif) repeat-y 0 0;position:relative;}
+#header-blocks{float:right;padding:5px;font-size:.916em;color:#444;}
+#header-blocks a{color:#444;font-weight:bold;}
+#site-details{padding:4px;position:absolute;bottom:16px;left:256px;}
+#site-logo{float:left;}
+#site-name{}
+#site-slogan{font-size:1.5em;line-height:1.333em;}
+#main-nav{clear:both;width:100%;overflow:hidden;}
+/*  #main-nav ul.menu{padding-left:60px}*/
+#main-nav li{float:left;margin:0 9px 0 0;}
+#main-nav a{color:#fff;text-transform:uppercase;font-size:16px;font-weight:bold;}
+#main-nav a:hover,
+#main-nav a:focus{text-decoration:underline;}
+#main-nav a.active,
+#main-nav a.active:visited{color:#62b00e;}
+
+/* Border with header */
+#header-sub{background:url(images/bg_header_bottom.gif) no-repeat 0 0;}
+/*Main*/
+#main{padding-bottom:50px}
+/* Views, Blocks and Nodes*/
+#sidebar-left .block{margin:0 0 10px 15px}
+#sidebar-right .block{margin:0 19px 10px 0;/*padding:6px;border:1px solid #475d75;*/}
+#sidebar-left .block li,
+#sidebar-right .block li{/*border-top:1px dotted #ddd;padding:3px 0;*/}
+
+.content-title .title{padding:10px;}
+/*#content{margin-top:10px;}*/
+#content .block,
+/*#content .node,*/
+/*#content .view,*/
+#content .profile{padding:12px;border:1px solid #475d75;margin-bottom:10px;}
+#content .view .block,
+#content .node .block,
+.block .block{padding:0;background:0;}
+#mission{padding:12px;border:1px solid #475d75;font-size:1.166em;margin-bottom:10px;}
+.messages{padding:12px;background:#f0fdf0;border:1px solid #e0ede0;margin-bottom:10px;}
+#nav a{font-weight:bold;font-size:1.083em;}
+.meta{font-size:.83em;padding-bottom:.5em;}
+h1#title{font-size:2em;padding:.5em;color:#9caaba;}
+h1#title .title-class{padding-right:.5em;color:#396184;}
+h1#title .title-class{margin-left:36px;}
+.with-sidebar-left h1#title .title-class{margin-left:188px;}
+
+
+/*Tab navigation (override system.css)*/
+.tabs-sort-style #content ul.primary {
+  border-collapse: collapse;
+  padding: .5em 0 .5em .5em;
+  white-space: nowrap;
+  list-style: none;
+  margin: 0;
+  height: auto;
+  line-height: normal;
+  border-bottom: none;
+}
+.tabs-sort-style #content ul.primary li {
+  display: inline;
+  border-right: 1px solid #ccc;
+}
+.tabs-sort-style #content ul.primary li a {
+  background: none;
+  border-width: 0;
+  border-style: none;
+  height: auto;
+  margin-right: 0;
+  padding: 0 .5em 0 0;
+  text-decoration: none;
+  color:#333333;
+}
+.tabs-sort-style #content ul.primary li.active a {
+  background: none;
+  border: none;
+  border-bottom: none;
+  color:#933333;
+}
+.tabs-sort-style #content ul.primary li a:hover {
+  background-color: #eee;
+}
+.tabs-user-style #content ul.primary {
+  border-collapse: collapse;
+  padding: .5em 0px .5em 6px;
+  white-space: nowrap;
+  list-style: none;
+  margin: 0;
+  height: auto;
+  line-height: normal;
+  border-bottom: none;
+}
+.tabs-user-style #content ul.primary li {
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-bottom: 5px solid #ccc;
+}
+.tabs-user-style #content ul.primary li a {
+  background: none;
+  border-width: 0;
+  border-style: none;
+  height: auto;
+  margin-right: 0;
+  padding: 0 12px;
+  text-decoration: none;
+  color:#5e8a13;
+}
+.tabs-user-style #content ul.primary li.active a {
+  background: none;
+  border: none;
+  border-bottom: none;
+  color:#933333;
+}
+.tabs-user-style #content ul.primary li a:hover {
+  background-color: #eee;
+}
+.tabs-user-style #content ul.secondary {
+  border-collapse: collapse;
+  padding: .5em 0px .5em 6px;
+  white-space: nowrap;
+  list-style: none;
+  margin: 0 0 0 10em;
+  height: auto;
+  line-height: normal;
+  border-bottom: none;
+}
+
+.tabs-user-style #content ul.secondary li {
+  padding: 0;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-bottom: 5px solid #ccc;
+}
+.tabs-user-style #content ul.secondary li a {
+  background: none;
+  border-width: 0;
+  border-style: none;
+  height: auto;
+  margin-right: 0;
+  padding: 0 12px;
+  text-decoration: none;
+  color:#5e8a13;
+}
+.tabs-user-style #content ul.secondary li.active a {
+  background: none;
+  border: none;
+  border-bottom: none;
+  color:#933333;
+}
+.tabs-user-style #content ul.secondary li a:hover {
+  background-color: #eee;
+}
+
+span.pager-result{ 
+  float: right;
+  padding: .5em .5em .5em 0;
+  width:auto;
+}
+
+.tabs-sort-style .tabs{margin: 0em 0em 1em;min-height:1.75em;}
+.tabs-user-style .tabs{margin-bottom:1em;}
+span.pager-result em{font-weight:bold;}
+#tabs-title,
+#subtabs-title {font-weight:bold; float:left; padding: .5em .5em .5em 0;width:auto;}
+.content-header{clear:both;}
+
+/*Creeds, Opinions, Members*/
+
+.two-sidebars .node .top{background:url(images/bg_post_top.gif) no-repeat 0 0;margin-bottom:8px;}
+.two-sidebars .node .middle{background:url(images/bg_post_middle.gif) repeat-y 0 0;}
+.two-sidebars .node .bottom{background:url(images/bg_post_bottom.gif) no-repeat 0 100%;width:100%;overflow:hidden;}
+
+.one-sidebar .node .top{background:url(images/bg_node_top.gif) no-repeat 0 0;margin-bottom:8px;}
+.one-sidebar .node .middle{background:url(images/bg_node_middle.gif) repeat-y 0 0;}
+.one-sidebar .node .bottom{background:url(images/bg_node_bottom.gif) no-repeat 0 100%;width:100%;overflow:hidden;}
+
+/*Opinions*/
+#content .node-opinion{border:none;width:100%;overflow:hidden;padding:0em; margin-bottom:1em;}
+.node-opinion .bottom{position:relative;}
+
+.opinion-leftbar{float:left;width:52px;padding:6px 0px;overflow:hidden;}
+.opinion-leftbar-top {padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;margin-bottom:4px;}
+.opinion-leftbar-middle{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;}
+.opinion-leftbar-bottom{padding:0 0 0 3px;height:auto !important;height:20px;width:48px;text-align:center;margin-top:4px;}
+.opinion-leftbar .religion,
+.opinion-leftbar .beliefset{display:inline;padding-right:4px;}
+
+/*.opinion-leftbar-bottom{position:absolute;bottom:6px;}*/
+
+.opinion-main{padding:12px 12px 12px 20px;overflow:hidden;height:1%;}
+/*.two-sidebars .node-item .opinion-main{height:192px;position:relative;}
+.one-sidebar .node-item .opinion-main{height:140px;position:relative;}
+*/
+.node-item .opinion-main .title{font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;color:#24417a;}
+.node-item .opinion-main .title a{color:#24417a;}
+
+.node-item .opinion-main p {padding:0 0 0 0}
+.opinion-footer{width:100%;background:#efe7de;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.opinion-footer .vote{float:left;padding:3px 6px;width:80px;}
+.opinion-footer .vote-text{float:left;padding-left:1em;width:110px;}
+.opinion-footer .childnum{float:left;padding-left:1em;}
+.opinion-footer .date-author{float:right;padding-right:.5em;}
+.opinion-footer .date-author a {color:#57880b;}
+.node-item .opinion-main .morelink{text-align:right;}
+.node-item .opinion-main .morelink a{color:#933333;}
+/*.opinion-main-footer{position:absolute;bottom:6px;}*/
+.opinion-main-footer {padding-top:.5em;}
+
+
+.opinion-main .image{float:right;padding-left:4px;}
+.opinion-main .freetag{display:inline;padding-right:1em;}
+
+.opinion-footer-actions{padding-top:.6em;}
+.opinion-footer-actions .vote,
+.opinion-footer-actions .vote span{float:left;padding-right:.5em;}
+.opinion-footer-actions .vote{font-size:1.25em;}
+.opinion-footer-actions .fivestar-static-form-item{clear:none;width:100px;float:left;margin-top:4px;}
+.opinion-footer-actions form.fivestar-widget{clear:none;width:80px;float:left;}
+.opinion-footer-actions .links{float:right;font-size:1.133em;width:500px;}
+.opinion-footer-actions .links li{float:right;}
+.opinion-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+.node-full .opinion-footer .vote-text{width:auto;}
+.node-full .opinion-footer .childnum{padding-left:16em;}
+
+/*Interpretations*/
+#content .node-interpretation{border:none;width:100%;overflow:hidden;padding:0em; margin-bottom:1em;}
+.node-interpretation .bottom{position:relative;}
+
+.interpretation-leftbar{float:left;width:52px;padding:6px 0px;overflow:hidden;}
+.interpretation-leftbar-top{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;margin-bottom:4px;}
+.interpretation-leftbar-middle{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;}
+.interpretation-leftbar-bottom{padding:0 0 0 3px;height:auto !important;height:20px;width:48px;text-align:center;margin-top:4px;}
+.interpretation-leftbar .religion,
+.interpretation-leftbar .beliefset{display:inline;padding-right:4px;}
+
+/*.interpretation-leftbar-bottom{position:absolute;bottom:6px;}*/
+
+.interpretation-main{padding:12px 12px 12px 20px;overflow:hidden;height:1%;}
+/*.two-sidebars .node-item .interpretation-main{height:192px;position:relative;}
+.one-sidebar .node-item .interpretation-main{height:140px;position:relative;}
+*/
+.node-item .interpretation-main .title{font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;color:#57880b}
+.node-item .interpretation-main .title a{color:#57880b}
+
+.node-item .interpretation-main p {padding:0 0 0 0}
+.interpretation-main-footer .creed-parent a {color:#de5d21;}
+.interpretation-footer{width:100%;background:#efe7de;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.interpretation-footer .vote{float:left;padding:3px 6px;width:80px;}
+.interpretation-footer .adopt-text,
+.interpretation-footer .vote-text{float:left;padding-left:1em;width:110px;}
+.interpretation-footer .childnum{float:left;padding-left:1em;}
+.interpretation-footer .date-author{float:right;padding-right:.5em;}
+.interpretation-footer .date-author a {color:#57880b;}
+.node-item .interpretation-main .morelink{text-align:right;}
+.node-item .interpretation-main .morelink a{color:#933333;}
+/*.interpretation-main-footer{position:absolute;bottom:6px;}*/
+.interpretation-main-footer {padding-top:.5em;}
+
+.interpretation-main .image{float:right;padding-left:4px;}
+.interpretation-main .freetag{display:inline;padding-right:1em;}
+
+.interpretation-footer-actions{padding-top:.6em;}
+.interpretation-footer-actions .adopt,
+.interpretation-footer-actions .adopt span,
+.interpretation-footer-actions .vote,
+.interpretation-footer-actions .vote span{float:left;padding-right:.5em;}
+.interpretation-footer-actions .adopt,
+.interpretation-footer-actions .vote{font-size:1.25em;}
+.interpretation-footer-actions .adopt .flag-wrapper{top:-4px;}
+.interpretation-footer-actions .fivestar-static-form-item{clear:none;width:100px;float:left;margin-top:4px;}
+.interpretation-footer-actions form.fivestar-widget{clear:none;width:80px;float:left;}
+.interpretation-footer-actions .links{float:right;font-size:1.133em;width:400px;}
+.interpretation-footer-actions .links li{float:right;}
+.interpretation-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+.interpretation-footer-actions .adopt span a{float:left;}
+.interpretation-footer-actions .adopt span.flag-throbber{padding:0;float:left;padding-left:1em;}
+
+.node-full .interpretation-footer .adopt-text{width:auto;}
+.node-full .interpretation-footer .vote-text{padding-left:8em;width:auto;}
+.node-full .interpretation-footer .childnum{padding-left:8em;}
+
+/* interpretations list in creed view overrides */
+#interpretations .adopt,
+#interpretations .adopt span{float:left;padding-right:.5em;}
+#interpretations .adopt label{float:left;padding-right:.5em;padding-left:1em;}
+#interpretations .adopt-text,
+#interpretations .childnum{float:left;padding-left:7em;width:auto;}
+#interpretations .date-author,
+#interpretations .adopt-text,
+#interpretations .childnum,
+#interpretations .adopt label{padding-top:4px;}
+#interpretations .adopt span.flag-throbber{padding-top:8px;}
+#interpretations .adopt span a{float:left;}
+#interpretations .adopt span.flag-throbber{padding:0;float:left;padding-left:1em;}
+#interpretations .interpretation-footer{padding:2px 0px;}
+
+/*Creeds*/
+#content .node-creed{border:none;width:100%;overflow:visible;padding:0em; margin-bottom:1em;}
+.node-creed .bottom{position:relative;}
+
+/*.creed-leftbar{float:left;width:52px;text-align:center;padding:6px 0;height:80px;overflow:hidden;}*/
+.creed-leftbar{float:left;width:52px;padding:12px 0px 8px 0px;overflow:hidden;}
+.creed-leftbar-top{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px; width:48px;text-align:center;margin-bottom:4px;}
+.creed-leftbar-middle{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px; width:48px;text-align:center;}
+.creed-leftbar-bottom{padding:0 0 0 3px;height:auto !important;height:20px; width:48px;text-align:center;margin-top:4px;}
+.creed-leftbar .religion,
+.creed-leftbar .beliefset{display:inline;padding-right:4px;}
+/*.node-item .creed-leftbar-bottom{position:absolute;bottom:2px;}*/
+
+
+/*.creed-main{padding:6px;overflow:hidden;position:relative;}*/
+.creed-main{padding:12px 12px 12px 20px;overflow:hidden;height:1%;}
+.creed-main .body{margin-top:1.5em;}
+/*.node-item .creed-main{height:80px;}*/
+.node-full.creed-main .title,
+.node-item.creed-main .title{font-size:1.333em;font-weight:bold;padding-bottom:.5em;line-height:1.1em;}
+.creed-main .origin-statement-wrapper{padding-top:.5em;}
+.node-full .creed-main .origin-statement{padding-bottom:.5em;}
+
+.creed-footer{width:100%;background:#dfe4ec;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.creed-footer .date-author{float:right;padding-right:.5em;}
+.node-full .creed-footer .vote{float:left;padding:3px 6px;width:70px;}
+
+.node-full .creed-footer .vote-text{float:left;padding-left:1em;width:auto;}
+.node-full .creed-footer .childnum{float:left;padding-left:1em;}
+.node-full .creed-footer .childnum{padding-left:5em;}
+.node-full .creed-footer .vote{float:left;padding:3px 6px;width:70px;}
+
+.node-item .creed-footer .vote-text{float:left;width:80px;}
+.node-item .creed-footer .vote{float:left;padding:3px 0px 3px 6px;width:60px;}
+.node-item .creed-footer .childnum{float:left;padding-left:1em;}
+
+.node-item .creed-footer .vote select{display:none;}
+.node-item .creed-footer .vote .form-submit{display:none;}
+
+.creed-footer .adopt,
+.creed-footer .adopt span{float:left;margin:-2px 0;}
+.creed-footer .adopt label{float:left;padding-right:.5em;}
+.creed-footer .adopt-text{float:left;width:80px;}
+.node-full .creed-footer .adopt-text{padding-left:0.5em;}
+.creed-footer .adopt span a{float:left;}
+.creed-footer .adopt span.flag-throbber{padding:0;float:left;padding-left:1em;}
+
+
+.creed-footer-actions .adopt,
+.creed-footer-actions .adopt img,
+.creed-footer-actions .adopt span{float:left;padding-right:.5em;margin:-2px 0;}
+.creed-footer-actions .adopt label{float:left;padding-right:.5em;padding-left:.5em;font-size:1.133em;}
+.creed-footer-actions .adopt-text{float:left;padding-left:.5em;width:auto;}
+.creed-footer-actions .adopt span a{float:left;}
+.creed-footer-actions .adopt span.flag-throbber{padding:0;float:left;padding-left:1em;}
+
+
+.creed-footer-actions{padding-top:.6em;padding-bottom:1.2em;}
+.creed-footer-actions .vote,
+.creed-footer-actions .vote span{float:left;padding-right:.2em;}
+.creed-footer-actions .vote{font-size:1.25em;}
+.creed-footer-actions .cvote-static-form-item{clear:none;width:65px;float:left;}
+.creed-footer-actions form.cvote-widget{clear:none;width:65px;float:left;}
+.creed-footer-actions .links{float:right;font-size:1.133em;width:420px;}
+.creed-footer-actions .links li{float:right;}
+.creed-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+
+/*Member*/
+#content .node-member{border:none;width:100%;overflow:hidden;padding:0em;margin-bottom:1em;}
+.node-member .bottom{position:relative;}
+#cprofile-profiles{margin-top:1em;}
+
+.member-leftbar{float:left;width:52px;padding:12px 0;overflow:hidden;}
+.member-leftbar-top{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;}
+.member-leftbar-bottom{padding:0 0 0 3px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;}
+.member-leftbar .religion,
+.member-leftbar .beliefset{display:inline;padding-right:4px;}
+
+/*.member-leftbar-bottom{position:absolute;bottom:6px;}*/
+
+.two-sidebars .node-item .member-main{padding:12px 12px 12px 20px;overflow:hidden;height:1%;}
+.one-sidebar .node-item .member-main{padding:12px 12px 12px 20px;overflow:hidden;height:1%;}
+.node-item .member-main-top{width:100%;overflow:hidden;}
+.node-item .member-main .image{float:left;padding-right:8px;}
+.node-item .member-main .title{font-size:1.333em;font-weight:bold;padding:.4em 0 0;line-height:1.1em;}
+.node-item .member-main .title a{color:#5297dd;}
+.node-item .member-main .body{margin-top:6px;}
+
+.node-item .member-main blockquote {padding:6px 0 0 0}
+.node-item .member-main p {padding:0 0 0 0}
+/*.node-item .member-footer{width:100%;background:#cdddc7;clear:left;overflow:hidden;padding:6px 0;color:#333;}*/
+.node-item .member-footer{width:100%;background:#d6ddd4;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.node-item .member-footer .childnum{float:left;padding-left:1em;}
+.node-item .member-footer .common{float:left;padding-left:10em;}
+.node-item .member-footer .joined{float:right;padding-right:6px;}
+
+.member-footer-actions{padding-top:.6em;}
+.member-footer-actions .vote,
+.member-footer-actions .vote span{float:left;padding-right:.5em;}
+.member-footer-actions .vote{font-size:1.25em;}
+.member-footer-actions .fivestar-static-form-item{clear:none;width:100px;float:left;margin-top:4px;}
+.member-footer-actions form.fivestar-widget{clear:none;width:200px;float:left;}
+.member-footer-actions .links{float:right;font-size:1.133em;width:360px;}
+.member-footer-actions .links li{float:right;}
+.member-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+.node-item .member-main .morelink{text-align:right;}
+.node-item .member-main .morelink a{color:#933333;}
+/*.node-item .member-main-footer{position:absolute;bottom:6px;}*/
+.node-item .member-main-footer {padding-top:.5em;}
+.node-item .member-main-footer .movement{display:inline;}
+.node-item .member-main-footer .breadcrumb{display:inline;font-size:.916em;padding-right:.5em;}
+
+.member-main .freetag{display:inline;padding-right:1em;}
+.member-main td{padding:0;}
+.member-main tbody{border-style:none;}
+
+.node-member .node-full{padding:0}
+.node-full .member-image{background:#fff;border:1px solid #5e8a13;padding:10px;float:left;margin-top:10px}
+.node-full .member-main .about,
+.node-full .member-main .body,
+.node-full .member-body .body{padding:.5em 0;border-bottom:1px solid #5e8a13;width:100%;overflow:hidden;}
+.node-full .member-main .about{padding-top:0;}
+.node-full .member-main .about .label{display:inline-block;width:8.3em;}
+.node-full .member-main .body .label,
+.node-full .member-body .body .label{font-size:1.333em;color:#24517a;line-height:1.5em;font-weight:bold;}
+.node-full .member-main .morelink{text-align:right;}
+.node-full .member-main .morelink a{color:#5e8a13}
+
+.node-full .member-main{margin-left:240px;padding:6px;height:1%;}
+.node-full .member-body{margin-bottom:1em;clear:left;}
+
+/* Gallery images */
+#content .node-image-cck{border:none;width:100%;overflow:hidden;padding:0em; margin-bottom:1em;}
+.node-image-cck .bottom{position:relative;}
+
+.image-cck-leftbar{float:left;width:52px;padding:6px 0px;overflow:hidden;}
+.image-cck-leftbar-top {padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;margin-bottom:4px;}
+.image-cck-leftbar-middle{padding:0 0 0 5px;min-height:16px;height:auto !important;height:20px;width:48px;text-align:center;}
+.image-cck-leftbar-bottom{padding:0 0 0 3px;height:auto !important;height:20px;width:48px;text-align:center;margin-top:4px;}
+.image-cck-leftbar .religion,
+.image-cck-leftbar .beliefset{display:inline;padding-right:4px;}
+
+.node-full .image-cck-main .default-image,
+.node-full .image-cck-main .featured {float:right; width:32px;margin-top:4px;}
+.node-full .image-cck-main{padding:12px 0px 12px 0px;overflow:hidden;}
+.node-full .image-cck-main .image {padding:.5em 0em;margin:.5em 0em;}
+.image-cck-main-footer {padding-top:.5em;}
+.image-cck-main .freetag{display:inline;padding-right:1em;}
+.image-cck-main .religion{display:inline;padding-right:1em;}
+.image-cck-main .beliefset{display:inline;padding-right:1em;}
+
+.node-item .image-cck-main{padding:12px 12px 12px 20px;overflow:hidden;height:1%;}
+.node-item .image-cck-main .title{font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;color:#24417a;}
+.node-item .image-cck-main .title a{color:#24417a;}
+.node-item .image-cck-main p {padding:0 0 0 0}
+.node-item .image-cck-main .image{float:right;padding-left:4px;}
+
+.image-cck-footer{width:100%;background:#ddc1ca;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.image-cck-footer .vote{float:left;padding:3px 6px;width:80px;}
+.image-cck-footer .vote-text{float:left;padding-left:1em;width:110px;}
+.image-cck-footer .childnum{float:left;padding-left:1em;}
+.image-cck-footer .date-author{float:right;padding-right:.5em;}
+.image-cck-footer .date-author a {color:#57880b;}
+.node-item .image-cck-main .morelink{text-align:right;}
+.node-item .image-cck-main .morelink a{color:#933333;}
+
+.image-cck-footer-actions{padding-top:.6em;}
+.image-cck-footer-actions .vote,
+.image-cck-footer-actions .vote span{float:left;padding-right:.5em;}
+.image-cck-footer-actions .vote{font-size:1.25em;}
+.image-cck-footer-actions .fivestar-static-form-item{clear:none;width:100px;float:left;margin-top:4px;}
+.image-cck-footer-actions form.fivestar-widget{clear:none;width:80px;float:left;}
+.image-cck-footer-actions .links{float:right;font-size:1.133em;width:500px;}
+.image-cck-footer-actions .links li{float:right;}
+.image-cck-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+.node-full .image-cck-footer .vote-text{width:auto;}
+.node-full .image-cck-footer .childnum{padding-left:16em;}
+
+/* Blog */
+#content .node-blog{border:none;width:100%;overflow:hidden;padding:0em; margin-bottom:1em;}
+.node-blog .bottom{position:relative;}
+
+.node-full .blog-main .picture,
+.node-item .blog-main .picture {margin:.5em 1.5em .5em 0;float:left;}
+.node-full .blog-main,
+.node-item .blog-main{padding:12px;overflow:hidden;height:1%;border:1px solid #c6d3f7;}
+.node-item .blog-main .title{font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;}
+.node-full .blog-main .title a,
+.node-item .blog-main .title a{color:#396184;}
+.node-item .blog-main p {padding:0 0 0 0}
+
+
+.blog-main-footer {padding-top:.5em;}
+.blog-main-footer .featured,
+.blog-main-footer .freetag,
+.blog-main-footer .religion,
+.blog-main-footer .beliefset{display:inline;padding-right:4px;padding-bottom:2px;}
+.blog-main .image{float:right;padding-left:4px;}
+
+.blog-footer{width:100%;background:#c6d3f7;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.blog-footer .childnum{float:left;padding-left:1em;}
+.blog-footer .date-author{float:right;padding-right:.5em;}
+.blog-footer .date-author a {color:#57880b;}
+.blog-footer .childnum a {color:#333333;}
+.node-item .blog-main .morelink{text-align:right;}
+.node-item .blog-main .morelink a{color:#933333;}
+
+.blog-footer-actions{padding-top:.6em;}
+.blog-footer-actions .links{float:right;font-size:1.133em;width:500px;}
+.blog-footer-actions .links li{float:right;}
+.blog-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+/* Deed */
+#content .node-deed{border:none;width:100%;overflow:hidden;padding:0em; margin-bottom:1em;}
+.node-deed .bottom{position:relative;}
+
+.node-full .deed-main .picture,
+.node-item .deed-main .picture {margin:.5em 1.5em .5em 0;float:left;}
+.node-full .deed-main,
+.node-item .deed-main{padding:12px;overflow:hidden;height:1%;border:1px solid #c6d3f7;}
+.node-item .deed-main .title{font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;}
+.node-full .deed-main .title a,
+.node-item .deed-main .title a{color:#396184;}
+.node-item .deed-main .deed-when {font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;}
+.deed-when {color:#7BB639;float:right}
+.node-item .deed-main p {padding:0 0 0 0}
+
+.deed-main-footer {padding-top:.5em;}
+.deed-main-footer .featured,
+.deed-main-footer .country,
+.deed-main-footer .freetag,
+.deed-main-footer .religion,
+.deed-main-footer .beliefset{display:inline;padding-right:4px;padding-bottom:2px;}
+.deed-main .image{float:right;padding-left:4px;}
+
+.deed-footer{width:100%;background:#c6d3f7;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.deed-footer .childnum{float:left;padding-left:1em;}
+.deed-footer .date-author{float:right;padding-right:.5em;}
+.deed-footer .date-author a {color:#57880b;}
+.deed-footer .childnum a {color:#333333;}
+.node-item .deed-main .morelink{text-align:right;}
+.node-item .deed-main .morelink a{color:#933333;}
+
+.deed-footer-actions{padding-top:.6em;}
+.deed-footer-actions .links{float:right;font-size:1.133em;width:500px;}
+.deed-footer-actions .links li{float:right;}
+.deed-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+/* Simplenews */
+#content .node-simplenews{border:none;width:100%;overflow:hidden;padding:0em; margin-bottom:1em;}
+.node-simplenews .bottom{position:relative;}
+
+.node-full .simplenews-main .picture,
+.node-item .simplenews-main .picture {margin:.5em 1.5em .5em 0;float:left;}
+.node-full .simplenews-main,
+.node-item .simplenews-main{padding:12px;overflow:hidden;height:1%;border:1px solid #c6d3f7;}
+.node-item .simplenews-main .title{font-size:1.333em;font-weight:bold;padding:0 0 .5em;line-height:1.1em;}
+.node-full .simplenews-main .title a,
+.node-item .simplenews-main .title a{color:#396184;}
+.node-item .simplenews-main p {padding:0 0 0 0}
+
+.simplenews-footer{width:100%;background:#c6d3f7;clear:left;overflow:hidden;padding:6px 0;color:#333;}
+.simplenews-footer .childnum{float:left;padding-left:1em;}
+.simplenews-footer .date-author{float:right;padding-right:.5em;}
+.simplenews-footer .date-author a {color:#57880b;}
+.simplenews-footer .childnum a {color:#333333;}
+.node-item .simplenews-main .morelink{text-align:right;}
+.node-item .simplenews-main .morelink a{color:#933333;}
+
+.simplenews-footer-actions{padding-top:.6em;}
+.simplenews-footer-actions .links{float:right;font-size:1.133em;width:500px;}
+.simplenews-footer-actions .links li{float:right;}
+.simplenews-footer-actions .links img{vertical-align:middle;padding-right:3px;}
+
+/* Faith profile */
+.cprofile-title-bar{background:#8da7c6 url(images/bg_my_creed.gif) repeat-y 0 0;overflow:hidden;padding:3px 0;width:100%;margin: .5em 0;}
+.cprofile-title-bar h2{float:left;padding-left:10px;}
+.cprofile-title-bar .movements{float:right;color:#fff;padding-right:10px;}
+.cprofile-title-bar .movements a{color:#fff;font-size:1.133em;}
+
+.cprofile-facet-title-bar{font-size:1em;padding:8px 0;border-width:1px 0; border-style:solid; border-color:#dee3ef;}
+.cprofile-facet-title-bar h4{padding-left:10px;color:#0062A0}
+.cprofile-facet{margin:.5em 0;overflow:hidden;}
+
+#cprofile .tool{float:right;padding-right:4px;}
+#cprofile .tool{display:none;cursor:pointer;}
+
+#cprofile .delete .tool-delete{display:block;}
+#cprofile .tcollapsed .tool-expand{display:block;}
+#cprofile .texpanded .tool-collapse{display:block;}
+#cprofile .up .tool-up{display:block;}
+#cprofile .down .tool-down{display:block;}
+#cprofile .save .tool-save{display:block;}
+#cprofile .throbber .tool-throbber{display:block;}
+
+#cprofile .morelink{text-align:right;}
+#cprofile .morelink a{color:#5e8a13;}
+
+/* Note: Minor css commands also in sites/all/modules/creedia/cprofile/tabs.css */
+.cprofile-ui-tabs-nav{border:none;}
+.cprofile-ui-tabs-nav li{border:none;background:none;margin:.6em 2em .6em 0;float:left}
+.cprofile-ui-tabs-nav li.cprofile-ui-tabs-selected{border:1px solid #5e8a13;background:none;}
+.cprofile-ui-tabs-nav li a{padding:1px;background:none;color:#333;}
+.cprofile-ui-tabs-panel{padding:0;border:none;background-color:transparent;}
+.creed-panel{border:1px solid #9caaba;margin: 10px 0;position:relative;height:1%;}
+.creed-panel .marker{line-height:1em;font-size:.916em;position:absolute;display:inline-block;padding:0 1px;background:#fff;top:-.6em;left:.6em;border:1px solid #9caaba;}
+/*.cprofile-ui-tabs-panel .entry-wrapper{border-bottom:1px solid #9caaba; width:100%;overflow:hidden;margin-bottom:-1px;}*/
+.jt-drop{height:4px;}
+.cprofile-ui-tabs-panel .entry-wrapper{width:100%;overflow:hidden;}
+.cprofile-entry-main{margin-right:105px;padding:6px 10px;border-right:1px solid #9caaba;min-height:42px;}
+.creed-panel .cprofile-entry-main .origin-statement-wrapper{float:none;min-height:20px;}
+.cprofile-facet-title a {color:#9caab5;font-size:1.2em;}
+.creed-panel a {color:#0062a0;}
+/* Required for jQuery UI sortable to allow adding to an empty list */
+.cprofile-creed-list{ min-height:10px;}
+/* .cprofile-creed-list{ height:auto !important;} */
+/* .cprofile-creed-list{ height:10px;} */
+
+/* NEW WORK */
+.creed-panel .creed-footer{display:none;background:none;border-top:1px solid #9CAABA;}
+.creed-panel .footer-close{float:right;padding-right:6px;}
+
+/* Drag and drop optimizations */
+.cprofile-entry-tags{float:right;width:90px;padding:8px 4px 2px 8px;min-height:44px;line-height:20px;}
+.cprofile-entry-tags .terms{display:inline; padding-right:4px;}
+
+#cprofile-howto{background:#8da7c6 url(images/profile-howto.png) repeat-y 0 0;overflow:hidden;height:182px;width:100%;}
+#cprofile-howto-flag-wrapper{margin-top:6px;margin-left:594px;}
+#cprofile-howto .flag-throbber{display:none;}
+
+.creed-panel .cprofile-entry-tags .terms-disabled{display:none;}
+.in-edit .cprofile-entry-tags .terms-disabled{display:inline;opacity:0.33;}
+
+/* adopted interpretations shown below creed entries in faith profile */
+.interpretation-wrapper{padding:12px 12px 12px 20px;border-top:1px solid #9caaba;margin-top:-1px;overflow:hidden;} 
+.interpretation-wrapper h3{color:#65778d;font-weight:normal;font-size:1.083em;}
+.interpretation-wrapper ul,
+.interpretation-wrapper ol{padding-left:1em;color:#57880b;}
+.interpretation-wrapper ul li{list-style:disc;line-height:1.5em;}
+.interpretation-wrapper ol li{list-style:decimal;line-height:1.5em;}
+.interpretation-wrapper .title{padding-bottom:.5em;padding-top:.5em;}
+.interpretation-wrapper .title a{color:#57880b;font-weight:normal;}
+.interpretation-wrapper .teaser{color:#333;}
+/*block-taxo-images*/
+#sidebar-left .block-taxo-images,
+#sidebar-left .block-taxo-tagadelic{border:none;padding:0;position:relative;height:1%;} 
+.block-taxo-images .middle,
+.block-taxo-tagadelic .middle{width:100%;overflow:hidden;background:url(images/bg_block_left_middle.gif) repeat-y 0 0;}
+.block-taxo-images .top,
+.block-taxo-tagadelic .top{width:100%;overflow:hidden;background:url(images/bg_block_left_top.gif) no-repeat 0 0;}
+.block-taxo-images .bottom,
+.block-taxo-tagadelic .bottom{width:100%;overflow:hidden;background:url(images/bg_block_left_bottom.gif) no-repeat 0 100%;}
+.block-taxo-images h2,
+.block-taxo-tagadelic h2{overflow:hidden;white-space:nowrap;margin-top:-1px;height:1px;}
+.block-taxo-images .middle-border,
+.block-taxo-tagadelic .middle-border{height:1%;margin-left:24px;padding:6px;border:1px solid #475d75;}
+.block-taxo-images .content{}
+.block-taxo-images .next,
+.block-taxo-tagadelic .next{position:absolute;left:4px;bottom:6px;}
+.block-taxo-images .prev,
+.block-taxo-tagadelic .prev{position:absolute;left:4px;top:6px;}
+.block-taxo-images .taxoterm img{vertical-align:middle}
+.block-taxo-images .taxoterm a{padding-left:1em;color:#333;font-size:.916em}
+/* parameters relevant to taxonomy left bar scrolling */
+div.scrollable {position:relative;overflow:auto;height:196px;}/* overflow is overriden if JS is enabled */
+/* Height should be long enough */
+div.scrollable div.items {position:absolute;height: 400px;}
+/* Height of scrollable is a multiple of item to always see a full number of items */
+.block-taxo-images div.scrollable div.items div {height: 22px;}/* Don't know what to use for tagadelic */
+/* Hide the scroll up/down buttons */
+a.disabled { visibility: hidden; }
+
+#block-taxo-images-2 .text{background:url(images/bg_text_religions.gif) no-repeat 6px 50%;}
+#block-taxo-images-1 .text{background:url(images/bg_text_categories.gif) no-repeat 6px 50%;}
+#block-taxo-tagadelic-3 .text{background:url(images/bg_text_freetags.gif) no-repeat 6px 50%;}
+#block-taxo-images-4 .text{background:url(images/bg_text_countries.gif) no-repeat 6px 50%;}
+
+/*Search block*/
+#sidebar-right #block-search-0 {width:100%;overflow:hidden;margin-right:0;}
+#block-search-0 .form-text{vertical-align:middle;border:1px solid #475d75;font-size:1.333em;width:130px;padding:4px 1px;}
+#block-search-0 .form-submit{vertical-align:middle;border:1px solid #475d75;background:url(images/bg_btn_search.gif) repeat-y 0 0;color:#fff;font-size:1.083em;font-weight:bold;width:56px;padding:5px 0}
+#block-search-0 .container-inline{white-space:nowrap;}
+
+/*Gallery*/
+#block-cgallery-0{border:1px solid #475d75;}
+#block-cgallery-0 div{border:1px solid #778799;}
+#block-cgallery-0 div div{border:1px solid #cdd3d9;padding:8px;}
+#block-cgallery-0 div div div{border:none;padding:0}
+
+/*Block Related*/
+.block-related {background:url(images/bg_block_header.gif) no-repeat 0 0;}
+.block-related h2{height:25px;line-height:25px;text-align:center;font-size:1.25em;overflow:hidden;}
+.block-related h2 a{font-weight:bold;font-size:1em;color:#425d73;}
+.block-related .content{border:1px solid #a5b6c6;padding:10px 3px 0 3px;}
+
+.block-related ul{padding:0;margin:0;}
+.block-related ul li{overflow:hidden;width:100%;margin-bottom:9px;}
+.block-related .node-block-leftbar{float:left;width:60px;height:66px;padding:1px;border:1px solid #a5b6c6;overflow:hidden; margin-right:4px}
+.block-related .node-block-main{border-bottom:1px solid #a5b6c6;height:69px;margin-right:4px}
+.block-related .node-block-main .title{font-weight:normal;}
+.block-related .common {color:#63b208;}
+
+.block-related .creed-leftbar-top,
+.block-related .creed-leftbar-middle,
+.block-related .creed-leftbar-bottom{padding:0 0 0 4px;min-height:20px;height:auto !important;height:20px;text-align:center;margin:0;}
+.block-related .creed-leftbar-top{padding:4px 0px 1px 8px;}
+.block-related .creed-leftbar-middle{padding-left: 8px;}
+.block-related .creed-leftbar .terms-religion,
+.block-related .creed-leftbar .terms-beliefset{display:inline;padding-right:4px;}
+.block-related .creed-main{}
+.block-related .creed-main .title a{display:block;font-size:1.083em;font-weight:bold;padding-top:8px;}
+
+.block-related .creed-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+.block-related .opinion-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+.block-related .member-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+.block-related .blog-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+
+.block-related .content{position:relative;height:1%;}
+
+/*Actions*/
+.block-action{margin-right:10px;}
+.block-action a{display:block;background:url(images/bg_sidebar_button.gif) no-repeat 0 0;text-align:center;color:#fff;font-weight:bold;font-size:1.25em;width:199px;height:27px;line-height:27px;}
+
+/*Feedback*/
+.block-feedback a{display:block;background:url(images/bg_feedback_button.gif) no-repeat 0 0;text-align:center;color:#fff;font-weight:bold;font-size:1.25em;width:199px;height:27px;line-height:27px;}
+
+/*Pager*/
+.pager{padding:3px 6px;margin:10px 0 0;}
+
+/* Forums */
+#forum table{width:95%;}
+
+/* Footer */
+#footer{margin-bottom:3em;}
+#footer{text-align:center;font-size:.916em;color:#5297dd;width:100%;padding:.5em 0;border-top:12px solid #ffffff;}
+#footer li a:visited{color:#5297dd;}
+#footer p{padding:0;}
+#footer .block{float:right;}
+#footer ul li.leaf{display:inline;margin:0em 16px;font-size:1em;font-weight:bold;}
+#copyright {float:left;font-size:1em;margin-left:2em;}
+#footer.front-footer{border:none;background:#f3f4f7;}
+
+/*Tweaks for Admin pannels */
+#blocks .block{padding:0;margin:0;}
+
+/* End of Page Design section
+ *****************************************************
+ */
+
+/* JS only tags. This style is overriden by JS code */
+.jsonly { display: none;}
+
+/* Taxobar styling */
+#content .block-ctaxo{background:#f5f7fb;border:1px solid #aabbbe;padding:4px 10px;}
+
+#taxobar{width:100%;overflow:hidden;}
+#taxobar-submit{cursor:pointer;border: 2px outset #475d75;background:#dce4f1;color:#9a2b31;font-weight:bold;float:right;padding:1px 3px}
+#taxobar-throbber{border:2px;float:right;padding:1px 3px;background:url(images/throbber.gif) no-repeat 0 0;background-position: 100% -15px;width:20px;height:20px}
+.taxobar-target{margin-right:36px; min-height:16px;}
+
+/*
+.taxobar-target{width:700px;}
+*/
+#content-top{margin-bottom:10px;}
+#content-top .block-ctaxo{margin-bottom:0;}
+.taxobar-target div{float:left;margin:2px 8px;}
+.taxobar-tip {float:left;margin: 0 8px;line-height:1.9em}
+.taxobar-tip em{font-style:normal;}
+
+.taxobar-target .tagadelic.level1 {font-size : 1em;}
+.taxobar-target .tagadelic.level2 {font-size : 1em;}
+.taxobar-target .tagadelic.level3 {font-size : 1em;}
+.taxobar-target .tagadelic.level4 {font-size : 1em;}
+.taxobar-target .tagadelic.level5 {font-size : 1em;}
+.taxobar-target .tagadelic.level6 {font-size : 1em;}
+.taxobar-target .tagadelic.level7 {font-size : 1em;}
+.taxobar-target .tagadelic.level8 {font-size : 1em;}
+.taxobar-target .tagadelic.level9 {font-size : 1em;}
+.taxobar-target .tagadelic.level10 {font-size : 1em;}
+.taxobar-target .tagadelic.level11 {font-size : 1em;}
+.taxobar-target .tagadelic.levell2 {font-size : 1em;}
+
+/* Cprofile bar styling */
+
+#cprofile-bar-wrapper{background:#f5f7fb;border:1px solid #aabbbe;padding:4px 10px; margin-top:1em;}
+#cprofile-bar{width:100%;overflow:hidden;}
+#cprofile-submit{cursor:pointer;border: 2px outset #475d75;background:#dce4f1;color:#9a2b31;font-weight:bold;float:right;padding:1px 3px;margin-left:.1em;}
+#cprofile-hide{cursor:pointer;border: 2px outset #475d75;background:#dce4f1;color:#9a2b31;font-weight:bold;float:right;padding:1px 3px;margin-left:.1em;}
+.tip {line-height:normal}
+
+.twittername a,
+.country a {margin-left:0.2em;}
+
+/* comments and interpretations-within-creed styling */
+
+#comments-fieldset legend a,
+#interpretations-fieldset legend a {font-size:1.333em;font-weight:bold;}
+#comments-fieldset legend a:hover,
+#interpretations-fieldset legend a:hover, 
+#comments-fieldset legend a:focus,
+#interpretations-fieldset legend a:focus { text-decoration:none;}
+#comments,
+#usercomments,
+#interpretations {margin-bottom:2em;}
+#comments-fieldset,
+#interpretations-fieldset {margin-bottom:2em;}
+#interpretations .fieldset-wrapper,
+#comments .fieldset-wrapper{padding-top:1em;overflow:hidden;}
+
+.comment{border:1px solid #7F98A7; padding:.5em 2.5em .5em 1em; margin-bottom:1em;}
+.comment .content{margin-left:64px;margin-top:0.666em; margin-bottom:0.666em;}
+.comment .footer{margin-left:64px;}
+.comment .footer .date-author{float:right;}
+.comment .footer .links{float:left; }
+.comment-image{background:#fff;float:left;margin-top:.666em;padding:1px;}
+.comment .comment-new {float:right;color:#933333;}
+
+#comments,
+#interpretations{ background:#f7f7ff;height:1%;clear:both;}
+
+/* Fieldset label bug solution per http://drupal.org/node/104175#comment-480811 
+ * Without it interpretation-within-creed label will disappear in some browsers
+ */
+fieldset legend{
+ display: block; /* FF fix */
+ color: #444; /* IE fix */
+ padding-right: .2em; /* FF fix */
+ padding-left: .2em; /* FF fix */
+}
+
+#content-background {background:#f7f7ff;padding:12px; border:1px solid #aabbbe;}
+
+/* login block */
+#header-blocks .block-logintoboggan .content,
+#header-blocks .block-user .content
+{position:absolute;bottom:15px;right:10px;width:180px;}
+#header-blocks .block-logintoboggan .content a,
+#header-blocks .block-user .content a
+{display:inline-block;white-space:nowrap;word-wrap:normal;border:1px outset #6386b5;background:#6386b5;margin-right:.5em;float:right;padding:.5em 1em;color:#ffffff;font-size:1.083em;}
+.not-logged-in #header-blocks .block-logintoboggan .content a,
+.not-logged-in #header-blocks .block-user .content a
+{padding:.5em 3em;}
+
+/* feedback */
+.feedback-messages { padding:1em 0; }
+.feedback-messages fieldset { padding-bottom:.5em; }
+#feedback-form .feedback-submitted,
+#feedback-form .feedback-body, 
+.browserinfo {display:inline; padding-left:.5em; min-width:20em;}
+.feedback-submitted a { padding-right:.5em; }
+
+/* collapsiblock tweaks */
+div .collapsiblockCollapsed,
+div .collapsiblock{margin-right:3px;}
+.collapse-handle {float:right; width:8px; height:20px;}
+
+/* gallery */
+td.view-grid-item{padding:.2em 4px;}
+
+/* front page */
+#front-content-top,
+#front-main,
+#front-mission,
+#front-slogan,
+#front-content{width:100%;overflow:hidden;}
+
+#front-content-top{height:50px;background:#5e8a13;border-top:10px solid #c1c9d6;border-bottom:10px solid #c1c9d6;}
+/*#front-haeder-sub{background:#c1c9d6;height:70px;}*/
+/*#front-header-sub-content{position:relative; top:10px;height:50px;background:#5e8a13;}*/
+#front-main{height:368px;}
+#front-mission{background:url(images/bg_front_mission.gif) no-repeat 0 0;height:100px;position:relative;}
+#front-slogan{background:#5e8a13;height:36px;}
+#front-content{background:#f3f4f7;height:1000px;}
+
+/*#front-slogan ul{font-size:22px;color:#fff;text-align:center;position:relative; top:6px;height:32px;display:block;}*/
+/*#front-slogan ul{font-size:2em;color:#fff;text-align:center;}*/
+#front-slogan ul{font-size:22px;color:#fff;position:relative; top:6px;height:32px;display:block;}
+#front-slogan ul li{padding:4px 0 4px 0;}
+#front-slogan-0{margin-left:20px;}
+#front-slogan-1{margin-left:240px;}
+/*#front-slogan-2{margin-left:500px;}*/
+#front-slogan-2{float:right;margin-right:200px;}
+/*#front-slogan-3{margin-left:680px;}*/
+#front-slogan-3{float:right;margin-right:20px;}
+
+#front-content {display:inline;}
+#front-content #content-bottom{padding:40px 0 80px 0;background:#f3f4f7;}
+
+/* register/info block */
+#front-content-top .block-register{float:left;padding-left:20px;width:220px; }
+#front-content-top .block-register .content a{display:inline-block;white-space:nowrap;word-wrap:normal;border:1px outset #475d75;background:#e6ebf3;margin:14px .5em 0 0;float:left;padding:3px 1em;color:#ffffff;font-size:1em;font-weight:bold;color:#475d75}
+
+/*Block Front*/
+#front-content #content-bottom .block{width:270px;float:left;padding-left:40px;}
+
+.block-front .block-subject{overflow:hidden;background:#a2bdc9;border:1px solid #475d75;margin-bottom:10px;padding:2px 0;height:1%;}
+.block-front h2{font-size:1.25em;float:left;height:1%;}
+.block-front h2 a{font-weight:bold;font-size:1em;color:#425d73;margin:0 5px 0 10px;}
+/*.block-front h2 img{position:absolute;top:5px;left:9em;}*/
+.block-front .featured{position:relative;display:inline-block;margin-top:2px;}
+.block-front .content{border:1px solid #475d75;padding:10px 10px 0 10px;}
+
+.block-front ul{padding:0;margin:0;}
+.block-front ul li{overflow:hidden;width:100%;margin-bottom:10px;}
+.block-front .node-block-leftbar{float:left;width:60px;height:66px;padding:1px;border:1px solid #7c7663;overflow:hidden; margin-right:8px;}
+.block-front .node-block-main{border-bottom:1px solid #7c7663;height:69px;margin-right:4px}
+.block-front .node-block-main .title{font-weight:normal;}
+
+.block-front .creed-leftbar-top,
+.block-front .creed-leftbar-middle,
+.block-front .creed-leftbar-bottom{padding:0 0 0 4px;min-height:20px;height:auto !important;height:20px;text-align:center;margin:0;}
+.block-front .creed-leftbar-top{padding:4px 0px 1px 8px;}
+.block-front .creed-leftbar-middle{padding-left: 8px;}
+.block-front .creed-leftbar .terms-religion,
+.block-front .creed-leftbar .terms-beliefset{display:inline;padding-right:4px;}
+.block-front .creed-main{}
+.block-front .creed-main .title a{display:block;font-size:1.083em;font-weight:bold;padding-top:8px;}
+
+.block-front .creed-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+.block-front .opinion-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+.block-front .member-main{padding:0px 2px 0px 2px;overflow:hidden;position:relative;}
+
+/* news ticker */
+#front-content .block-news{width:700px;float:left;overflow:hidden;margin-top:10px;}
+#news{}
+
+.tickercontainer {
+border-top:1px solid #c5d2e3;
+border-bottom:1px solid #c5d2e3;
+height:27px;
+margin:0pt;
+width:700px;
+}
+.tickercontainer .mask {
+left:10px;
+overflow:hidden;
+position:relative;
+/*top:8px;*/
+width:680px;
+}
+ul.newsticker {
+font-size:1em;
+font-size-adjust:none;
+font-stretch:normal;
+font-style:normal;
+font-variant:normal;
+font-weight:bold;
+left:610px;
+line-height:normal;
+list-style-type:none;
+margin:0pt;
+padding:6px 0 0 0;
+position:relative;
+text-align:left;
+}
+ul.newsticker li {
+float:left;
+margin:0pt;
+padding:0pt;
+}
+
+ul.newsticker span,
+ul.newsticker a {
+color:#f5f7fb;
+font-size:1em;
+font-size-adjust:none;
+font-stretch:normal;
+font-style:normal;
+font-variant:normal;
+font-weight:bold;
+line-height:normal;
+padding:0pt;
+white-space:nowrap;
+display:inline-block;
+}
+ul.newsticker span {
+margin:0pt 10px 0pt 0pt;
+/*padding:0pt 10px 0pt 0pt;*/
+}
+ul.newsticker a {
+margin:0pt 50px 0pt 0pt;
+/*padding:0pt 50px 0pt 0pt;*/
+/*text-decoration:underline;*/
+}
+
+/*#sidebar-right .block-menu li a{font-size:1.083em;font-weight:bold;}*/
+/*#sidebar-right .block-menu li {margin-top:1px;background:}*/
+/*#sidebar-right .block-menu{margin-right:10px;}*/
+#sidebar-right .block-menu a{display:block;background:url(images/bg_menu_button.gif) no-repeat 0 0;text-align:center;color:#fff;font-weight:bold;font-size:1.25em;width:199px;height:27px;line-height:27px;}
+#sidebar-right .block-menu ul.menu{padding:0px 0px 0px 0px;}
+#sidebar-right .block-menu ul.menu li{margin:0px 0px 0px 0px;}
+
+/* style for submissions and FCKeditor WYSIWYG */
+#fckbody ol,
+#fckbody ul,
+.node ol,
+.node ul {list-style-position:inside; }
+#fckbody ul li,
+.node ul li{list-style-type:disc; }
+#fckbody ol li,
+.node ol li{list-style-type:decimal; }
+#fckbody {font-size: 0.75em; line-height:1.333em;} /* align with #page */
+#fckbody {padding: 12px; }
+
+
+#twitter-link{display:block;margin-left:35px;}
+#twitter_div{padding:3px;}
+
+/*Block Twitter and Facebook*/
+.block-twitter {background:url(images/bg_block_header_twitter.gif) no-repeat 0 0;}
+.block-twitter h2{height:25px;line-height:25px;text-align:center;font-size:1.25em;overflow:hidden;}
+.block-twitter h2 a{font-weight:bold;font-size:1em;color:#425d73;}
+.block-twitter .content{border:1px solid #a5b6c6;padding:10px 3px 0 3px;}
+.block-twitter .content{position:relative;height:1%;}
+.block-twitter ul{padding:0;margin:0;}
+.block-twitter ul li{overflow:hidden;width:100%;margin-bottom:9px;}
+
+.block-facebook {background:url(images/bg_block_header_facebook.gif) no-repeat 0 0;}
+.block-facebook h2{height:25px;line-height:25px;text-align:center;font-size:1.25em;overflow:hidden;}
+.block-facebook h2 a{font-weight:bold;font-size:1em;color:#425d73;}
+.block-facebook .content{border:1px solid #a5b6c6;padding:10px 3px 0 3px;}
+.block-facebook .content{position:relative;height:1%;}
+.block-facebook ul{padding:0;margin:0;}
+.block-facebook ul li{overflow:hidden;width:100%;margin-bottom:9px;}
+
+#header-blocks .block-services .content{position:absolute;top:15px;right:10px;width:500px;}
+.block-services .content a{display:inline-block;white-space:nowrap;word-wrap:normal;border:1px outset #6386b5;background:#6386b5;margin-right:.5em;float:right;padding:2px;color:#ffffff;font-size:1.083em;}
+
+.link-field-column .form-item {margin-bottom:0;}
+
+#admin-menu{font-size:12px;}
+
+.fb-widget{clear:both; margin-top:1.666em;}
+

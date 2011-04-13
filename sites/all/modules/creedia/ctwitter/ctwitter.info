@@ -1,0 +1,7 @@
+;$Id$
+name = Ctwitter
+description = Creedia Twitter Integration
+;dependencies[] = package
+dependencies[] = =
+dependencies[] = "Creedia"
+core = 6.x

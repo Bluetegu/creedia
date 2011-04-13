@@ -1,0 +1,546 @@
+<?php
+// $Id$
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO Remove $row argument from db_result() method
+   The $row argument of db_result() was removed from the database abstraction
+   layer in 6.x core, as it was a database dependent option. Developers need to
+   use other handling to replace the needs of this method. */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function cdist_theme() {
+  return array(
+  );
+} */
+
+/** 
+ * @file
+ * Creedia distance
+ *
+ **
+ * This module calculates distances between Creedia members.
+ * 
+ * The current metric is counting the common creeds between two members
+ *
+ * The module:
+ *
+ * - Keeps distances in a table for easy retrieval
+ * - Integrates with Views
+ * - Updated by Flag hook
+ *
+ * The table fields are:
+ *
+ * uid  - userid 
+ * mid  - userid
+ * cnt  - count of common creeds
+ *
+ * Profile sharing should be taken into account when showing the 
+ * distances between members. 
+ * 
+ */
+
+/**
+ * Get distance between two users
+ * 
+ * If user2 is NULL, the distance between user1 and the current logged-in
+ * user is returned.
+ *
+ * If filter is TRUE, the returned distance is filtered according to the
+ * current profile sharing settings of $user1:
+ * - If user1 profile sharing is set to private (255) distance = 0 is always returned
+ * - If user1 profile sharing is set to members-only (2) distance = 0 is returned for anonymous users.
+ * - Else the distance is returned
+ *
+ */ 
+function cdist_dist($uid1, $uid2 = NULL, $filter = TRUE) {
+
+  global $user;
+
+  $uid2 = $uid2 ? $uid2 : $user->uid;
+
+  $sql  = "SELECT cnt FROM {cdist_cache} d WHERE d.uid = %d AND d.mid = %d ";
+  $dist = db_result(db_query($sql, $uid1, $uid2));
+  
+  if ($filter && $dist && !$uid2) {
+    $sql  = "SELECT m.field_profile_sharing_value AS share ";
+    $sql .= "FROM {content_type_member} m ";
+    $sql .= "INNER JOIN {node} n ";
+    $sql .= "ON n.nid = m.nid AND n.vid = m.vid ";
+    $sql .= "WHERE n.uid = %d";
+    $share = db_result(db_query($sql, $uid1));
+    
+    if ($share == 255 ||                   // If profile is private
+	($share > 0 && !$user->uid)) {     // Or if anonymous and profile is only for members
+      $dist = 0;
+    }
+  }
+
+  return $dist;
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function cdist_menu() {
+/* TODO
+   Non menu code that was placed in hook_menu under the '!$may_cache' block
+   so that it could be run during initialization, should now be moved to hook_init.
+   Previously we called hook_init twice, once early in the bootstrap process, second
+   just after the bootstrap has finished. The first instance is now called boot
+   instead of init.
+   
+   In Drupal 6, there are now two hooks that can be used by modules to execute code
+   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
+   and runs on each page request, even for cached pages. hook_boot() now only runs
+   for non-cached pages and thus can be used for code that was previously placed in
+   hook_menu() with $may_cache = FALSE:
+   
+   Dynamic menu items under a '!$may_cache' block can often be simplified
+   to remove references to arg(n) and use of '%<function-name>' to check
+   conditions. See http://drupal.org/node/103114.
+   
+   The title and description arguments should not have strings wrapped in t(),
+   because translation of these happen in a later stage in the menu system.
+*/
+  if (!$may_cache) {
+    $items['admin/content/creedia/cdist/reset'] = array(
+		     'title'    => 'Reset Distance Cache',
+		     'description' => 'Reset Distance Cache',
+		     'page callback' => 'cdist_reset',
+		     'type'     => MENU_CALLBACK,
+		     'access arguments' => array('administer site configuration'),
+		     );
+  }
+  return $items;
+
+}
+
+
+
+/**
+ * Implementation of hook_flag
+ *
+ * Update the distances table once a creed is (de)selected
+ */
+function cdist_flag($event, $flag, $content_id, $account) {
+
+  if ($flag->name == 'adopt' && $account->uid) {
+    // reset cache for specific user
+    cdist_update($account->uid);
+  }
+}
+
+/**
+ * Create a members view sorted according to the distance from the 
+ * logged-in member.
+ *
+ * The only sort option I failed to integrate within cview_generate_page
+ * 
+ */
+function cdist_byway() {
+  global $user;
+
+  $terms = array();
+  $nodes_per_page = CREEDIA_NODES_PER_PAGE;
+  if (func_num_args()) {
+    $arg_list = func_get_args();
+    $current = current($arg_list);
+    if (is_array($current)) {
+      $arg_list = $arg_list[0];
+    }
+    $terms = cgallery_url_to_terms($arg_list);
+  }
+  views_load_cache();
+  views_load_query();
+  $view = views_create_view('byway_view', t('Members'));
+  //views_view_add_page($view, $title, $url, $type, $pager, $nodes_per_page,
+  //                    $header, $header_format, $breadcrumb_no_home = FALSE)
+  views_view_add_page($view, t('Members'), 'members/byway', 'teaser', TRUE, 
+		      $nodes_per_page, '', 1, TRUE);
+
+  $args = implode(", ", array_keys($terms));
+
+  $sql  = "SELECT m.*, n.*, d.cnt ";
+  $sql .= "FROM {content_type_member} m ";
+  $sql .= "INNER JOIN {node} n ";
+  $sql .= "ON m.nid = n.nid AND n.status = 1 ";
+  $sql .= "INNER JOIN {users} u ";
+  $sql .= "ON n.uid = u.uid ";
+  if (!empty($terms)) {
+    $sql .= "INNER JOIN {term_node} tn ";
+    $sql .= "ON tn.nid = m.nid AND tn.tid IN (%s) "; 
+  }
+  $sql .= "LEFT JOIN {cdist_cache} d ";
+  $sql .= "ON d.uid = n.uid AND (m.field_profile_sharing_value != 255 OR m.field_profile_sharing_value IS NULL) "; 
+  $sql .= "AND d.mid = ". $user->uid ." ";
+  $sql .= "WHERE u.status = 1 "; // don't show blocked users n.status = 1 for all members published
+  $sql .= "GROUP BY n.nid ";
+  $sql .= "ORDER BY d.cnt DESC, n.created DESC ";
+  
+  // need to provide special count query for the pager to work. 
+  $count_query =  "SELECT COUNT(DISTINCT(m.nid))FROM {content_type_member} m ";
+  $count_query .= "INNER JOIN {node} n ";
+  $count_query .= "ON m.nid = n.nid AND n.status = 1 ";
+  if (!empty($terms)) {
+    $count_query .= "INNER JOIN {term_node} tn ";
+    $count_query .= "ON tn.nid = m.nid AND tn.tid IN (%s) "; 
+  }
+
+  $result = pager_query(db_rewrite_sql($sql), $nodes_per_page, 0, $count_query, $args);
+  $items = array();
+  while ($item = db_fetch_object($result)) {
+    $items[] = $item;
+  }
+   
+  $view->build_type = 'page';
+  $view->type = 'teaser';
+  $view->num_rows = $nodes_per_page;
+  views_sanitize_view($view);
+
+  $output = views_theme('views_view', $view, 'page', $items, NULL, array());
+  if (!$output) {
+    $output = t('No member tagged with the selected terms.');
+  }
+  return $output;
+}
+
+
+/**
+ * Create a block content that shows the 3 members that have most number
+ * of creeds (ways) with the user whose profile is presented on the page.
+ *
+ */
+function cdist_myway($uid) {
+  global $user;
+  $node = cprofile_get_member($uid);
+  $share = $node->field_profile_sharing[0]['value'];
+
+  // don't reveal information about the profile by comparing it to other profiles.
+  if ($share == 255 ||    // private profile
+      ($share > 0 && !$user->uid)) {  // members only profile
+    return '';
+  }
+  
+  $limit = CREEDIA_NODES_PER_BLOCK;
+  views_load_cache();
+  views_load_query();
+  $view = views_create_view('myway_prog', t('My Way Members'));
+  views_view_add_block($view, '', 'list', $limit, FALSE, FALSE, '', 1);
+  $view->field = array (
+			array (
+			       'tablename' => 'node_data_field_full_name',
+			       'field' => 'field_full_name_value',
+			       'label' => '',
+			       'handler' => 'content_views_field_handler_group',
+			       'options' => 'default',
+			       ),
+			array (
+			       'tablename' => 'node',
+			       'field' => 'title',
+			       'label' => '',
+			       'handler' => 'views_handler_field_nodelink',
+			       'options' => 'nolink',
+			       ),
+			array (
+			       'tablename' => 'node_data_field_one_liner',
+			       'field' => 'field_one_liner_value',
+			       'label' => '',
+			       'handler' => 'content_views_field_handler_group',
+			       'options' => 'default',
+			       ),
+			array (
+			       'tablename' => 'users',
+			       'field' => 'uid',
+			       'label' => '',
+			       ),
+			array (
+			       'tablename' => 'node',
+			       'field' => 'body',
+			       'label' => '',
+			       'handler' => 'views_handler_field_teaser_plain',
+			       'options' => 48, // number of charcters to truncate teaser
+			       // if one liner is not empty, the teaser will not be shown.
+			       ),
+			array (
+			       'tablename' => 'cdist_cache',
+			       'field' => 'cnt',
+			       ),
+			);
+
+  $sql  = "SELECT n.uid AS users_uid, m.nid, d.cnt, ";
+  $sql .= "m.field_full_name_value AS node_data_field_full_name_field_full_name_value, ";
+  $sql .= "m.field_one_liner_value AS node_data_field_one_liner_field_one_liner_value ";
+  $sql .= "FROM {content_type_member} m ";
+  $sql .= "INNER JOIN {node} n ";
+  $sql .= "ON m.nid = n.nid AND n.status = 1 ";
+  $sql .= "INNER JOIN {users} u ";
+  $sql .= "ON n.uid = u.uid ";
+  $sql .= "LEFT JOIN {cdist_cache} d ";
+  $sql .= "ON d.uid = n.uid ";
+  $sql .= $user->uid ? "AND (m.field_profile_sharing_value != 255 OR m.field_profile_sharing_value IS NULL) " :
+    "AND (m.field_profile_sharing_value = 0 OR m.field_profile_sharing_value IS NULL) "; 
+  $sql .= "AND d.mid = %d ";
+  $sql .= "WHERE d.cnt IS NOT NULL ";  // show only members with common ways
+  $sql .= "AND u.status = 1 ";  // don't show blocked users n.status = 1 for all members published
+  $sql .= "GROUP BY n.nid ";
+  $sql .= "ORDER BY d.cnt DESC, n.created DESC ";
+
+  $result = db_query_range(db_rewrite_sql($sql), $uid, 0, $limit);
+  $items = array();
+  while ($item = db_fetch_object($result)) {
+    $items[] = $item;
+    //    firep($item, 'item');
+  }
+
+  $view->build_type = 'block';
+  $view->type = 'list';
+  $view->num_rows = $limit;
+  views_sanitize_view($view);
+   
+  $output = views_theme('views_view', $view, 'block', $items, NULL, array());
+  return $output;
+}
+
+/**
+ * Implementation of hook_block
+ */
+function cdist_block($op = 'list', $delta = 0, $edit = array()) {
+  global $user;
+  $uid = $user->uid;
+
+  switch ($op) {
+  case 'list':
+    $blocks[0]['info'] = t('Creedia: My Way Members');
+    $blocks[0]['visibility'] = 1; // show only on listed pages
+    $blocks[0]['pages'] = "user/*\n";
+    return $blocks;
+  case 'configure':
+    $form = array();
+    return $form;
+  case 'save':
+    return;
+  case 'view': default:
+    switch ($delta) {
+    case 0:
+      if (is_numeric(arg(1))) {
+	$title = t('My Way Members');
+	$path = 'members/byway';
+	$block['subject'] = l('» '. $title, $path, array('attributes' => array('title' => $description)));
+	$block['content'] = cdist_myway(arg(1));
+      }
+      break;
+    } 
+  }
+  return $block;
+}
+
+
+
+/**
+ * Resets the cache and recalculate
+ * the distances between all users
+ *
+ * NOT SCALABLE FOR LARGE NUMBER OF USERS
+ * USE CRON INSTEAD
+ *
+ */ 
+function cdist_reset() {
+
+  // Delete all data from cache
+  $sql  = "DELETE FROM {cdist_cache} ";
+  db_query($sql);
+
+  // Run over all users and update the cache
+  $sql  = "SELECT uid FROM {node} ";
+  $sql .= "WHERE type = 'member' AND status = 1 ";
+  $result = db_query($sql);
+  while ($data = db_fetch_object($result)) {
+    cdist_update($data->uid);
+  }
+
+  $output = t('Distance between all users was re-calculated.');
+  return $output;
+  
+}
+
+/**
+ * update the distances from a given user
+ *
+ * called when a adopts a creed to his/her profile
+ * called also at intial cache buildup
+ *
+ * Params: $uid of member
+ */ 
+function cdist_update($uid) {
+
+  // Calculate distances of all members to member ($nid, $uid)
+  // List only the ones that have common creeds with specified member
+  $sql =  "SELECT n.uid, %d AS mid, COUNT(g.content_id) AS cnt ";
+  $sql .= "FROM {node} n ";
+  $sql .= "INNER JOIN {flag_content} f ";                   // Add content flaged by each member
+  $sql .= "ON f.uid = n.uid ";
+  //  $sql .= "INNER JOIN {node} c "; // Add node information per each flag (to filter creeds)
+  //  $sql .= "ON c.nid = f.content_id ";
+  $sql .= "INNER JOIN {flag_content} g ";                   // Add nodes selected by member
+  $sql .= "ON f.content_id = g.content_id AND f.fid = g.fid AND g.uid = %d ";  // Creeds selected by uid
+  $sql .= "WHERE n.type = 'member' AND n.status = 1 AND n.uid != %d ";         // Don't include self 
+  //  $sql .= "AND c.type ='creed' AND c.status = 1 ";
+  $sql .= "AND f.fid = %d "; // Adopt flag
+  $sql .= "GROUP BY n.nid ";
+
+  // get flag info
+  $flag = flag_get_flag('adopt');
+
+  if (!db_query_temporary($sql, $uid, $uid, $uid, $flag->fid, 'temp_cdist_cache_'. $uid)){
+      watchdog('creedia', 'CDIST: failed to create temporary table', WATCHDOG_ERROR);
+  };
+
+  // Delete all distances from this user
+  $sql  = "DELETE FROM {cdist_cache} WHERE uid = %d OR mid = %d";
+  db_query($sql, $uid, $uid);
+
+  // Add the newly calculated distances
+  $sql  = "INSERT INTO {cdist_cache} SELECT mid, uid, cnt FROM temp_cdist_cache_" . $uid;
+  db_query($sql, $uid);
+  $sql  = "INSERT INTO {cdist_cache} SELECT uid, mid, cnt FROM temp_cdist_cache_". $uid;
+  db_query($sql, $uid);
+  
+  return;
+}  
+
+
+
+// /**
+//  * Implementation of hook_views_tables
+//  *
+//  * Provide info about the distance table
+//  */
+
+// function cdist_views_tables() {
+
+//   global $user;
+//   //  if ($user->uid == 0)
+//   watchdog('creedia', 'CDist: In views tables.', WATCHDOG_ERROR);
+
+//   $tables['cdist_cache'] = array(
+//     'name' => 'cdist_cache',
+//     'provider' => 'internal',
+//     'join' => array(
+//       'left' => array(
+//         'table' => 'node',
+//         'field' => 'uid'
+//       ),
+//       'right' => array(
+//         'field' => 'uid'
+//       )
+//     ),
+//     'filters' => array(
+//       'mid' => array(
+//          'name' => t('Creedia: User uid'),
+//          'operator' => 'views_handler_operator_andor',
+//          'help' => t('If set, the users distances to this user will be calculated. Otherwise, the users distance to the logged in user will be calculated.'),
+//       ),
+//     ),
+//     'fields' => array(
+//       'cnt' => array(
+//         'name' => t('Creedia: Member distance'),
+//         'help' => t('Display the number of common creeds'),
+// 	'query_handler' => 'views_query_handler_dist',
+//       ),
+//     ),
+//     'sorts' => array(
+//       'cnt' => array(
+//         'name' => t('Creedia: Member distance'),
+//         'help' => t('Sort by the number of common creeds'),
+//       ),
+//     ),
+//   );
+
+//   return $tables;
+// }
+
+
+// function views_query_handler_dist($fielddata, $fieldinfo, &$query) {
+
+//   firep($fielddata, 'fielddata');
+//   firep($fieldinfo, 'fieldinfo');
+//   firep($query, 'query');
+//   watchdog('creedia', 'CDIST: hook query hander dist called.', WATCHDOG_ERROR);
+//   return;
+// }
+
+// /**
+//  * Views arguments hook.
+//  * Give an argument handler to select the user from which to measure distance
+//  */
+// function cdist_views_arguments() {
+//   $arguments['cdist'] = array('name' => t("Creedia: uid"),
+// 			      'help' => t("This argument selects the user to measure the distance from."),
+// 			      'handler' => "cdist_arg_uid",
+// 			      );
+
+//   return $arguments;
+// }
+
+// /**
+//  * Views uid argument handler
+//  */
+// function cdist_arg_uid($op, &$query, $argtype, $arg = '') {
+//   switch ($op) {
+//     case 'summary':
+//       $fieldinfo['field'] = "users.name";
+//       return $fieldinfo;
+//       break;
+//     case 'filter':
+//       $uid = intval($arg);
+//       $argdata = _views_get_arguments();
+//       break;
+//     case 'link':
+//       $name = ($query->name ? $query->name : variable_get('anonymous', t('Anonymous')));
+//       return l($name, "$arg/" . intval($query->uid));
+//     case 'title':
+//       if (!$query) {
+//         return variable_get('anonymous', t('Anonymous'));
+//       }
+//       $user = db_fetch_object(db_query("SELECT name FROM {users} WHERE uid = '%d'", $query));
+//       return $user->name;
+//   }
+// }
+

@@ -1,0 +1,43 @@
+/*@import "flora.css";*/
+
+/* Caution! Ensure accessibility in print and other media types... */
+@media projection, screen { /* Use class for showing/hiding tab content, so that visibility can be better controlled in different media types... */
+    .cprofile-ui-tabs-hide {
+        display: none !important;
+    }
+}
+
+/* Hide useless elements in print layouts... */
+@media print {
+    .cprofile-ui-tabs-nav {
+        display: none;
+    }
+}
+
+/* Skin */
+.cprofile-ui-tabs-nav:after { /* clearing without presentational markup, IE gets extra treatment */
+    display: block;
+    clear: both;
+    content: " ";
+}
+
+.cprofile-ui-tabs-disabled {
+    opacity: .4;
+    filter: alpha(opacity=40);
+}
+.cprofile-ui-tabs-nav .cprofile-ui-tabs-disabled a:link, .cprofile-ui-tabs-nav .cprofile-ui-tabs-disabled a:visited {
+    color: #000;
+}
+.cprofile-ui-tabs-panel {
+    border: 1px solid #519e2d;
+    padding: 10px;
+    background: #fff; /* declare background color for container to avoid distorted fonts in IE while fading */
+}
+
+/* Additional IE specific bug fixes... */
+* html .cprofile-ui-tabs-nav { /* auto clear @ IE 6 & IE 7 Quirks Mode */
+    display: inline-block;
+}
+*:first-child+html .cprofile-ui-tabs-nav  { /* auto clear @ IE 7 Standards Mode - do not group selectors, otherwise IE 6 will ignore complete rule (because of the unknown + combinator)... */
+    display: inline-block;
+}

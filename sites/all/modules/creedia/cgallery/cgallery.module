@@ -1,0 +1,546 @@
+<?php
+// $Id$
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO hook_nodeapi('submit') has been replaced by op='presave'
+   There is no longer a 'submit' op for nodeapi. Instead you may use the newly
+   created 'presave' op. Note, however, that this op is invoked at the beginning
+   of node_save(), in contrast to op='submit' which was invoked at the end of
+   node_submit(). Thus 'presave' operations will be performed on nodes that are
+   saved programatically via node_save(), while in Drupal 5.x op='submit' was
+   only applied to nodes saved via the node form. Note that the node form is now,
+   in effect, a multistep form (for example when previewing), so if you need to
+   fix up the data in the node for re-building the form, use a #submit function
+   added to the node form's $form array. */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function cgallery_theme() {
+  return array(
+  );
+} */
+
+/*
+ * @file
+ * Builds Creedia's gallery, default image handling and slideshow block.
+ */
+
+if (!defined(CREEDIA_IMAGES_PER_SLIDESHOW)) {
+  define("CREEDIA_IMAGES_PER_SLIDESHOW", 5);
+  define("CREEDIA_IMAGES_PER_GALLERY", 24);
+}
+
+/**
+ * Implementation of hook_perm
+ */
+function cgallery_perm() {
+  return array('administer creedia gallery');
+}
+
+/**
+ * Implementation of hook_block
+ */
+function cgallery_block($op = 'list', $delta = 0, $edit = array()) {
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+  case 'list':
+    // If $op is "list", we just need to return a list of block descriptions.
+    // This is used to provide a list of possible blocks to the administrator,
+    // end users will not see these descriptions.
+    $blocks[0]['info'] = t('Creedia: Related Images Slideshow');
+    $blocks[0]['visibility'] = 1; // show only on listed pages
+    $blocks[0]['pages'] = "gallery\n"."gallery/*\n"."creeds\n"."creeds/*\n";
+
+    return $blocks;
+  case 'configure':
+    // If $op is "configure", we need to provide the administrator with a
+    // configuration form. The $delta parameter tells us which block is being
+    // configured. In this example, we'll allow the administrator to customize
+    // the text of the first block.
+    $form = array();
+    //       if ($delta == 0) {
+    //         // All we need to provide is a text field, Drupal will take care of
+    //         // the other block configuration options and the save button.
+    //         $form['block_example_string'] = array(
+    //           '#type' => 'textfield',
+    //           '#title' => t('Block contents'),
+    //           '#size' => 60,
+    //           '#description' => t('This string will appear in the example block.'),
+    //           '#default_value' =>
+    //             variable_get('block_example_string',  t('Some example content.')),
+    //         );
+    //      }
+    return $form;
+  case 'save':
+    // If $op is "save", we need to save settings from the configuration form.
+    // Since the first block is the only one that allows configuration, we
+    // need to check $delta to make sure we only save it.
+    //       if ($delta == 0) {
+    //         // Have Drupal save the string to the database.
+    //         variable_set('block_example_string', $edit['block_example_string']);
+    //       }
+    return;
+  case 'view': default:
+    // If $op is "view", then we need to generate the block for display
+    // purposes. The $delta parameter tells us which block is being requested.
+
+    $limit = CREEDIA_IMAGES_PER_SLIDESHOW;
+    $terms = cgallery_url_to_terms();
+    $block['content'] = cgallery_slideshow($terms, $limit);
+    $block['subject'] = '';
+  }
+  return $block;
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function cgallery_menu() {
+  $items = array();
+/* TODO
+   Non menu code that was placed in hook_menu under the '!$may_cache' block
+   so that it could be run during initialization, should now be moved to hook_init.
+   Previously we called hook_init twice, once early in the bootstrap process, second
+   just after the bootstrap has finished. The first instance is now called boot
+   instead of init.
+   
+   In Drupal 6, there are now two hooks that can be used by modules to execute code
+   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
+   and runs on each page request, even for cached pages. hook_boot() now only runs
+   for non-cached pages and thus can be used for code that was previously placed in
+   hook_menu() with $may_cache = FALSE:
+   
+   Dynamic menu items under a '!$may_cache' block can often be simplified
+   to remove references to arg(n) and use of '%<function-name>' to check
+   conditions. See http://drupal.org/node/103114.
+   
+   The title and description arguments should not have strings wrapped in t(),
+   because translation of these happen in a later stage in the menu system.
+*/
+  if ($may_cache) {
+    $items['gallery'] = array(
+                     'title' => 'Gallery',
+                     'page callback' => 'cgallery_view',
+                     'type' => MENU_CALLBACK,
+		     'access arguments' => array('access content'),
+                     'weight' => 0, 
+		     );
+  }
+  return $items;
+}
+
+function cgallery_view() {
+  $terms = array();
+  $nodes_per_page = CREEDIA_IMAGES_PER_GALLERY;
+  if (func_num_args()) {
+    $arg_list = func_get_args();
+    $current = current($arg_list);
+    if (is_array($current)) {
+      $arg_list = $arg_list[0];
+    }
+    $terms = cgallery_url_to_terms($arg_list);
+  }
+  views_load_cache();
+  views_load_query();
+  $view = views_create_view('gallery_view', t('Gallery'));
+  //views_view_add_page($view, $title, $url, $type, $pager, $nodes_per_page,
+  //                    $header, $header_format, $breadcrumb_no_home = FALSE)
+  views_view_add_page($view, t('Gallery'), 'gallery', 'bonus_grid', TRUE, 
+		      $nodes_per_page, '', 1, TRUE);
+
+  $view->field = array (
+			array (
+			       'tablename' => 'node_data_field_image',
+			       'field' => 'field_image_fid',
+			       'label' => '',
+			       'handler' => 'content_views_field_handler_ungroup',
+			       'options' => 'thickbox][gallery',
+			       ),			
+			array (
+			       'tablename' => 'node',
+			       'field' => 'title',
+			       'label' => '',
+			       'handler' => 'views_handler_field_nodelink',
+			       'options' => 'link',
+			       ),			
+			);
+
+  // find set of internal images
+  $flag = flag_get_flag('internal_image');
+  $internal_ids = array('0');
+  if (!user_access('administer creedia gallery')) {
+    $sql = "SELECT content_id FROM {flag_counts} WHERE count = 1 AND fid = %d ";
+    $result = db_query($sql, $flag->fid);
+    while ($data = db_fetch_object($result)) {
+      $internal_ids[] = $data->content_id;
+    }
+  }
+  $iids = implode(", ", $internal_ids);
+
+  $args = implode(", ", array_keys($terms));
+
+  $sql  = "SELECT im.nid, ";
+  $sql .= "COUNT(tn.tid) AS cnt, ";
+  $sql .= "im.field_image_fid AS node_data_field_image_field_image_fid, ";
+  $sql .= "n.title AS node_data_field_image_field_image_title, ";
+  $sql .= "n.title AS node_title ";
+  $sql .= "FROM {content_type_image_cck} im ";
+  $sql .= "INNER JOIN {node} n ";
+  $sql .= "ON im.nid = n.nid AND n.status = 1 ";
+  $sql .= "AND im.nid NOT IN (%s) ";   // image is not flagged as internal
+  $sql .= "LEFT JOIN {term_node} tn ";
+  $sql .= empty($terms) ? "ON tn.nid = im.nid " : "ON tn.nid = im.nid AND tn.tid IN (%s) "; 
+  $sql .= "GROUP BY n.nid ";
+  $sql .= "ORDER BY cnt DESC, n.created DESC ";
+  
+  // need to provide special count query for the pager to work. 
+  $count_query =  "SELECT COUNT(DISTINCT(im.nid))FROM {content_type_image_cck} im ";
+  $count_query .= "INNER JOIN {node} n ";
+  $count_query .= "ON im.nid = n.nid AND n.status = 1 ";
+  $count_query .= "AND im.nid NOT IN (%s)";
+
+  $result = pager_query(db_rewrite_sql($sql), $nodes_per_page, 0, $count_query, $iids, $args);
+  $items = array();
+  while ($item = db_fetch_object($result)) {
+    $items[] = $item;
+  }
+  //  if (!empty($terms)) firep($args , 'args in relevant');
+  //  firep($items, 'items in relevant');
+   
+  $view->build_type = 'page';
+  $view->type = 'bonus_grid';
+  $view->num_rows = $nodes_per_page;
+  views_sanitize_view($view);
+   
+  return views_theme('views_view', $view, 'page', $items, NULL, array());
+}
+
+/** 
+ * Return an array with term-ids as keys
+ */
+function cgallery_url_to_terms($arg_list = array()) {
+  static $terms;
+  if (!$terms) {
+    $terms = array();
+    foreach($arg_list as $args) {
+      $selected = taxonomy_terms_parse_string($args);
+      if (!empty($selected)) {
+	$terms += array_flip($selected['tids']);
+      }
+    }
+    // update the taxonomy terms to allow for possible use of
+    // 'related' blocks
+    cviews_url_to_terms_filtered(false, $arg_list);
+  }
+  return $terms;
+}
+
+
+/** 
+ * per http://drupal.org/node/180924 'Run your own query through Views 1.0'
+ * 
+ * @param $terms an array with term-ids as keys.
+ */
+function cgallery_slideshow($terms, $limit) {
+  views_load_cache();
+  views_load_query();
+  $view = views_create_view('gallery_slideshow', t('Gallery Slideshow'));
+  views_view_add_block($view, '', 'slideshow_list', $limit, FALSE, FALSE);
+  $view->field = array (
+			array (
+			       'tablename' => 'node_data_field_image',
+			       'field' => 'field_image_fid',
+			       'label' => '',
+			       'handler' => 'content_views_field_handler_ungroup',
+			       'options' => 'slideshow_block_default',
+			       ),			
+			);
+
+  // find set of internal images
+  $flag = flag_get_flag('internal_image');
+  $sql = "SELECT content_id FROM {flag_counts} WHERE count = 1 AND fid = %d ";
+  $result = db_query($sql, $flag->fid);
+  $internal_ids = array(0);
+  while ($data = db_fetch_object($result)) {
+    $internal_ids[] = $data->content_id;
+  }
+  $iids = implode(", ", $internal_ids);
+
+  $args = implode(", ", array_keys($terms));
+
+  $sql  = "SELECT im.nid, ";
+  $sql .= "COUNT(tn.tid) AS cnt, ";
+  $sql .= "im.field_image_fid AS node_data_field_image_field_image_fid ";
+  $sql .= "FROM {content_type_image_cck} im ";
+  $sql .= "INNER JOIN {node} n ";
+  $sql .= "ON im.nid = n.nid AND n.status = 1 ";
+  $sql .= "AND im.nid NOT IN (%s) ";   // image is not flagged as internal
+  $sql .= "LEFT JOIN {term_node} tn ";
+  $sql .= empty($terms) ? "ON tn.nid = im.nid " : "ON tn.nid = im.nid AND tn.tid IN (%s) "; 
+  $sql .= "GROUP BY n.nid ";
+  $sql .= "ORDER BY cnt DESC, n.created DESC ";
+
+  $result = db_query_range(db_rewrite_sql($sql), $iids, $args, 0, $limit);
+  $items = array();
+  while ($item = db_fetch_object($result)) {
+    $items[] = $item;
+  }
+   
+  $view->build_type = 'block';
+  $view->type = 'slideshow_list';
+  $view->num_rows = $limit;
+  views_sanitize_view($view);
+   
+  return views_theme('views_view', $view, 'block', $items, NULL, array());
+}
+
+/**
+ * Implementation of hook_nodeapi
+ *
+ * The assumption here is that the weight of this module is smaller
+ * than cck in order for it to work. Setging weight to -1 works well.
+ */
+function cgallery_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  // add picture if non is assigned by the author
+  if (($op == 'submit') && 
+      ($node->type == 'interpretation' || $node->type == 'opinion')) {
+    
+    if (!$node->field_opinion_image[0]['filename'] &&
+	!$node->field_opinion_em_picture[0]['embed'] &&
+	!$node->field_opinion_em_video[0]['embed'] &&
+	!$node->field_opinion_em_audio[0]['embed']) {
+      // no multimedia file is assigned
+      
+      $terms = array();
+      if (isset($node->field_religion['tids'][0])){
+	$terms += array_flip($node->field_religion['tids']);
+      }
+      if (isset($node->field_beliefset['tids'][0])){
+	$terms += array_flip($node->field_beliefset['tids']);
+      }
+      if (isset($node->field_free_tag['tids'][0])){
+	$terms += array_flip($node->field_free_tag['tids']);
+      }
+      //      dpr($node);
+      unset($node->field_opinion_em_picture[0]['value']); 
+      $node->field_opinion_em_picture[0]['embed'] = _cgallery_default_image($terms);
+    }
+  }
+}
+
+/**
+ * Provide a url to a default image that best matches the provided terms
+ */
+function _cgallery_default_image($terms = array()) {
+
+  // find fid for default images
+  $flag = flag_get_flag('default_image');
+
+  $args = implode(", ", array_keys($terms));
+
+  $sql  = "SELECT im.nid, ";
+  $sql .= "COUNT(tn.tid) AS cnt ";
+  $sql .= "FROM {content_type_image_cck} im ";
+  $sql .= "INNER JOIN {node} n ";
+  $sql .= "ON im.nid = n.nid AND n.status = 1 ";
+  $sql .= "INNER JOIN {flag_content} f ";
+  $sql .= "ON n.nid = f.content_id AND f.fid = %d ";
+  $sql .= "LEFT JOIN {term_node} tn ";
+  $sql .= empty($terms) ? "ON tn.nid = im.nid " : "ON tn.nid = im.nid AND tn.tid IN (%s) "; 
+  $sql .= "GROUP BY n.nid ";
+  //  $sql .= "ORDER BY cnt DESC ";
+  $sql .= "ORDER BY cnt DESC, rand() ";
+
+  // not sure why I'm asking for 3 best matches, but here it is...
+  $result = db_query_range(db_rewrite_sql($sql), $flag->fid, $args, 0, 3);
+  $image = db_fetch_object($result);
+
+  return $image ? url('node/'. $image->nid, array('absolute' => TRUE)) : '';
+}
+
+
+/*
+ * per http://drupal.org/node/349076 by magoo
+ *
+* related_get_related
+*
+* generated list of nids based on terms and content types.
+*
+* @param array() $terms
+* array of terms to include in the query
+* array('term1', 'term2')
+*
+* @param array() $types
+* array of content types to limit the query
+*
+* @param interger $limit
+* amount of results.
+*
+* @param array() $excluded_nodes
+* array of node ids to exclude from the result list
+*
+* @param array() $data
+* array of additional options
+* supported keys:
+* - 'join' : joins (ex. "LEFT JOIN {term_node} tn ON tn.nid = n.nid")
+*   n is the main node table
+* - 'where' : where clauses
+*
+* @return array()
+* array of nids sorted by relevance to the given terms then sorted
+* to the sticky property and finally to the date (update OR given "publication date")
+*
+*/
+// function cgallery_get_related($terms, $types, $limit, $excluded_nodes = array(), $data = array()) {
+//   global $language;
+//   static $_related_cache;
+//   $sql_types = '';
+//   $sql_where_excludes = '';
+//   $sql_terms = '';
+//   $sql_cck = '';
+//   $sql_join = '';
+
+//   $cache = variable_get('cache', 1);
+//   $cache_age = variable_get('cache_lifetime', 60);
+ 
+//   $key = $language->language;
+
+//   // this query may be called several times on the same page we save it in a variable.
+
+//   // $sql_types
+//   switch (count($types)) {
+//     case 0:
+//       $sql_types = '';
+//       $key .= 'all:';
+//       break;
+//     case 1:
+//       $sql_types = 'LIKE \''. $types[0] .'\'';
+//       $key .= $types[0] . ':';
+//       break;
+//     default:
+//       $sql_types = 'IN (\''. join('\',\'', $types) .'\')';
+//       $key .= join(',', sort($types)) . ':';
+//   }
+
+//   // $sql_where_excludes
+//   if (is_array($excluded_nodes)) {
+//     switch (count($excluded_nodes)) {
+//       case 0:
+//         $sql_where_excludes .= '';
+//         $key .= 'none:';
+//         break;
+//       case 1:
+//         $sql_where_excludes .= 'AND n.nid != '. $excluded_nodes[0];
+//         $key .= $excluded_nodes[0];
+//         break;
+//       default:
+//         $sql_where_excludes .= 'AND n.nid NOT IN ('. join(',', $excluded_nodes) .')';
+//         sort($excluded_nodes);
+//         $key .= join(',', $excluded_nodes) .':';
+//     }
+//   }
+
+//   // $sql_terms
+//   if (is_array($terms)) {
+//     switch (count($terms)) {
+//       case 0:
+//         $sql_where_terms = ' ';
+//         $key .= 'all';
+//         break;
+//       case 1:
+//         $sql_join .= 'LEFT JOIN {term_node} tn ON tn.vid = n.vid';
+//         $sql_where_terms = ' AND tn.tid = '. join(array_keys($terms));
+//         $key .= join(array_keys($terms));
+//         break;
+//       default:
+//         $sql_join = 'JOIN {term_node} tn ON tn.vid = n.vid AND tn.tid IN ('. join(',', array_keys($terms)) .')';
+//         $keys = array_keys($terms);
+//         sort($keys);
+//         $key .= join(',', $keys);
+//     }
+//   }
+ 
+//   // data - additional query information
+//   if (count($data)){
+//     $join = $data['join']?$data['join']:'';
+//     $where = $data['where']?$data['where']:'';
+//     $sql_cck_join .= $join;
+//     $sql_where_excludes .= $where;
+//     $key .= $join . $where;
+//   }
+ 
+//   $key = md5($key);
+//   if (isset($_related_cache[$key])) {
+//     return $_related_cache[$key];
+//   }
+//   if ($cache && $data = cache_get('related:'. $key)){
+//     return $data->data;
+//   }
+   
+
+//   // we manage the manually entered date (CCK field_date).
+//   $sql_cck_select = ', IF(cn.field_date_value, UNIX_TIMESTAMP(cn.field_date_value), n.changed ) AS contentdate';
+//   $sql_cck_join .= ' LEFT JOIN {content_field_date} cn ON cn.vid = n.vid';
+//   $sql_cck_order .= ', contentdate DESC';
+
+//   $query = "
+//     SELECT n.nid, n.title AS title, COUNT(*) AS cnt $sql_cck_select
+//     FROM {node} n
+//     $sql_join
+//     $sql_cck_join
+//     WHERE n.type $sql_types $sql_where_excludes $sql_where_terms
+//     GROUP BY n.nid
+//     ORDER BY cnt DESC , n.sticky DESC $sql_cck_order
+//     LIMIT $limit
+//     ";
+
+//   $nids = array();
+//   if ($results = db_query(db_rewrite_sql($query))) {
+//     while ($i = db_fetch_object($results)) {
+//       $nids[] = $i->nid;
+//     }
+//   }
+//   $_related_cache[$key] = $nids;
+//   if ($cache){
+//     cache_set('related:'. $key, $nids, time() + $cache_age);
+//   }
+//   return $nids;
+// }
+
+

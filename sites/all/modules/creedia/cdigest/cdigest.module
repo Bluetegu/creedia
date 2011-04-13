@@ -1,0 +1,254 @@
+<?php
+// $Id$
+/* TODO FormAPI image buttons are now supported.
+   FormAPI now offers the 'image_button' element type, allowing developers to
+   use icons or other custom images in place of traditional HTML submit buttons.
+
+$form['my_image_button'] = array(
+  '#type'         => 'image_button',
+  '#title'        => t('My button'),
+  '#return_value' => 'my_data',
+  '#src'          => 'my/image/path.jpg',
+); */
+
+/* TODO New user_mail_tokens() method may be useful.
+   user.module now provides a user_mail_tokens() function to return an array
+   of the tokens available for the email notification messages it sends when
+   accounts are created, activated, blocked, etc. Contributed modules that
+   wish to make use of the same tokens for their own needs are encouraged
+   to use this function. */
+
+/* TODO
+   There is a new hook_watchdog in core. This means that contributed modules
+   can implement hook_watchdog to log Drupal events to custom destinations.
+   Two core modules are included, dblog.module (formerly known as watchdog.module),
+   and syslog.module. Other modules in contrib include an emaillog.module,
+   included in the logging_alerts module. See syslog or emaillog for an
+   example on how to implement hook_watchdog.
+function example_watchdog($log = array()) {
+  if ($log['severity'] == WATCHDOG_ALERT) {
+    mysms_send($log['user']->uid,
+      $log['type'],
+      $log['message'],
+      $log['variables'],
+      $log['severity'],
+      $log['referer'],
+      $log['ip'],
+      format_date($log['timestamp']));
+  }
+} */
+
+/* TODO Implement the hook_theme registry. Combine all theme registry entries
+   into one hook_theme function in each corresponding module file.
+function cdigest_theme() {
+  return array(
+    'cdigest_digest' => array(
+      'file' => 'cdigest.module',
+      'arguments' => array(
+        'bytype' => NULL,
+      ),
+    ),
+  );
+} */
+
+/* TODO Form buttons can define custom #submit and #validate handlers.
+   All forms can have #validate and #submit properties containing lists of
+   validation and submission handlers to be executed when a user submits data.
+   Previously, if a form featured multiple submission buttons to initiate
+   different actions (updating a record versus deleting, for example), it was
+   necessary to check the incoming form_values['op'] for the name of the
+   clicked button, then execute different code based on its value. Now, it is
+   possible to define #validate and #submit properties on each individual form
+   button if desired. */
+
+/* TODO You may want to take advantage of new form-specific alter hooks.
+   The hook_form_alter() is complemented by hook_form_$form-id_alter().
+   Optionally, modules can implement form-specific alteration functions rather
+   than a single hook_form_alter() with many conditional switch statements.
+   This is optional, and is most useful for tidying the code of modules that
+   alter many forms to customize a site's operations.
+   The new function names are built using the following format:
+   [your-module-name]_form_[$form_id]_alter. */
+
+/*
+ * @file
+ * Creedia's Newsletter Digest
+ *
+ * - Add digest of latest entry to the body of the newsletter and allow editing the list per request
+ * - Add 'add digest' button to the newsletter edit form
+ * - When called, embed 20 last entries to the body of the newsletter
+ */
+
+/**
+ * Implementation of hook_form_alter
+ */
+function cdigest_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'simplenews_node_form') {
+    //    watchdog('Creedia', 'In cdigest_from_alter.', WATCHDOG_ERROR);
+    //    dpm($form);
+    // add digest button. Note that in Drupal 5 we use a global #after_build functions and a global
+    // op form_values value to figure out what to do. In Drupal 6 this is deprecated and a per field defined 
+    // function is used instead.
+    $form['digest'] = array('#type' => 'button', '#value' => t('Add Digest'), '#weight' => 0); 
+//     if (!isset($form['#after_build'])) {
+//       $form['#after_build'] = array();
+//     }
+//     if (!in_array('cdigest_form_add_digest', $form['#after_build'])) {
+//       array_unshift($form['#after_build'], 'cdigest_form_add_digest');
+//     }
+
+    // It is much easier to change the body here and not after the form was fully built, i.e. to process
+    // and change the body in the #after_build function.
+
+    if ($form['#post'] && $form['#post']['op'] == t('Add Digest')) {
+      $form['#post']['body'] .= cdigest_digest();
+    }
+  }
+}    
+
+/**
+ * Add digest to the newsletter add/edit node body.
+ */ 
+// function cdigest_form_add_digest($form) {
+//   global $form_values;
+//   // All below follows Preview processing in node.module
+/* TODO The 'op' element in the form values is deprecated.
+   Each button can have #validate and #submit functions associated with it.
+   Thus, there should be one button that submits the form and which invokes
+   the normal form_id_validate and form_id_submit handlers. Any additional
+   buttons which need to invoke different validate or submit functionality
+   should have button-specific functions. */
+//   $op = isset($form_values['op']) ? $form_values['op'] : '';
+//   if ($op == t('Add Digest')) {
+//     drupal_validate_form($form['form_id']['#value'], $form);
+//     if (!form_get_errors()) {
+//       // The post element includes all information that may have been entered by have not been sumbitted
+//       // yet. Note that this is changed in Drupal 7 and become the input element
+//       //            $form_values['body'] .= 'KKKKKKKKKKKKKKKKKKKKKKKKKKK';
+//       //      $form_values['body'] .= cdigest_digest();
+//       //      dpm($form);
+//       //      dvm($form);
+//       //            dvm($form_values);
+//       //      unset($form['#post']);
+
+//       //      $form['bekaka']['title'] = 'opopopop';
+//       //       $form['#post']['body'] .= 'KAMCHATC'. cdigest_digest();
+
+// 	    //       $form['#post']['title'] = 'KAMCHATC';
+// //       $form['title']['#default_value'] .= 'KAMCHATC';
+
+// 	    //       $form['#prefix'] = 'KKKKKKKKKKKKKKKKKKKKKKK';
+      
+//       //      firep($form, 'form in digest');
+//     }
+//   }
+//   return $form;
+// }
+
+
+/**
+ * Add the digest
+ */
+function cdigest_digest() {
+  // types includes all types to be included in the digest ordered by their appearance
+  // i.e. creed will apear first
+  $types = array('creed', 'member', 'dblog', 'opinion', 'interpretation');
+  $type_placeholders = implode(',', array_fill(0, count($types), "'%s'"));
+  $num = 20;
+  $bytype = array_fill_keys($types, array());
+
+  // Get the latest relevant nodes
+  $sql = "SELECT DISTINCT n.nid, n.type from {node} n WHERE n.type IN ($type_placeholders) AND n.status = 1 ORDER BY n.created DESC";
+  $result = db_query_range($sql, $types, 0, $num);
+  while ($data = db_fetch_object($result)) {
+    $bytype[$data->type][] = node_load($data->nid);
+  }
+
+  return theme('cdigest_digest', $bytype);
+}
+
+/**
+ * Theme the digest
+ */
+function theme_cdigest_digest($bytype) {
+
+  $output = '';
+  $title_style = 'font-size:12px;line-height:24px;font-weight:bold;text-decoration:underline;color:#396184';
+
+  foreach($bytype as $type => $nodes) {
+    if (count($nodes)) {
+      switch($type) {
+      case 'dblog': 
+	$title = l('Latest Blog Entries', 'blogs', array('attributes' => array('style' => $title_style), 'absolute' => TRUE));
+	break;
+      case 'creed': 
+	$title = l('Latest Creed Statements', 'creeds', array('attributes' => array('style' => $title_style), 'absolute' => TRUE));
+	break;
+      case 'member': 
+	$title = l('Latest Members', 'members', array('attributes' => array('style' => $title_style), 'absolute' => TRUE));
+	break;
+      default:
+	$title = l('Latest Discussions', 'opinions', array('attributes' => array('style' => $title_style), 'absolute' => TRUE));
+	break;
+      }
+
+      $output .= '<div style="width:100%;clear:both;">';
+
+      $output .= '<div style="width:100%;">'. $title .'</div>';
+
+      foreach($nodes as $node) {
+	$node_title_style = 'font-size:16px;font-weight:bold;line-height:20px;text-decoration:none;color:#396184';
+	$node_title = l($node->title, 'node/' . $node->nid, array('attributes' => array('style' => $node_title_style), 'absolute' => TRUE));
+	$author = '<div class="date-author" style="font-size:12px;line-height:16px;">'. t('!date by !author ', array('!date' => date("d M Y", $node->changed), '!author' => $node->name)) .'</div>'; 
+	$more = l(t('read more'), 'node/' . $node->nid, array('absolute' => TRUE));
+
+	switch($type) {
+	case 'dblog': 
+	  $body = $node->teaser;
+	  $account = user_load(array('uid' => $node->uid));
+	  $image = theme('user_picture', $account, 'comment');
+	  break;
+	case 'creed': 
+	  //	  if (isset($node->field_origin_statement[0])) {
+	  //        $body = check_plain($node->field_origin_statement[0]['value']);
+	  //	  }
+	  $image = theme('image', CREEDIA_CREEDIMAGE_DIRECTORY .'/'. $node->nid .'-00.png');
+	  $more = '';
+	  break;
+	case 'member': 
+	  $node_title = l(check_plain($node->field_full_name[0]['value']), 'node/' . $node->nid, array('attributes' => array('style' => $node_title_style), 'absolute' => TRUE));
+
+	  $author = '<div class="date-author" style="font-size:12px;line-height:16px;">'. t('joined !date ', array('!date' => date("d M Y", $node->changed))) .'</div>'; 
+
+	  if (isset($node->field_one_liner[0])) {
+	    $body = '<span style="font-weight:bold;font-size:12px;">'. check_plain($node->field_one_liner[0]['value']) .'</span>';
+	  }
+	  else {
+	    $body = $node->teaser;
+	  }
+	  $account = user_load(array('uid' => $node->uid));
+	  $image = theme('user_picture', $account, 'comment');
+	  $more = '';
+	  break;
+	default:
+	  $body = $node->teaser;
+	  $account = user_load(array('uid' => $node->uid));
+	  $image = theme('user_picture', $account, 'comment');
+	  break;
+	}
+
+	$output .= '<div style="padding:10px 0;width:100%;overflow:visible;clear:both">';
+	$output .= '<div class="image" style="float:left; padding:0 8px 2px 0;">'. $image .'</div>';
+	$output .= $node_title;
+	$output .= $author;
+	$output .= $body;
+	$output .= $more;
+	//	$output .= '<div>'. l('More', 'node/' . $node->nid, array('absolute' => TRUE)) .'</div>';
+	//	$output .= '<div style="padding-left:400px;" >'. l('More', 'node/' . $node->nid, array('absolute' => TRUE)) .'</div>';
+	$output .= '</div>';
+      }
+      $output .= '</div>';
+    }
+  }
+  return $output;
+}
