@@ -1,7 +1,6 @@
 ;$Id$
 name = Creedia Front
 description = Creedia Front Page
-;dependencies[] = package
-dependencies[] = =
-dependencies[] = "Creedia"
+package = Creedia
+dependencies[] = creedia
 core = 6.x

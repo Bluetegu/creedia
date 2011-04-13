@@ -1,7 +1,6 @@
 ;$Id$
 name = Creedia
-description = Creedia various
+package = Creedia
+description = Creedia main
 ;dependencies[] = package
-dependencies[] = =
-dependencies[] = "Creedia"
 core = 6.x

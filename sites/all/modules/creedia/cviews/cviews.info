@@ -1,7 +1,7 @@
 ;$Id$
 name = Creedia Views
 description = Creedia Programatic Views
-;dependencies[] = package
-dependencies[] = =
-dependencies[] = "Creedia"
+package = Creedia
+dependencies[] = creedia
+dependencies[] = views
 core = 6.x

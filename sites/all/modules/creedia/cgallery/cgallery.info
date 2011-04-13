@@ -1,7 +1,6 @@
 ;$Id$
 name = Creedia Gallery
 description = Everything related to images in Creedia
-;dependencies[] = package
-dependencies[] = =
-dependencies[] = "Creedia"
+package = Creedia
+dependencies[] = creedia
 core = 6.x
