@@ -1,0 +1,295 @@
+<?php
+// $Id$
+/*
+ * @file
+ * Creedia's Invite
+ *
+ * - Add invite button
+ * - Handle invite (copied from invite module)
+ *
+ */
+
+/**
+ * Implementation of hook_menu
+ */
+function cinvite_menu() {
+  $items = array();
+
+  $items['invite'] = array(
+             'title' => 'Invite your friends and colleagues',
+             'page callback' => 'drupal_get_form',
+             'page arguments' => array('cinvite_invite'),
+             'access arguments' => array('invite friends'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_block
+ */
+function cinvite_block($op = 'list', $delta = 0, $edit = array()) {
+  global $user;
+  $uid = $user->uid;
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+    case 'list':
+      // If $op is "list", we just need to return a list of block descriptions.
+      // This is used to provide a list of possible blocks to the administrator,
+      // end users will not see these descriptions.
+      $blocks[0]['info'] = t('Creedia: Invite Friends');
+      $blocks[0]['visibility'] = 1; // show only on listed pages
+      $blocks[0]['pages'] = "user/*\n";
+
+      return $blocks;
+    case 'configure':
+      // If $op is "configure", we need to provide the administrator with a
+      // configuration form. The $delta parameter tells us which block is being
+      // configured. In this example, we'll allow the administrator to customize
+      // the text of the first block.
+      $form = array();
+      //       if ($delta == 0) {
+      //         // All we need to provide is a text field, Drupal will take care of
+      //         // the other block configuration options and the save button.
+      //         $form['block_example_string'] = array(
+      //           '#type' => 'textfield',
+      //           '#title' => t('Block contents'),
+      //           '#size' => 60,
+      //           '#description' => t('This string will appear in the example block.'),
+      //           '#default_value' =>
+      //             variable_get('block_example_string',  t('Some example content.')),
+      //         );
+      //      }
+      return $form;
+    case 'save':
+      // If $op is "save", we need to save settings from the configuration form.
+      // Since the first block is the only one that allows configuration, we
+      // need to check $delta to make sure we only save it.
+      //       if ($delta == 0) {
+      //         // Have Drupal save the string to the database.
+      //         variable_set('block_example_string', $edit['block_example_string']);
+      //       }
+      return;
+    case 'view': default:
+      // If $op is "view", then we need to generate the block for display
+      // purposes. The $delta parameter tells us which block is being requested.
+        case 0:
+          if (user_access('invite friends')) {
+            if (arg(0) == 'user' && is_numeric(arg(1)) && arg(1) == $uid) {
+              $block['content'] =
+              l(t('Invite Friends'), 'invite', array('attributes' => array('title' => t('Invite Friends to Join Creedia.'))));
+            }
+          }
+          break;
+      }
+  }
+  return $block;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function cinvite_perm() {
+  return array('invite friends');
+}
+
+/**
+ * Invite friends form
+ */
+function cinvite_invite() {
+  global $user;
+
+  if (!$user->uid) return $form;
+  // get member's information
+  $member = cprofile_get_member($user->uid);
+  $from = $user->mail;
+  $fullname = $member->field_full_name[0]['value'];
+
+  firep($member, 'member');
+
+  $form['from'] = array(
+      '#type' => 'item',
+      '#title' => t('From'),
+      '#value' => check_plain($from),
+  );
+
+  $form['subject'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Subject'),
+      '#default_value' => t('!name has sent you an invite!', array('!name' => $fullname)),
+      '#maxlength' => 64,
+      '#description' => t('Type the subject of the invitation e-mail.'),
+      '#required' => TRUE,
+  );
+
+
+  $form['email'] = array(
+          '#title' => t('To'),
+          '#description' => t('Type the e-mail address of the person you would like to invite. You can type multiple email addresses separated by commas.'),
+          '#required' => TRUE,
+          '#type' => 'textfield',
+          '#maxlength' => 64,
+  );
+
+  $form['imessage'] = array(
+          '#title' => t('Message'),
+          '#type' => 'textarea',
+          '#default_value' => theme('cinvite_invite_default_message'),
+          '#description' => t('This message will be sent to the person you are inviting.'),
+          '#rows' => 5,
+  );
+
+  $form['copy'] = array(
+          '#title' => t('Send yourself a copy'),
+          '#type' => 'checkbox',
+  );
+
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Send Invitation')
+  );
+
+  return $form;
+}
+
+/**
+ * Implementation of hook_theme
+ */
+function cinvite_theme($existing, $type, $theme, $path) {
+  return array(
+    'cinvite_invite' => array(
+          'file' => 'creedia.module',
+          'arguments' => array('form' => NULL),
+  ),
+    'cinvite_invite_default_message' => array(
+          'file' => 'creedia.module',
+          'arguments' => array(),
+  ),
+  );
+}
+
+/**
+ * Theme function for the invite form.
+ *
+ * @ingroup themeable
+ */
+function theme_cinvite_invite($form) {
+  $output = '';
+
+  $output .= '<h6>'. t('Send an invitation to your friends and colleagues.') .'</h6>';
+
+  // Show form elements
+  $output .= drupal_render($form['from']);
+  $output .= drupal_render($form['email']);
+  $output .= drupal_render($form['subject']);
+  $output .= drupal_render($form['imessage']);
+  $output .= drupal_render($form['copy']);
+
+  // Render all missing form elements
+  $output .= drupal_render($form);
+
+  return $output;
+}
+
+/**
+ * Forms API callback; validates the incoming form data.
+ *
+ */
+function cinvite_invite_validate($form, &$form_state) {
+
+  $email = $edit['email'];
+  $email = cinvite_get_email($email);
+
+  if (!$email) {
+    $error = check_plain(t('Invalid email address. Valid email address is of the form: foo@example.com or Some Name <foo@example.com>.'));
+    form_set_error('email', $error);
+    return;
+  }
+}
+
+/**
+ * Forms API callback; processes the incoming form data.
+ *
+ * Sends out invitation e-mails.
+ */
+function cinvite_invite_submit($form, &$form_state) {
+  global $user;
+
+  $subject = trim($edit['subject']);
+  $message = trim($edit['imessage']);
+  $to = trim($edit['email']);
+  $from = $user->mail;
+
+  $headers = array();
+  $headers['Reply-To'] = $from;
+  // Send a copy if requested:
+  if ($edit['copy']) {
+    $headers['Bcc'] = $from;
+  }
+
+  if (module_exists('mimemail')) {
+    $success = mimemail($from, $to, $subject, wordwrap($message, 72), FALSE, $headers);
+  }
+
+  if (!$success) {
+    drupal_set_message(t('Problems occurred while sending the invitation. Please contact the site administrator.'), 'error');
+    watchdog('creedia', 'Failed sending invitation. To: @email From: @from', array('@email' => $to, '@from' => $from), WATCHDOG_ERROR);
+  }
+  else {
+    drupal_set_message(t('Your invitation has been successfully sent.'));
+    watchdog('creedia', 'Invitation sent. To: @email From: @from', array('@email' => $to, '@from' => $from), WATCHDOG_NOTICE);
+  }
+
+  $form_state['redirect'] = 'user/'. $user->uid;
+}
+
+function theme_cinvite_invite_default_message() {
+  global $user;
+
+  // get member's information
+  $member = cprofile_get_member($user->uid);
+  if (!$member) return '';
+  $fullname = $member->field_full_name[0]['value'];
+
+  $output .= '<p>'. t('Dear Friend,') .'</p>';
+  $output .= '<p>'. t("I have just created my profile on Creedia. Check it out:  !profile.",
+  array('!profile' => l($fullname ."'s Profile", 'user/'. $user->uid, array('absolute' => TRUE))));
+  $output .= '<br />';
+  $output .= t("Creedia is a great place to connect on values and belief. ") .'</p>';
+  $output .= '<p>'. t('I hope to see you there! ') .'<br />';
+  $output .= $fullname .'</p>';
+
+  return $output;
+}
+
+
+/**
+ * ....From invite module.....
+ * Extract valid e-mail addresses from a string.
+ *
+ * E-mails must be separated by newlines or commas. E-mails are allowed to
+ * include a display name (eg. Some Name <foo@example.com>). Invalid addresses
+ * are filtered out and stored in a session variable for re-display.
+ *
+ * @param $string
+ *   The string to process.
+ * @return
+ *   valid e-mail addresses.
+ */
+function cinvite_get_email($string) {
+  $user = '[a-zA-Z0-9_\-\.\+\^!#\$%&*+\/\=\?\`\|\{\}~\']+';
+  $domain = '(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.?)+';
+  $ipv4 = '[0-9]{1,3}(\.[0-9]{1,3}){3}';
+  $ipv6 = '[0-9a-fA-F]{1,4}(\:[0-9a-fA-F]{1,4}){7}';
+  $rx = "/($user@($domain|(\[($ipv4|$ipv6)\])))>?$/";
+
+  $email = '';
+  $string = trim($string);
+  if (preg_match($rx, $string, $match)) {
+    $email = $match[1];
+  }
+  else {
+    $email = '';
+  }
+  return $email;
+}

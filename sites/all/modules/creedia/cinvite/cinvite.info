@@ -1,0 +1,6 @@
+;$Id$
+name = Cinvite
+package = Creedia
+description = Creedia invite (hack of invite module)
+dependencies[] = cprofile
+core = 6.x
