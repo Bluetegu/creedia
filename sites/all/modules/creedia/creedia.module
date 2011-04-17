@@ -11,11 +11,6 @@
  '#src'          => 'my/image/path.jpg',
  ); */
 
-/* TODO Remove $row argument from db_result() method
- The $row argument of db_result() was removed from the database abstraction
- layer in 6.x core, as it was a database dependent option. Developers need to
- use other handling to replace the needs of this method. */
-
 /* TODO hook_nodeapi('submit') has been replaced by op='presave'
  There is no longer a 'submit' op for nodeapi. Instead you may use the newly
  created 'presave' op. Note, however, that this op is invoked at the beginning
@@ -41,45 +36,6 @@
  accounts are created, activated, blocked, etc. Contributed modules that
  wish to make use of the same tokens for their own needs are encouraged
  to use this function. */
-
-/* TODO
- There is a new hook_watchdog in core. This means that contributed modules
- can implement hook_watchdog to log Drupal events to custom destinations.
- Two core modules are included, dblog.module (formerly known as watchdog.module),
- and syslog.module. Other modules in contrib include an emaillog.module,
- included in the logging_alerts module. See syslog or emaillog for an
- example on how to implement hook_watchdog.
- function example_watchdog($log = array()) {
- if ($log['severity'] == WATCHDOG_ALERT) {
- mysms_send($log['user']->uid,
- $log['type'],
- $log['message'],
- $log['variables'],
- $log['severity'],
- $log['referer'],
- $log['ip'],
- format_date($log['timestamp']));
- }
- } */
-
-/* TODO Implement the hook_theme registry. Combine all theme registry entries
- into one hook_theme function in each corresponding module file.
- function creedia_theme() {
- return array(
- 'creedia_invite' => array(
- 'file' => 'creedia.module',
- 'arguments' => array(
- 'form' => NULL,
- ),
- ),
- 'creedia_invite_default_message' => array(
- 'file' => 'creedia.module',
- 'arguments' => array(
- '' => NULL,
- ),
- ),
- );
- } */
 
 /* TODO You may want to take advantage of new form-specific alter hooks.
  The hook_form_alter() is complemented by hook_form_$form-id_alter().
@@ -107,19 +63,16 @@ if (!defined(CREEDIA_LOGIN_TO_POST_MESSAGE)) {
 if (!defined(CREEDIA_MAX_ORIGIN_STATEMENTS)) {
   define("CREEDIA_MAX_ORIGIN_STATEMENTS", 2);
 }
-
 if (!defined(CREEDIA_TEASER_LENGTH)) {
   define("CREEDIA_TEASER_LENGTH", 480);
   define("CREEDIA_BLOG_TEASER_LENGTH", 2400);
   define("CREEDIA_MEMBER_TEASER_LENGTH", 240);
 }
-
 // Max length is used for both title as well as origin statement
 // This should be aligned with CCK and title configurations
 if (!defined(CREEDIA_CREED_MAXLENGTH)) {
   define("CREEDIA_CREED_MAXLENGTH", 120);
 }
-
 if (!defined(CREEDIA_CREEDIMAGE_DIRECTORY)) {
   define("CREEDIA_CREEDIMAGE_DIRECTORY", 'files/creeds');
 }
@@ -399,6 +352,21 @@ function creedia_invite() {
   return $form;
 }
 
+/**
+ * Implementation of hook_theme
+ */
+function creedia_theme($existing, $type, $theme, $path) {
+  return array(
+    'creedia_invite' => array(
+          'file' => 'creedia.module',
+          'arguments' => array('form' => NULL),
+  ),
+    'creedia_invite_default_message' => array(
+          'file' => 'creedia.module',
+          'arguments' => array(),
+  ),
+  );
+}
 
 /**
  * Theme function for the invite form.
@@ -642,7 +610,7 @@ function creedia_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       }
       $node->title = $node->type == 'member' ? $pre . $node->field_full_name[0]['view'] : $pre . $node->title;
       break;
-    case 'submit':
+    case 'presave':
       // Teaser length is 480 for all node types appart from member ... and blog ...
       // node_teaser doesn't close tags which leads to xhtml validation
       // errors, so I'm overriding teasers here.
@@ -704,7 +672,7 @@ function creedia_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
  * the node teaser.
  *
  */
-function creedia_node_meta_tags($node){
+function creedia_node_meta_tags($node) {
   static $done = FALSE;
   if (!$done) {
 
@@ -912,7 +880,7 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         // 	    unset($form['group_origin_statements']['field_origin_statement'][$i]);
         // 	  }
         // 	  cjsvk_add_js($langs[0]);
-        // 	  break;
+        // 	  break;submit
         // 	default:
         // 	  $form['group_origin_statements']['field_origin_statement']['#description'] .=
         // 	    t('Enter the creed statement in its original language. The maximum length is limited to !maxlen characters',
@@ -1007,11 +975,11 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         // create a combined origin statement field, with statement text and language selector.
         // prepare the select form element
         $select = array( '#type' => 'select',
-		       '#title' => t('Statement Language'),
-		       '#options' => i18n_language_list(TRUE),
-		       '#required' => FALSE,
-		       '#multiple' => FALSE,
-		       '#description' => $form['group_origin_statements']['field_origin_statement_lang']['#description'],
+            '#title' => t('Statement Language'),
+            '#options' => i18n_language_list(TRUE),
+            '#required' => FALSE,
+            '#multiple' => FALSE,
+            '#description' => $form['group_origin_statements']['field_origin_statement_lang']['#description'],
         );
         // copy the textfield form element from the first CCK element and override the default value at
         // later. This allows to maintain the title at each step.
@@ -1060,7 +1028,7 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         // behavior to the imagefield upload button.
         if (arg(0) != 'user' || arg(1) != 'register') {
           $form['group_personal_information_0']['field_reg_picture']['#prefix'] =
-	  '<div id="hide-image-wrapper" style="display:none">';
+          '<div id="hide-image-wrapper" style="display:none">';
           $form['group_personal_information_0']['field_reg_picture']['#suffix'] = '</div>';
 
           // remove the registration only survey field.
@@ -1197,9 +1165,9 @@ function creed_submit($form, &$form_state) {
  * Per http://www.phpinsider.com/smarty-forum/viewtopic.php?p=3349
  * Code by: Edward Dale <scompt@scompt.com>
  */
-function smarty_modifier_html_substr($string, $length){
+function smarty_modifier_html_substr($string, $length) {
   if (!empty($string) && $length>0) {
-    $isText = true;
+    $isText = TRUE;
     $ret = "";
     $i = 0;
     $currentChar = "";
@@ -1216,12 +1184,12 @@ function smarty_modifier_html_substr($string, $length){
       $ret .= $currentChar;
       // Lesser than event
       if ($currentChar == "<") {
-        $isText = false;
+        $isText = FALSE;
       }
       // Character handler
       if ($isText) {
         // Memorize last space position
-        if( $currentChar == " " ) {
+        if ($currentChar == " ") {
           $lastSpacePosition = $j;
         }
         else {
@@ -1234,11 +1202,11 @@ function smarty_modifier_html_substr($string, $length){
       }
       // Greater than event
       if ($currentChar == ">") {
-        $isText = true;
+        $isText = TRUE;
         // Opening tag handler
         if (( strpos($currentTag, "<") !== FALSE) &&
-        ( strpos($currentTag, "/>") === FALSE) &&
-        ( strpos($currentTag, "</") === FALSE)) {
+        (strpos($currentTag, "/>") === FALSE) &&
+        (strpos($currentTag, "</") === FALSE)) {
           // Tag has attribute(s)
           if (strpos($currentTag, " ") !== FALSE) {
             $currentTag = substr($currentTag, 1, strpos($currentTag, " ") - 1);
@@ -1249,7 +1217,7 @@ function smarty_modifier_html_substr($string, $length){
           }
           array_push($tagsArray, $currentTag);
         }
-        else if (strpos($currentTag, "</") !== FALSE) {
+        elseif (strpos($currentTag, "</") !== FALSE) {
           array_pop($tagsArray);
         }
         $currentTag = "";
@@ -1324,10 +1292,10 @@ function creedia_creed_img_generate($node) {
     $rterms = array_keys($node->field_religion_single[0]);
   }
 
-  if (is_array($node->field_beliefset['tids'])){
+  if (is_array($node->field_beliefset['tids'])) {
     $bterms = $node->field_beliefset['tids'];
   }
-  elseif (is_array($node->field_beliefset[0])){
+  elseif (is_array($node->field_beliefset[0])) {
     $bterms = array_keys($node->field_beliefset[0]);
   }
 
@@ -1335,10 +1303,10 @@ function creedia_creed_img_generate($node) {
   $bfiles = array();
 
   // Add taxonomy images path info
-  foreach($rterms as $tid) {
+  foreach ($rterms as $tid) {
     $rfiles[$tid] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $tid));
   }
-  foreach($bterms as $tid) {
+  foreach ($bterms as $tid) {
     $bfiles[$tid] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $tid));
   }
 
@@ -1358,7 +1326,7 @@ function creedia_creed_img_generate($node) {
     return;
   }
 
-  if (!imagecopy($im, $br, 0, 0, 0, 0, imagesx($br), imagesy($br))){
+  if (!imagecopy($im, $br, 0, 0, 0, 0, imagesx($br), imagesy($br))) {
     watchdog('Creedia', 'Failed to generate creed image; background image copy failure.', WATCHDOG_ERROR);
     return;
   }
@@ -1368,7 +1336,7 @@ function creedia_creed_img_generate($node) {
   $single_firstrow = ($count == 1);
   $single_secondrow = ($count == 3);
   $i = 0;
-  foreach($rfiles as $tid => $filename) {
+  foreach ($rfiles as $tid => $filename) {
 
     $yr = imagecreatefrompng($filename);  // create the resource
     if (!$yr) {
@@ -1398,7 +1366,7 @@ function creedia_creed_img_generate($node) {
 
     // bool imagecopyresized(resource $dst_im, resource $src_im, int $dst_x, int $dst_y, int $src_x,
     //                int $src_y, int $dst_w, int $dst_h, int $src_w, int $src_h)
-    if (!imagecopyresized($im, $yr, $offset_x, $offset_y, 0, 0, 16, 16, imagesx($yr), imagesy($yr))){
+    if (!imagecopyresized($im, $yr, $offset_x, $offset_y, 0, 0, 16, 16, imagesx($yr), imagesy($yr))) {
       watchdog('Creedia', 'Failed to generate creed image; image copy failure.', WATCHDOG_ERROR);
       return;
     }
@@ -1415,7 +1383,7 @@ function creedia_creed_img_generate($node) {
   $single_secondrow = ($count == 3);
   $start_y = $two_rows ? 36 : 56;
   $i = 0;
-  foreach($bfiles as $tid => $filename) {
+  foreach ($bfiles as $tid => $filename) {
 
     $yr = imagecreatefromgif($filename);  // create the resource
     if (!$yr) {
@@ -1445,7 +1413,7 @@ function creedia_creed_img_generate($node) {
 
     // bool imagecopy(resource $dst_im, resource $src_im, int $dst_x, int $dst_y, int $src_x,
     //                int $src_y, int $src_w, int $src_h)
-    if (!imagecopy($im, $yr, $offset_x, $offset_y, 0, 0, imagesx($yr), imagesy($yr))){
+    if (!imagecopy($im, $yr, $offset_x, $offset_y, 0, 0, imagesx($yr), imagesy($yr))) {
       watchdog('Creedia', 'Failed to generate creed image; image copy failure.', WATCHDOG_ERROR);
       return;
     }
@@ -1494,7 +1462,8 @@ function truncate_utf8d($string, $len, $wordsafe = FALSE, $dots = FALSE) {
   }
   if ($wordsafe) {
     $end = $len;
-    while (($string[--$len] != ' ') && ($len > 0)) {};
+    while (($string[--$len] != ' ') && ($len > 0)) {
+    };
     if ($len == 0) {
       $len = $end;
     }
@@ -1502,7 +1471,8 @@ function truncate_utf8d($string, $len, $wordsafe = FALSE, $dots = FALSE) {
   if ((ord($string[$len]) < 0x80) || (ord($string[$len]) >= 0xC0)) {
     return drupal_substr($string, 0, $len) . ($dots ? ' ...' : '');
   }
-  while (--$len >= 0 && ord($string[$len]) >= 0x80 && ord($string[$len]) < 0xC0) {};
+  while (--$len >= 0 && ord($string[$len]) >= 0x80 && ord($string[$len]) < 0xC0) {
+  };
   return drupal_substr($string, 0, $len) . ($dots ? ' ...' : '');
 }
 
