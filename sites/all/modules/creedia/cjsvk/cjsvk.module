@@ -1,61 +1,16 @@
 <?php
 // $Id$
 /* TODO Automatically add Drupal.settings.basePath
-   In Drupal 5, you would have to add the base path to Drupal.settings yourself
-   if you needed it (it's needed for just about every AHAH/AJAX enabled module
-   if you did it right). Now in Drupal 6, it's added automatically. You can always
-   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
-   called at least once, so this is similar to the way we automatically add
-   drupal.js and jquery.js. */
-
-/* TODO FormAPI image buttons are now supported.
-   FormAPI now offers the 'image_button' element type, allowing developers to
-   use icons or other custom images in place of traditional HTML submit buttons.
-
-$form['my_image_button'] = array(
-  '#type'         => 'image_button',
-  '#title'        => t('My button'),
-  '#return_value' => 'my_data',
-  '#src'          => 'my/image/path.jpg',
-); */
-
-/* TODO New user_mail_tokens() method may be useful.
-   user.module now provides a user_mail_tokens() function to return an array
-   of the tokens available for the email notification messages it sends when
-   accounts are created, activated, blocked, etc. Contributed modules that
-   wish to make use of the same tokens for their own needs are encouraged
-   to use this function. */
-
-/* TODO
-   There is a new hook_watchdog in core. This means that contributed modules
-   can implement hook_watchdog to log Drupal events to custom destinations.
-   Two core modules are included, dblog.module (formerly known as watchdog.module),
-   and syslog.module. Other modules in contrib include an emaillog.module,
-   included in the logging_alerts module. See syslog or emaillog for an
-   example on how to implement hook_watchdog.
-function example_watchdog($log = array()) {
-  if ($log['severity'] == WATCHDOG_ALERT) {
-    mysms_send($log['user']->uid,
-      $log['type'],
-      $log['message'],
-      $log['variables'],
-      $log['severity'],
-      $log['referer'],
-      $log['ip'],
-      format_date($log['timestamp']));
-  }
-} */
-
-/* TODO Implement the hook_theme registry. Combine all theme registry entries
-   into one hook_theme function in each corresponding module file.
-function cjsvk_theme() {
-  return array(
-  );
-} */
+ In Drupal 5, you would have to add the base path to Drupal.settings yourself
+ if you needed it (it's needed for just about every AHAH/AJAX enabled module
+ if you did it right). Now in Drupal 6, it's added automatically. You can always
+ find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
+ called at least once, so this is similar to the way we automatically add
+ drupal.js and jquery.js. */
 
 /*
  * @file
- * Creedia Virtual Keyboard: adaptation of javascript VirtualKeyboard by 
+ * Creedia Virtual Keyboard: adaptation of javascript VirtualKeyboard by
  * WingedFox - Ilya S. Lebedev (Debugger.ru) to Creedia's needs.
  */
 
@@ -64,33 +19,12 @@ function cjsvk_theme() {
  */
 function cjsvk_menu() {
   $items = array();
-/* TODO
-   Non menu code that was placed in hook_menu under the '!$may_cache' block
-   so that it could be run during initialization, should now be moved to hook_init.
-   Previously we called hook_init twice, once early in the bootstrap process, second
-   just after the bootstrap has finished. The first instance is now called boot
-   instead of init.
-   
-   In Drupal 6, there are now two hooks that can be used by modules to execute code
-   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
-   and runs on each page request, even for cached pages. hook_boot() now only runs
-   for non-cached pages and thus can be used for code that was previously placed in
-   hook_menu() with $may_cache = FALSE:
-   
-   Dynamic menu items under a '!$may_cache' block can often be simplified
-   to remove references to arg(n) and use of '%<function-name>' to check
-   conditions. See http://drupal.org/node/103114.
-   
-   The title and description arguments should not have strings wrapped in t(),
-   because translation of these happen in a later stage in the menu system.
-*/
-  if ($may_cache) {
-    $items['admin/settings/jsvk'] = array(
+
+  $items['admin/settings/jsvk'] = array(
       'title' => 'Virtual Keyboard',
       'description' => 'Configuration for virtual keyboard',
       'page callback' => 'cjsvk_setup',
-    );
-  }
+  );
   return $items;
 }
 
@@ -102,17 +36,16 @@ function cjsvk_setup() {
 
 function cjsvk_add_js($lang = NULL) {
 
-  // layouts per language, as used VK
+  // layouts per language, as used in VK
   static $layouts = array(
-			  //'zh-hans' => "CN Chinese Simpl. Pinyin",
-			  'zh-hans' => "CN Chinese Cangjie",
-			  'el' => "GR Greek",
-			  'he' => "IL Hebrew",
-			  'hi' => "IN Hindi Traditional",
-			  'ar' => "IQ Arabic",
-			  'ja' => "JP Japanese",
-			  'en' => "US US", 
-			  );
+        'zh-hans' => "CN Chinese Cangjie",
+        'el' => "GR Greek",
+        'he' => "IL Hebrew",
+        'hi' => "IN Hindi Traditional",
+        'ar' => "IQ Arabic",
+        'ja' => "JP Japanese",
+        'en' => "US US",
+  );
   static $load = TRUE;
 
   if ($load) {
@@ -121,7 +54,7 @@ function cjsvk_add_js($lang = NULL) {
     $vkpath = drupal_get_path('module', 'cjsvk') .'/js/jsvk/vk_iframe.js';
     $skin = '?vk_skin=textual';
     $layout = $lang ? '&vk_layout="'. $layouts[$lang] .'"' : '&vk_layout="US US"';
-    $query = $skin . $layout; 
+    $query = $skin . $layout;
     drupal_add_js($vkpath . $query);
 
     // load our glue code
@@ -129,19 +62,17 @@ function cjsvk_add_js($lang = NULL) {
     drupal_add_js($path);
 
     // prepare language settings
-    $settings = array('layouts' => array(),
-		      'rtl' => array(),
-		      );
+    $settings = array('layouts' => array(), 'rtl' => array(), );
 
     // populate the settings with the listed locales
     $langs = i18n_language_list(TRUE);
-    foreach($langs as $code => $name) {
+    foreach ($langs as $code => $name) {
       $settings['layouts'][$code] = $layouts[$code];
       $settings['rtl'][$code] = i18n_language_rtl($code);
     }
     // add VK configuration
     drupal_add_js(array('jsvk' => $settings), 'setting');
-    
+
     $load = FALSE;
   }
 }
