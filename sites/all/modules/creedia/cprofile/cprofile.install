@@ -1,22 +1,25 @@
 <?php
 // $Id$
-
+/**
+ * @file
+ * Creedia Profile installation file.
+ */
 
 /**
  * Implementation of hook_schema().
  */
 function cprofile_schema() {
   $schema['cprofile'] = array(
-    'description' => t('TODO'),
+    'description' => t('Creedia Profile Table'),
     'fields' => array(
       'uid' => array(
-        'description' => t('TODO'),
+        'description' => t('User ID'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'cid' => array(
-        'description' => t('TODO'),
+        'description' => t('Creed NID'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -38,7 +41,7 @@ function cprofile_schema() {
         'default' => 0,
       ),
       'position' => array(
-        'description' => t('TODO'),
+        'description' => t('Position'),
         'type' => 'int',
         'size' => 'small',
         'unsigned' => TRUE,
@@ -67,5 +70,4 @@ function cprofile_install() {
 function cprofile_uninstall() {
   // Remove tables.
   drupal_uninstall_schema('cprofile');
-
 }

@@ -1,7 +1,6 @@
 ;$Id$
 name = Creedia Distance
 description = Calculates Distance between Members
-;dependencies[] = package
-dependencies[] = =
-dependencies[] = "Creedia"
+package = Creedia
+dependencies[] = cprofile
 core = 6.x

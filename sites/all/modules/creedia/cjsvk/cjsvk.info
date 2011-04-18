@@ -2,5 +2,4 @@
 name = Creedia Virtual Keyboard
 description = Creedia Virtual Keyboard
 package = Creedia
-dependencies[] = creedia
 core = 6.x

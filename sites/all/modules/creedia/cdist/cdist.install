@@ -1,28 +1,31 @@
 <?php
 // $Id$
-
+/**
+ * @file
+ * Creedia Distance installation file.
+ */
 
 /**
  * Implementation of hook_schema().
  */
 function cdist_schema() {
   $schema['cdist_cache'] = array(
-    'description' => t('TODO'),
+    'description' => t('Creedia Distance Between Members'),
     'fields' => array(
       'uid' => array(
-        'description' => t('TODO'),
+        'description' => t('User ID'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'mid' => array(
-        'description' => t('TODO'),
+        'description' => t('Member ID'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'cnt' => array(
-        'description' => t('TODO'),
+        'description' => t('Distance: Number of Common Creeds'),
         'type' => 'int',
         'size' => 'small',
         'unsigned' => TRUE,
@@ -48,9 +51,7 @@ function cdist_install() {
   }
 }
 
-
 function cdist_uninstall() {
   // Remove tables.
   drupal_uninstall_schema('cdist');
-
 }
