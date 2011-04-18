@@ -22,29 +22,12 @@
  fix up the data in the node for re-building the form, use a #submit function
  added to the node form's $form array. */
 
-/* TODO Change 'Submit' to 'Save' on buttons
- It has been agreed on that the description 'Submit' for a button is not a
- good choice since it does not indicate what actually happens. While for
- example on node editing forms, 'Preview' and 'Delete' describe exactly what
- will happen when the user clicks on the button, 'Submit' only gives a vague
- idea. When labelling your buttons, make sure that it is clear what this
- button does when the user clicks on it. */
-
 /* TODO New user_mail_tokens() method may be useful.
  user.module now provides a user_mail_tokens() function to return an array
  of the tokens available for the email notification messages it sends when
  accounts are created, activated, blocked, etc. Contributed modules that
  wish to make use of the same tokens for their own needs are encouraged
  to use this function. */
-
-/* TODO You may want to take advantage of new form-specific alter hooks.
- The hook_form_alter() is complemented by hook_form_$form-id_alter().
- Optionally, modules can implement form-specific alteration functions rather
- than a single hook_form_alter() with many conditional switch statements.
- This is optional, and is most useful for tidying the code of modules that
- alter many forms to customize a site's operations.
- The new function names are built using the following format:
- [your-module-name]_form_[$form_id]_alter. */
 
 /*
  * @file
@@ -555,8 +538,6 @@ function creedia_link_alter(&$links, $node) {
  * called after CCK and other form alterations are already done (in particular after
  * CCK Fieldgroup which by default is configured to weight 9).
  *
- * For creed editing, the religion field is hidden. For new creed forms, all fields besides religion
- * are unsset at first step, and religion fields is unset in second step.
  */
 function creedia_form_alter(&$form, &$form_state, $form_id) {
   if (arg(0) != 'admin') {
@@ -567,7 +548,7 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         // Set the default value of the creed reference
         if (is_numeric(arg(3))) {
           if (!$form['field_creed_reference1'][0]['node_name']['#default_value']) {
-            $node = node_load(arg(3));
+            $node = menu_get_object('node', 3);
             if ($node) {
               $form['field_creed_reference1'][0]['node_name']['#default_value'] = $node->title;
             }
@@ -578,171 +559,6 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         if (!user_access('revert revisions')) {
           unset($form['delete']);
         }
-        //       // Figure out whether this is node add vs. node edit.
-        //       $edit = isset($form['nid']['#value']) ? TRUE : FALSE;
-        //       $step = (int) $form['step']['#value'];
-        //       if ($edit || $step > 1) {
-        // 	// Hide the religion field.
-        // 	// Readonly attribute is not defined for select elements. Setting the disabled attribute
-        // 	// doesn't work either as the setting of disabled input elements in POST is non-standard
-        // 	// and browser dependent. It led to error when I tried it.
-        // 	// Note that array values expected by the CCK fields are created only if the name attribute
-        // 	// includes a [], hence the [tids] array used. Setting a #value attribute to an array
-        // 	// generates a warning down deep from bootstrap.inc for 'hidden' type elements.
-        // 	// Unsetting the entire field doesn't work either, as the field is required and validation
-        // 	// fails upon submit. Validation happens before submit processing, and therefore there is
-        // 	// no chance for readjusting the form_values to the expected format in a special constructed
-        // 	// submit function.
-        // 	//           $form['field_religion_single']['#type'] = 'hidden';
-        // 	//           $form['field_religion_single']['#value'] = $form['field_religion_single']['tids']['#default_value'][0];
-        // 	//           unset($form['field_religion_single']['tids']);
-        // 	// Eventually I set #required to false in the CCK definition and add the validation
-        // 	// through custom validation function. So it is enough to unset the entire religion field in
-        // 	// this step.
-        // 	// steps > 2 should function as step == 2 as preview may increase the step number.
-        // 	$religion_tid = $form['field_religion_single']['tids']['#default_value'][0];
-        // 	$religion_tid = $religion_tid ? $religion_tid : $form['hidden_field_religion_single']['#value'];
-        // 	if ($edit) {
-        // 	  $form['hidden_field_religion_single'] = array('#type' => 'hidden', '#value' => $religion_tid);
-        // 	}
-        // 	else {
-        // 	  // can't make preview work. The beliefset field gets crazy.
-        // 	  unset($form['preview']);
-        // 	}
-        // 	unset($form['field_religion_single']);
-
-        // 	// prepare origin statements per configured religin settings.
-        // 	// first find the religion info nid
-        // 	$sql  = "SELECT n.nid FROM {node} n INNER JOIN {term_node} t ";
-        // 	$sql .= "ON n.nid = t.nid ";
-        // 	$sql .= "WHERE n.type = '%s' AND t.tid = %d";
-        // 	$religion_nid = db_result(db_query($sql, 'religion_info', $religion_tid));
-
-        // 	// find the configured languages for the origin statements
-        // 	if ($religion_nid) {
-        // 	  $sql  = "SELECT field_origin_langs_value ";
-        // 	  $sql .= "FROM {content_field_origin_langs} ";
-        // 	  $sql .= "WHERE nid = %d";
-        // 	  $result = db_query($sql, $religion_nid);
-        // 	  while ($data = db_fetch_object($result)) {
-        // 	    $langs[] = $data->field_origin_langs_value;
-        // 	  }
-        // 	}
-        // 	switch (count($langs)) {
-        // 	case 0:
-        // 	  // no origin statements
-        // 	  unset($form['group_origin_statements']);
-        // 	  break;
-        // 	case 1:
-        // 	  // no need for language selector.
-        // 	  // single language. no need for user configuration. hide the language value
-        // 	  $form['hidden_field_origin_statement_lang'] = array('#type' => 'hidden', '#value' => $langs[0]);
-        // 	  unset($form['group_origin_statements']['field_origin_statement_lang']);
-
-        // 	  // optimize the origin statement accordingly
-        // 	  $form['group_origin_statements']['field_origin_statement']['#description'] =
-        // 	    t('Enter the creed statement in !lang. The maximum length is limited to !maxlen characters',
-        // 	      array('!lang' => i18n_language_property($langs[0], 'name'), '!maxlen' => CREEDIA_CREED_MAXLENGTH));
-        // 	  // set language, direction and virtual keyboard
-        // 	  $form['group_origin_statements']['field_origin_statement'][0]['value']['#attributes'] =
-        // 	    array('lang' => $langs[0],
-        // 		  'dir' => i18n_language_rtl($langs[0]) ? 'rtl' : 'ltr',
-        // 		  'class' => 'jsvk-textfield' );
-
-        // 	  // only one statement allowed. override all others
-        // 	  for ($i = 1; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
-        // 	    unset($form['group_origin_statements']['field_origin_statement'][$i]);
-        // 	  }
-        // 	  cjsvk_add_js($langs[0]);
-        // 	  break;submit
-        // 	default:
-        // 	  $form['group_origin_statements']['field_origin_statement']['#description'] .=
-        // 	    t('Enter the creed statement in its original language. The maximum length is limited to !maxlen characters',
-        // 	      array('!maxlen' => CREEDIA_CREED_MAXLENGTH));
-        // 	  // create a combined origin statement field, with statement text and language selector.
-        // 	  // prepare the select form element
-        // 	  $select = array( '#type' => 'select',
-        // 			   '#title' => t('Statement Language'),
-        // 			   '#options' => array_intersect_key(i18n_language_list(TRUE), array_flip($langs)),
-        // 			   '#required' => FALSE,
-        // 			   '#multiple' => FALSE,
-        // 			   '#description' => $form['group_origin_statements']['field_origin_statement_lang']['#description'],
-        // 			   );
-        // 	  // copy the textfield form element from the first CCK element and override the default value at
-        // 	  // later. This allows to maintain the title at each step.
-        // 	  $statement = $form['group_origin_statements']['field_origin_statement'][0]['value'];
-        // 	  // copy the overall origin statement attributes
-        // 	  $form['group_origin_statements']['origin_statement_combo'] =
-        // 	    $form['group_origin_statements']['field_origin_statement'];
-        // 	  // copy from the content from the statement and statement_lang CCK structures
-        // 	  for ($i = 0; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
-        // 	    if ($i < count($langs) && $i < CREEDIA_MAX_ORIGIN_STATEMENTS) {
-        // 	      // first set a language selector
-        // 	      $lang = $form['group_origin_statements']['field_origin_statement_lang'][$i]['value']['#default_value'];
-        // 	      $select['#default_value'] = array($lang);
-        // 	      // indicate language selector for virtual keyboard
-        // 	      $select['#attributes'] = array('class' => 'jsvk-lang jsvk-lang-'. $i);
-        // 	      $form['group_origin_statements']['origin_statement_combo'][2*$i] =
-        // 		array('value' => array($select));
-        // 	      // and an origin statement text field.
-        // 	      $statement['#default_value'] =
-        // 		$form['group_origin_statements']['field_origin_statement'][$i]['value']['#default_value'];
-        // 	      // add virtual keyboard
-        // 	      $statement['#attributes'] = array('class' => 'jsvk-textfield jsvk-textfield-'. $i);
-        // // 	      $statement['#field_suffix'] = theme('cjsvk_keyboard',
-        // // 						  'edit-body',
-        // // 						  'edit-field-origin-statement-'. $i .'-value'
-        // // 						  );
-        // 	      $form['group_origin_statements']['origin_statement_combo'][2*$i+1] =
-        // 		array('value' => $statement);
-        // 	      if (isset($lang) && i18n_language_rtl($lang)) {
-        // 		$form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes'] =
-        // 		  array_merge(array('lang' => $lang, 'dir' => 'rtl'),
-        // 			      $form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes']);
-        // 	      }
-        // 	    }
-        // 	    else {
-        // 	      // erase leftover copied from the origin statement
-        // 	      if (isset($form['group_origin_statements']['origin_statement_combo'][2*$i])) {
-        // 		unset($form['group_origin_statements']['origin_statement_combo'][2*$i]);
-        // 	      }
-        // 	      else {
-        // 		break;
-        // 	      }
-        // 	    }
-        // 	  }
-        // 	  unset($form['group_origin_statements']['field_origin_statement']);
-        // 	  unset($form['group_origin_statements']['field_origin_statement_lang']);
-        // 	  cjsvk_add_js();
-
-        // 	  // add limitation to the length of the creed statement (title)
-        // 	  $form['title']['#maxlength'] = CREEDIA_CREED_MAXLENGTH;
-
-        // 	  break;
-        // 	}
-        //       }
-        //       else {
-        // 	// new creed, step 1: unset all other fields
-        // 	foreach ($form as $key => $element) {
-        // 	  if (in_array($key, array('group_origin_statements',
-        // 				   'group_classification',
-        // 				   'body_filter',
-        // 				   'title',
-        // 				   'log',
-        // 				   'preview',
-        // 				   'comment_settings',
-        // 				   'menu',
-        // 				   'path',
-        // 				   '#after_build',
-        // 				   ))) {
-        // 	    unset($form[$key]);
-        // 	  }
-        // 	}
-        // 	$form['field_religion_single']['tids']['#required'] = TRUE;
-        //       }
-
-
-
         $form['group_origin_statements']['field_origin_statement']['#description'] .=
         t('The maximum length is limited to !maxlen characters',
         array('!maxlen' => CREEDIA_CREED_MAXLENGTH));
@@ -823,87 +639,12 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-// /**
-//  * Turn creed node add form into a multipage form; the creed religion
-//  * is set in first step and all other fields are set in step 2.
-//  * CCK fields are inserted later through hook alter therefore there
-//  * is no point in unsetting or hiding fields here.
-//  *
-//  * Per http://drupal.org/node/101707
-//  *     http://drupal.org/node/162373
-//  *
-//  * Note for debugging: For no apperant reason the forms api calls
-//  * the form function (creed_node_form) twice in each step, one with pervious step params
-//  * and once with current step params. For example, in the last step creed_node_form is
-//  * first called with religion field in form_values (step 1) and then again with form_values
-//  * carrying all the rest of the creed parameters.
-//  * see http://drupal.org/node/101707#comment-221773
-//  *
-//  */
-
-// function creed_node_form ($node, $form_values = NULL) {
-//   //  firep($form_values, 'form values in creed node form');
-//   //  firep($node, 'node in creed node form');
-//   // first get the node form
-//   $form = node_form($node);
-//   // Figure out whether this is node-add or node-edit.
-//   $edit = isset($form['nid']['#value']) ? TRUE : FALSE;
-//   // Submit function adapts form_values parameter to the format expected by CCK
-//   $form['#submit'] = array('creed_submit' => array());
-
-//   $step = isset($form_values['step']) ? (int)$form_values['step'] : 0;
-//   if ($edit) {
-//     // indicate this is the last step
-//     $step = 2;
-//   }
-//   else {
-//     // Only new forms are two step
-//     // multistep must be set to TRUE on all steps. If set to FALSE on last step
-//     // errors will occur.
-/* TODO #multistep is gone, use $form_state instead.
- Move the rebuild statement to the submit function for this form. */
-// $form_state['rebuild'] = TRUE;
-////     $form['#multistep'] = TRUE;
-//     $step += 1;
-//     switch ($step) {
-//     case 1:
-//       // redirect should not be set to FALSE on last step, otherwise the return
-//       // value of the submit function will not take effect.
-////       $form['#redirect'] = FALSE;
-//       // validate function checks that religion field is set
-//       $form['#validate'] = array('creed_validate' => array());
-//       break;
-//     default:
-//       // set the religion field added at first step to a special hidden field
-//       $value = $form_values['field_religion_single']['tids'];
-//       // for $step > 2 (preview used) the religion is maintained in the hidden field
-//       $value = $value ? $value : $form_values['hidden_field_religion_single'];
-//       $form['hidden_field_religion_single'] = array('#type' => 'hidden', '#value' => $value);
-//       break;
-//     }
-//   }
-//   // step number is kept in hidden field
-//   $form['step'] = array('#type' => 'hidden', '#value' => $step);
-//   return $form;
-// }
 
 /**
  * creed multipage submit function.
  */
 function creed_submit($form, &$form_state) {
   //dpr($form_state['values']);
-  //   if ((int)$form_state['values']['step'] < 2) {
-  //     return;
-  //   }
-  //   // convert the saved religion settings from step 1 to the expected CCK format.
-  //   $value = $form_state['values']['hidden_field_religion_single'];
-  //   $form_state['values']['field_religion_single']['tids'] = $value;
-  //   // convert the saved origin statement language
-  //   $value = $form_state['values']['hidden_field_origin_statement_lang'];
-  //   if ($value) {
-  //     // the language field is hidden only when a single language is allowed
-  //     $form_state['values']['field_origin_statement_lang'] = array(array('value' => $value));
-  //   }
   // convert the origin statement combo back to cck
   if (isset($form_state['values']['origin_statement_combo'])) {
     foreach ($form_state['values']['origin_statement_combo'] as $i => $value) {
@@ -919,20 +660,8 @@ function creed_submit($form, &$form_state) {
   }
 
   // submit once on final step
-  return node_form_submit($form_state['values']['form_id'], $form_state['values']);
+  $form_state['redirect'] = node_form_submit($form_state['values']['form_id'], $form_state['values']);
 }
-
-/**
- * creed validate function
- */
-
-// function creed_validate($form_id, $form_values) {
-//     dpr($form_values);
-//   $selected = $form_values['field_religion_single']['tids'];
-//   if (!$selected) {
-//     form_set_error('field_religion_single[tids]', t('Religion field is required'));
-//   }
-// }
 
 /*
  * Per http://drupal.org/node/8456 and

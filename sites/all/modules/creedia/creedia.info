@@ -2,5 +2,5 @@
 name = Creedia
 package = Creedia
 description = Creedia main
-;dependencies[] = package
+dependencies[] = cjsvk
 core = 6.x
