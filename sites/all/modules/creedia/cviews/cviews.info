@@ -4,4 +4,5 @@ description = Creedia Programatic Views
 package = Creedia
 dependencies[] = creedia
 dependencies[] = views
+dependencies[] = cdist
 core = 6.x

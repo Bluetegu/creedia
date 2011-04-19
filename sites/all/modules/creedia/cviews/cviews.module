@@ -116,8 +116,8 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[12]['visibility'] = 1; // show only on listed pages
     $blocks[13]['visibility'] = 0; // show on all pages except the listed ones
     $blocks[14]['visibility'] = 1; // show only on listed pages
-    $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."blogs\n"."blogs/*\n"."node/*\n"; 
-    $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."members\n"."members/*\n"."blogs\n"."blogs/*\n"."node/*\n"; 
+    $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."blogs\n"."blogs/*\n"."node/*\n";
+    $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."members\n"."members/*\n"."blogs\n"."blogs/*\n"."node/*\n";
     $blocks[2]['pages'] = "opinions\n"."opinions/*\n"."creeds\n"."creeds/*\n"."blogs\n"."blogs/*\n";
     $blocks[3]['pages'] = "<front>\n"."creeds\n"."creeds/*\n";
     $blocks[4]['pages'] = "<front>\n"."opinions\n"."opinions/*\n";
@@ -130,7 +130,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[11]['pages'] = "<front>\n";
     $blocks[10]['pages'] = "<front>\n";
     $blocks[11]['pages'] = "<front>\n";
-    $blocks[12]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."node/*\n"; 
+    $blocks[12]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."node/*\n";
     $blocks[13]['pages'] = "<front>\n"."blogs\n"."blogs/*\n";
     $blocks[14]['pages'] = "<front>\n";
 
@@ -176,7 +176,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $add_d = FALSE;
 
     switch ($delta) {
-    case 0: 
+    case 0:
       $type = 'creed';
       $title = 'Related Creeds';
       $description = 'Related Creeds';
@@ -191,7 +191,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 	}
       }
       break;
-    case 1: 
+    case 1:
       $type = 'opinion';
       $title = 'Related Discussions';
       $description = 'Related Discussions';
@@ -202,7 +202,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       if ($node) {
 	switch ($node->type) {
 	case 'opinion':
-	case 'interpretation': 
+	case 'interpretation':
 	  $nid = $node->nid; // avoid self
 	  break;
 	case 'creed':
@@ -214,7 +214,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 	}
       }
       break;
-    case 2: 
+    case 2:
       $type = 'member';
       $title = 'Related Members';
       $description = 'Related Members';
@@ -226,7 +226,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 	$view_block = FALSE;
       }
       break;
-    case 3: 
+    case 3:
       $type = 'creed';
       $title = 'Latest Creeds';
       $description = 'Latest Creeds';
@@ -236,7 +236,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $add_d = TRUE;
       break;
-    case 4: 
+    case 4:
       $type = 'opinion';
       $title = 'Latest Discussions';
       $description = 'Latest Discussions';
@@ -246,7 +246,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $add_d = TRUE;
       break;
-    case 5: 
+    case 5:
       $type = 'member';
       $title = 'Latest Members';
       $description = 'Latest Members';
@@ -256,7 +256,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $add_d = TRUE;
       break;
-    case 6: 
+    case 6:
       $type = 'creed';
       $title = 'Featured Creeds';
       $description = 'Featured Creeds';
@@ -265,7 +265,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $featured = TRUE;
       break;
-    case 7: 
+    case 7:
       $type = 'opinion';
       $title = 'Featured Discussions';
       $description = 'Featured Discussions';
@@ -274,7 +274,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $featured = TRUE;
       break;
-    case 8: 
+    case 8:
       $type = 'member';
       $title = 'Featured Members';
       $description = 'Featured Members';
@@ -283,7 +283,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $featured = TRUE;
       break;
-    case 9: 
+    case 9:
       $type = 'creed';
       $title = 'Latest Creeds';
       $description = 'Latest Creeds';
@@ -292,7 +292,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $sort = 'recent';
       $ignore_terms = TRUE;
       break;
-    case 10: 
+    case 10:
       $type = 'opinion';
       $title = 'Latest Discussions';
       $description = 'Latest opinions';
@@ -301,7 +301,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $sort = 'recent';
       $ignore_terms = TRUE;
       break;
-    case 11: 
+    case 11:
       $type = 'member';
       $title = 'Latest Members';
       $description = 'Latest members';
@@ -310,7 +310,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $sort = 'joined';
       $ignore_terms = TRUE;
       break;
-    case 12: 
+    case 12:
       $type = 'blog';
       $title = 'Related Blogs';
       $description = 'Related Blogs';
@@ -322,7 +322,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 	$view_block = FALSE;
       }
       break;
-    case 13: 
+    case 13:
       $type = 'blog';
       $title = 'Latest Blogs';
       $description = 'Latest Blogs';
@@ -332,7 +332,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $ignore_terms = TRUE;
       $add_d = TRUE;
       break;
-    case 14: 
+    case 14:
       $type = 'blog';
       $title = 'Latest Blogs';
       $description = 'Latest Blogs';
@@ -393,17 +393,17 @@ function cviews_menu() {
    Previously we called hook_init twice, once early in the bootstrap process, second
    just after the bootstrap has finished. The first instance is now called boot
    instead of init.
-   
+
    In Drupal 6, there are now two hooks that can be used by modules to execute code
    at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
    and runs on each page request, even for cached pages. hook_boot() now only runs
    for non-cached pages and thus can be used for code that was previously placed in
    hook_menu() with $may_cache = FALSE:
-   
+
    Dynamic menu items under a '!$may_cache' block can often be simplified
    to remove references to arg(n) and use of '%<function-name>' to check
    conditions. See http://drupal.org/node/103114.
-   
+
    The title and description arguments should not have strings wrapped in t(),
    because translation of these happen in a later stage in the menu system.
 */
@@ -654,7 +654,7 @@ function cviews_blog($uid = 1) {
 }
 
 /*
- *  Builds embeded interpretation view rendered within a creed node page. 
+ *  Builds embeded interpretation view rendered within a creed node page.
  */
 function cviews_interpretation_view($nid, $sort = 'adopted') {
 
@@ -692,7 +692,7 @@ function cviews_interpretation_view($nid, $sort = 'adopted') {
 
 /**
  * Theme the pager results
- * @params pager_limit - max number of nodes per page. 
+ * @params pager_limit - max number of nodes per page.
  * @params i - pager index
  */
 function theme_pager_results($pager_limit = 0, $i = 0) {
@@ -716,7 +716,7 @@ function theme_pager_results($pager_limit = 0, $i = 0) {
     if ($end > $pager_total_items[$i]) {
       $end = $pager_total_items[$i];
     }
-    $content =  t('Results %start-%end from %total', 
+    $content =  t('Results %start-%end from %total',
 		  array('%start' => $start, '%end' => $end, '%total' => $pager_total_items[$i]));
   }
   return '<span class="pager-result">'. $content .'</span>';
@@ -775,7 +775,7 @@ function cviews_generate_page($cargs = array()) {
     $current = current($arg_list);
     if (is_array($current)) {
       // If the callback was called directly from hook_menu $arg_list
-      // holds the terms. If callback called from ajax callback, the 
+      // holds the terms. If callback called from ajax callback, the
       // terms are ordered in an array. Get this array.
       $arg_list = $arg_list[0];
     }
@@ -852,7 +852,7 @@ function cviews_generate_page($cargs = array()) {
  *
  * Note that this function parses only
  * URLS of the form: list/sort/terms
- * 
+ *
  * @param type
  *  type of node listed (creed, opinion, member)
  *
@@ -874,7 +874,7 @@ function cviews_url_to_terms_filtered($type = false, $arg_list = array()) {
 	  $parents =  taxonomy_get_parents($term->tid, $key = 'vid');
 	  $parent = $parents[$term->vid];
 	  if ($parent && $type != 'member') {
-	    $term_ids[] = $parent->tid;	// use the parent term instead  
+	    $term_ids[] = $parent->tid;	// use the parent term instead
 	  }
 	  else {
 	    $term_ids[] = $term->tid;
@@ -893,10 +893,10 @@ function cviews_url_to_terms_filtered($type = false, $arg_list = array()) {
 }
 
 /*
- * @param terms: 
+ * @param terms:
  *  array indexed by vid, each is by itself array of term-ids
- * @param type: 
- *  type of target list 
+ * @param type:
+ *  type of target list
  */
 function _cview_filter_terms($terms, $type) {
 
@@ -936,7 +936,7 @@ function _cview_filter_terms($terms, $type) {
 
 /*
  * filter the node terms per the target type
- * 
+ *
  */
 function cviews_node_to_terms_filtered($nid, $type) {
 
@@ -955,7 +955,7 @@ function cviews_node_to_terms_filtered($nid, $type) {
 //  * term only, FALSE otherwise
 //  */
 // function cview_one_religion() {
-  
+
 //   if (arg(2)) {
 //     // we rely here on the fact that religion taxonomy terms
 //     // will always be generated in arg(2)
@@ -1157,7 +1157,7 @@ function cviews_generate_block($cargs = array()) {
   // ensure the block does not show the node presented in page
   if ($nid) {
     // The code below should have worked, but the SQL output is AND (.nid '<>' $nid)
-    // i.e. missing the table name node in node.nid 
+    // i.e. missing the table name node in node.nid
     // views_view_add_filter($view, 'node', 'nid', '<>', $nid, '');
     // Instead we add an argument for this
     // views_view_add_argument($view, $type, $default, $title, $option = '')
@@ -1176,7 +1176,7 @@ function cviews_generate_block($cargs = array()) {
     // else select in random
     views_view_add_sort($view, 'node', 'random', 'ASC', '');
   }
-  else { 
+  else {
     // show latest
     views_view_add_sort($view, 'node', 'created', 'DESC', '');
     // views_view_add_sort($view, 'node', 'changed', 'DESC', '');
@@ -1190,7 +1190,7 @@ function cviews_generate_block($cargs = array()) {
   // build the view
   //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
   $output = views_build_view('block', $view, $views_args, FALSE, $view->nodes_per_block);
-  
+
 //   if (!$output) {
 //     // keep the block title to maintain links to list pages
 //     $output = '<p></p>';
