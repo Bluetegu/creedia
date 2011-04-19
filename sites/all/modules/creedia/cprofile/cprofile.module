@@ -1,181 +1,10 @@
 <?php
 // $Id$
-/* TODO Automatically add Drupal.settings.basePath
-   In Drupal 5, you would have to add the base path to Drupal.settings yourself
-   if you needed it (it's needed for just about every AHAH/AJAX enabled module
-   if you did it right). Now in Drupal 6, it's added automatically. You can always
-   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
-   called at least once, so this is similar to the way we automatically add
-   drupal.js and jquery.js. */
-
-/* TODO FormAPI image buttons are now supported.
-   FormAPI now offers the 'image_button' element type, allowing developers to
-   use icons or other custom images in place of traditional HTML submit buttons.
-
-$form['my_image_button'] = array(
-  '#type'         => 'image_button',
-  '#title'        => t('My button'),
-  '#return_value' => 'my_data',
-  '#src'          => 'my/image/path.jpg',
-); */
-
-/* TODO Remove $row argument from db_result() method
-   The $row argument of db_result() was removed from the database abstraction
-   layer in 6.x core, as it was a database dependent option. Developers need to
-   use other handling to replace the needs of this method. */
-
 /* TODO hook_user('view')
    The return value of hook_user('view') has changed, to match the process that
    nodes use for rendering. Modules should add their custom HTML to
    $account->content element. Further, this HTML should be in the form that
    drupal_render() recognizes. */
-
-/* TODO New user_mail_tokens() method may be useful.
-   user.module now provides a user_mail_tokens() function to return an array
-   of the tokens available for the email notification messages it sends when
-   accounts are created, activated, blocked, etc. Contributed modules that
-   wish to make use of the same tokens for their own needs are encouraged
-   to use this function. */
-
-/* TODO
-   There is a new hook_watchdog in core. This means that contributed modules
-   can implement hook_watchdog to log Drupal events to custom destinations.
-   Two core modules are included, dblog.module (formerly known as watchdog.module),
-   and syslog.module. Other modules in contrib include an emaillog.module,
-   included in the logging_alerts module. See syslog or emaillog for an
-   example on how to implement hook_watchdog.
-function example_watchdog($log = array()) {
-  if ($log['severity'] == WATCHDOG_ALERT) {
-    mysms_send($log['user']->uid,
-      $log['type'],
-      $log['message'],
-      $log['variables'],
-      $log['severity'],
-      $log['referer'],
-      $log['ip'],
-      format_date($log['timestamp']));
-  }
-} */
-
-/* TODO Implement the hook_theme registry. Combine all theme registry entries
-   into one hook_theme function in each corresponding module file.
-function cprofile_theme() {
-  return array(
-    'user_register' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'form' => NULL,
-      ),
-    ),
-    'user_edit' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'form' => NULL,
-      ),
-    ),
-    'cprofile_facet' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'term' => NULL,
-        'content' => NULL,
-        'position' => NULL,
-        'edit' => false,
-      ),
-    ),
-    'cprofile_entry1' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'data' => NULL,
-        'i' => 0,
-        'edit' => false,
-      ),
-    ),
-    'cprofile_howto' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'nid' => NULL,
-      ),
-    ),
-    'cprofile_tool' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'type' => NULL,
-        'i' => NULL,
-        'title' => '',
-      ),
-    ),
-    'cprofile_wrapper' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'title' => NULL,
-        'content' => NULL,
-        'node' => NULL,
-      ),
-    ),
-    'cprofile_title_bar' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'title' => NULL,
-        'node' => NULL,
-      ),
-    ),
-    'cprofile_submit' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'form' => NULL,
-        '&$form_state' => NULL,
-      ),
-    ),
-    'cprofile_menu' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'lid' => NULL,
-      ),
-    ),
-    'cprofile_tab' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'content' => NULL,
-        'lid' => NULL,
-        'slid' => NULL,
-      ),
-    ),
-    'cprofile_empty_tab_message' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        '' => NULL,
-      ),
-    ),
-    'cprofile_membersonly_tab_message' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        '' => NULL,
-      ),
-    ),
-    'cprofile_private_tab_message' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        '' => NULL,
-      ),
-    ),
-    'cprofile_profile_wrapper' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'content' => NULL,
-        'node' => NULL,
-        'lid' => NULL,
-      ),
-    ),
-    'cprofile_entry' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'data' => NULL,
-        'i' => NULL,
-        'interpretations' => NULL,
-      ),
-    ),
-  );
-} */
 
 /* TODO
    An argument for replacements has been added to format_plural(),
@@ -272,30 +101,27 @@ function cprofile_menu() {
    Previously we called hook_init twice, once early in the bootstrap process, second
    just after the bootstrap has finished. The first instance is now called boot
    instead of init.
-   
+
    In Drupal 6, there are now two hooks that can be used by modules to execute code
    at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
    and runs on each page request, even for cached pages. hook_boot() now only runs
    for non-cached pages and thus can be used for code that was previously placed in
    hook_menu() with $may_cache = FALSE:
-   
+
    Dynamic menu items under a '!$may_cache' block can often be simplified
    to remove references to arg(n) and use of '%<function-name>' to check
    conditions. See http://drupal.org/node/103114.
-   
+
    The title and description arguments should not have strings wrapped in t(),
    because translation of these happen in a later stage in the menu system.
 */
-  if ($may_cache) {
-  }
-  else {
     $items['admin/content/creedia/cprofile/attr/reset'] = array(
-		     'title'    => 'Reset Profile Attributes Table',
-		     'description' => 'Reset Profile Attribute Table',
-		     'page callback' => 'cprofile_attr_reset',
-		     'type'     => MENU_CALLBACK,
-		     'access arguments' => array('administer site configuration'),
-		     );
+         'title'    => 'Reset Profile Attributes Table',
+         'description' => 'Reset Profile Attribute Table',
+         'page callback' => 'cprofile_attr_reset',
+         'type'     => MENU_CALLBACK,
+         'access arguments' => array('administer site configuration'),
+         );
 
     if (arg(0) == 'node' && is_numeric(arg(1))) {
       $node = node_load(arg(1));
@@ -303,29 +129,29 @@ function cprofile_menu() {
     if ($node && in_array($node->type, array('usernode', 'member'))) {
       // forward usernodes and member nodes to users
       $destination = 'user/'. $node->uid;
-      drupal_goto($destination, NULL, NULL, 301); 
+      drupal_goto($destination, NULL, NULL, 301);
     }
     if (arg(0) == 'user' && is_numeric(arg(1))) {
       $uid = arg(1);
       $node = cprofile_get_member($uid);
       if (!$node) {
-	watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
-	return $items;  // no member profile for this user. This shouldn't happen
+  watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
+  return $items;  // no member profile for this user. This shouldn't happen
       }
 
       // process creed ordering
       $items['user/'. $uid .'/order'] = array(
-		       'page callback' => 'cprofile_order',
-		       'type'     => MENU_CALLBACK,
-		       'access arguments' => array('administer cprofile') || ($user->uid == $uid),
-		       );
+           'page callback' => 'cprofile_order',
+           'type'     => MENU_CALLBACK,
+           'access arguments' => array('administer cprofile') || ($user->uid == $uid),
+           );
 
       // process creed ordering
       $items['user/'. $uid .'/attr'] = array(
-		       'page callback' => 'cprofile_attr',
-		       'type'     => MENU_CALLBACK,
-		       'access arguments' => array('administer cprofile') || ($user->uid == $uid),
-		       );
+           'page callback' => 'cprofile_attr',
+           'type'     => MENU_CALLBACK,
+           'access arguments' => array('administer cprofile') || ($user->uid == $uid),
+           );
 
 
       // override node view
@@ -430,7 +256,6 @@ function cprofile_menu() {
                        'access arguments' => array('access content'),
                        );
 
-  }
   return $items;
 }
 
@@ -446,23 +271,11 @@ function cprofile_welcome($uid) {
     //    drupal_set_title(t('Welcome @name', array('@name' => $member->field_full_name[0]['value'])));
   }
 
-//   if (!$user->status) {
-//     $output = '<p>'. 'Thank you '.'<em>'. $member->field_full_name[0]['value'] .'</em>'.' for registering at Creedia!'. '</p>';
-//     $output .= '<p>'. 'Your application for an account is currently pending approval. ';
-//     $output .= 'A confirmation email has been sent to your email address.'. '</p>';
-//   }
-//   else {
-//     $output = '<p>'. 'Welcome '.'<em>'. $member->field_full_name[0]['value'] .'</em>'.' to Creedia!'. '</p>';
-//     $output .= '<p>'. 'Your Creedia account is open. ';
-//     $output .= 'Thank you for being part of '.'<em>'.'The World\'s Creed as People See It.'.'</em>'.'</p>';
-    
-//   }
-
   return $output;
 }
 
 /**
- * Picture edit tab 
+ * Picture edit tab
  */
 function cprofile_picture_edit() {
   // the theme function for user edit prints only the picture part of the form
@@ -470,7 +283,7 @@ function cprofile_picture_edit() {
 }
 
 /**
- * Account edit tab 
+ * Account edit tab
  */
 function cprofile_account_edit() {
   // the theme function for user edit prints only the account part of the form
@@ -478,11 +291,132 @@ function cprofile_account_edit() {
 }
 
 /**
- * Preference edit tab 
+ * Preference edit tab
  */
 function cprofile_preference_edit() {
   // the theme function for user edit prints only the preference part of the form
   return drupal_get_form('user_edit', 'account', 'preference');
+}
+
+/**
+ * Implementation of hook_theme
+ */
+function cprofile_theme() {
+  return array(
+    'user_register' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'user_edit' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'cprofile_facet' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'term' => NULL,
+        'content' => NULL,
+        'position' => NULL,
+        'edit' => FALSE,
+      ),
+    ),
+    'cprofile_entry1' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'data' => NULL,
+        'i' => 0,
+        'edit' => FALSE,
+      ),
+    ),
+    'cprofile_howto' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'nid' => NULL,
+      ),
+    ),
+    'cprofile_tool' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'type' => NULL,
+        'i' => NULL,
+        'title' => '',
+      ),
+    ),
+    'cprofile_wrapper' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'title' => NULL,
+        'content' => NULL,
+        'node' => NULL,
+      ),
+    ),
+    'cprofile_title_bar' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'title' => NULL,
+        'node' => NULL,
+      ),
+    ),
+    'cprofile_submit' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'form' => NULL,
+        '&$form_state' => NULL,
+      ),
+    ),
+    'cprofile_menu' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'lid' => NULL,
+      ),
+    ),
+    'cprofile_tab' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'content' => NULL,
+        'lid' => NULL,
+        'slid' => NULL,
+      ),
+    ),
+    'cprofile_empty_tab_message' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'cprofile_membersonly_tab_message' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'cprofile_private_tab_message' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        '' => NULL,
+      ),
+    ),
+    'cprofile_profile_wrapper' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'content' => NULL,
+        'node' => NULL,
+        'lid' => NULL,
+      ),
+    ),
+    'cprofile_entry' => array(
+      'file' => 'cprofile.module',
+      'arguments' => array(
+        'data' => NULL,
+        'i' => NULL,
+        'interpretations' => NULL,
+      ),
+    ),
+  );
 }
 
 /**
@@ -518,8 +452,8 @@ function theme_user_register($form) {
 
     // modify spiritual biography for registeration purposes
 
-    // I couldn't find how to force the description field to appear between the textarea and the title, 
-    // so eventually I added another form element body_title, placed it before the textarea and cleared the 
+    // I couldn't find how to force the description field to appear between the textarea and the title,
+    // so eventually I added another form element body_title, placed it before the textarea and cleared the
     // original title
     $weight = $form['member']['form']['#form']['body_filter']['#weight'];
     $form['member']['form']['#form']['body_filter']['body']['#title'] = '';
@@ -528,7 +462,7 @@ function theme_user_register($form) {
     $form['member']['form']['#form']['body_title']['#title'] = t('More details');
     $form['member']['form']['#form']['body_title']['#description'] = t('Add any relevant information. The more the merrier. Indicate what you expect from the Creedia experience. The text entered will be used as draft for your Spiritual Biography. You can edit this field once you log in to Creedia.');
     $form['member']['form']['#form']['body_title']['#weight'] = $weight ? $weight/10 : -30;
-    
+
   }
 
   // pimp acount information and picture
@@ -536,7 +470,7 @@ function theme_user_register($form) {
   if (isset($form['picture'])) {
     $form['picture']['#collapsible'] = TRUE;
     // The #required attribute is set here during the theming phase to generate the look-and-feel of
-    // a mandatory field, without using the default form checking. The usual form checking fails 
+    // a mandatory field, without using the default form checking. The usual form checking fails
     // on file upload fields. A special validation function is added to the form instead to test
     // this field is filled by the user.
     $form['picture']['picture_upload_register']['#required'] = TRUE;
@@ -585,7 +519,7 @@ function cprofile_user_register_validate($form, &$form_state) {
 
   // combine the imagecache_profiles added validation copied here and check that a picture
   // has been uploaded.
-  // I can not use the imagecache_profiles validation function directly as it uses a different 
+  // I can not use the imagecache_profiles validation function directly as it uses a different
   // form field (without hacking reg_with_pic).
 
   // Add a minimum size requirement to the image upload form
@@ -606,14 +540,14 @@ function cprofile_user_register_validate($form, &$form_state) {
 //     }
 //   }
 //   else {
-//     // check that the a file is entered. 
+//     // check that the a file is entered.
 //     form_set_error('picture_upload_register',t('User picture is required.'));
 //   }
 }
 
 /**
  * Theme the user edit form per calling function parameter
- */ 
+ */
 function theme_user_edit($form) {
 
 //   foreach ($form as $key => $element) {
@@ -627,9 +561,9 @@ function theme_user_edit($form) {
   case 'picture':
     foreach ($form as $key => $element) {
       if (in_array($key, array('content_images', 'theme_select', 'block', 'cprofile_settings',
-			       'comment_settings', 'usercomment_settings', 'contact', 
-			       'timezone', 'delete', 'revalidate', 'legal', 'mimemail'))) {
-	unset($form[$key]);
+             'comment_settings', 'usercomment_settings', 'contact',
+             'timezone', 'delete', 'revalidate', 'legal', 'mimemail'))) {
+  unset($form[$key]);
       }
     }
     $form['picture']['#collapsible'] = TRUE;
@@ -646,10 +580,10 @@ function theme_user_edit($form) {
     break;
   case 'account':
     foreach ($form as $key => $element) {
-      if (in_array($key, array('picture', 'content_images', 'theme_select', 'block', 
-			       'comment_settings', 'usercomment_settings', 'contact', 
-			       'timezone', 'cprofile_settings', 'mimemail'))) {
-	unset($form[$key]);
+      if (in_array($key, array('picture', 'content_images', 'theme_select', 'block',
+             'comment_settings', 'usercomment_settings', 'contact',
+             'timezone', 'cprofile_settings', 'mimemail'))) {
+  unset($form[$key]);
       }
     }
     $form['account']['#collapsible'] = TRUE;
@@ -657,7 +591,7 @@ function theme_user_edit($form) {
   case 'preference':
     foreach ($form as $key => $element) {
       if (in_array($key, array('picture', 'content_images', 'theme_select', 'delete', 'revalidate', 'legal'))) {
-	unset($form[$key]);
+  unset($form[$key]);
       }
     }
     // hide mail information. If mail is removed form validation breaks
@@ -672,7 +606,7 @@ function theme_user_edit($form) {
   default:
     break;
   }
-  
+
   // firep($form, 'user_edit');
 
   $output = drupal_render($form);
@@ -682,7 +616,7 @@ function theme_user_edit($form) {
 
 /**
  * Implementation of hook_user
- * 
+ *
  * - Delete the profile fields when user is deleted
  * - Handle picture upload during registeration via imagefield module
  */
@@ -696,9 +630,8 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
     $node = cprofile_get_member($user->uid);
     if (module_exists('usercomment')) {
       if ($num = usercomment_count_unapproved($node->nid)) {
-	$message .= format_plural($num,'You have 1 message waiting for you approval', 
-				  '@count messages are waiting for your approval.');
-	drupal_set_message($message);
+  $message .= format_plural($num, 'You have 1 message waiting for you approval', '@count messages are waiting for your approval.');
+  drupal_set_message($message);
       }
     }
     break;
@@ -706,16 +639,16 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
     break;
   case 'insert':
     // copy picture to the proper directory now that we have the userid.
-    // imagefield has already copied the file from $_FILES which now 
-    // no longer hold the uploaded file information. So, we need to 
+    // imagefield has already copied the file from $_FILES which now
+    // no longer hold the uploaded file information. So, we need to
     // get the info from the node
     $node = cprofile_get_member($user->uid);
     $filepath = $node->field_reg_picture[0]['filepath'];
     $info = image_get_info($filepath);
 
     if ($file = file_copy($filepath,   // it might be better to use file_move and not keep two copies...
-			  variable_get('user_picture_path', 'pictures') .'/picture-'. $user->uid .'.'. $info['extension'],
-			  FILE_EXISTS_ERROR)) {
+        variable_get('user_picture_path', 'pictures') .'/picture-'. $user->uid .'.'. $info['extension'],
+        FILE_EXISTS_ERROR)) {
       db_query("UPDATE {users} SET picture='%s' WHERE uid=%d", $filepath, $user->uid);
     }
     else {
@@ -728,17 +661,17 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
     $vid = db_result(db_query($sql, 'Ways'));
     if ($vid) {
       $sql = "SELECT tid FROM {term_data} WHERE vid = %d ORDER BY weight, tid ASC LIMIT 0, 3";
-      $result = db_query($sql, $vid);
+      $result = db_query_range($sql, $vid);
       while ($data = db_fetch_object($result)) {
-	$sql = "INSERT INTO {term_node} (nid, tid) VALUES (%d, %d)";
-	db_query($sql, $node->nid, $data->tid);
+  $sql = "INSERT INTO {term_node} (nid, tid) VALUES (%d, %d)";
+  db_query($sql, $node->nid, $data->tid);
       }
     }
     break;
   case 'form':
 //       if ($category == "account") {
 //         $form['cprofile_settings'] = array(
-// 	  '#type' => 'fieldset',
+//     '#type' => 'fieldset',
 //           '#title' => t('Profile settings'),
 //           '#weight' => 5,
 //           '#collapsible' => 1,
@@ -746,13 +679,13 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
 //         $form['cprofile_settings']['cprofile_profile_sharing'] = array(
 //           '#type' => 'select',
 //           '#title' => t('Profile sharing'),
-// 	  '#options' => array(
-// 			      'everyone' => t('Everyone'),
-// 			      'members' => t('Members'),
-// 			      'private' => t('Private'),
-// 			      ),
+//     '#options' => array(
+//             'everyone' => t('Everyone'),
+//             'members' => t('Members'),
+//             'private' => t('Private'),
+//             ),
 //           '#default_value' => isset($edit['cprofile_profile_sharing']) ? $edit['cprofile_profile_sharing'] : 0,
-// 	  '#description' => t('Select who you share your belief profile with.'),
+//     '#description' => t('Select who you share your belief profile with.'),
 //         );
 //       }
       return $form;
@@ -771,8 +704,8 @@ function cprofile_add_js($order, $uid) {
     drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/cprofile.js');
 
     $settings = array(
-		      //                      'path' => "/cprofile/order",
-		      //                      'path' => url('user/'. $uid . '/order'),
+          //                      'path' => "/cprofile/order",
+          //                      'path' => url('user/'. $uid . '/order'),
                       'basepath' => '/user/'. $uid .'/',
                       'order' => $order,
                       'orderErrorMessage' => t('Failed to save creed order. No response from server.'),
@@ -784,7 +717,7 @@ function cprofile_add_js($order, $uid) {
     // Add jQuery UI core + sortable
     drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/jquery-ui-1.6.custom.min.js');
 
-    // Add hover Intent 
+    // Add hover Intent
     drupal_add_js(drupal_get_path('module', 'cprofile') .'/js/jquery.hoverIntent.minified.js');
 
     // jQuery UI core + tabs widget
@@ -805,14 +738,14 @@ function cprofile_add_js($order, $uid) {
  * $tid - facet id
  * $num - facet number
  * $edit - true if user has permission to edit profile
- * 
+ *
  */
-function cprofile_facet($uid, $fid, $term, $num, $edit){
+function cprofile_facet($uid, $fid, $term, $num, $edit) {
   $tid = $term->tid;
   //
   //   Get all creed statements adopted by the member
   //
-  //   wtid  wcnt  wpos   cid   cpos  timestamp  data 
+  //   wtid  wcnt  wpos   cid   cpos  timestamp  data
   //
   $sql  = "SELECT n.nid, p.position AS cpos, p.wtid, t.position AS wpos, ";
   $sql .= "f.timestamp, ";
@@ -837,8 +770,8 @@ function cprofile_facet($uid, $fid, $term, $num, $edit){
   $sql .= "AND f.uid IS NOT NULL ";
   $sql .= $tid ? "AND p.wtid = %d " : "AND p.wtid IS NULL ";
   //  $sql .= "GROUP BY n.nid ";
-  $sql .= $tid ? "ORDER BY t.position ASC, p.position ASC, f.timestamp DESC, c.delta DESC " : 
-    "ORDER BY f.timestamp DESC, c.delta DESC "; // Delta DESC is used below to run over statments 
+  $sql .= $tid ? "ORDER BY t.position ASC, p.position ASC, f.timestamp DESC, c.delta DESC " :
+    "ORDER BY f.timestamp DESC, c.delta DESC "; // Delta DESC is used below to run over statments
 
   $result = db_query(db_rewrite_sql($sql), $uid, $fid, $term->tid);
   $i = 0;
@@ -849,15 +782,15 @@ function cprofile_facet($uid, $fid, $term, $num, $edit){
       $statements[$data->statement_num]['value'] = $data->field_origin_statement_value;
       $langs[$data->statement_num]['value'] = $data->field_origin_statement_lang_value;
       if ($data->statement_num != 0) {
-	// Statements are ordered DESC by statement number,
-	// therefore statement number 0 is the last one
-	continue;
+  // Statements are ordered DESC by statement number,
+  // therefore statement number 0 is the last one
+  continue;
       }
       else {
-	$data->field_origin_statement_value = $statements;
-	$data->field_origin_statement_lang_value = $langs;
-	$statements = array();
-	$langs = array();
+  $data->field_origin_statement_value = $statements;
+  $data->field_origin_statement_lang_value = $langs;
+  $statements = array();
+  $langs = array();
       }
     }
     $content .= theme('cprofile_entry1', $data, $i, $edit);
@@ -902,7 +835,7 @@ function cprofile_view($node) {
     // members only
     $output .= theme('cprofile_membersonly_tab_message');
   }
-  else if ($sharing == 255 && $user->uid != $node->uid) {
+  elseif ($sharing == 255 && $user->uid != $node->uid) {
     // private profile
     $output .= theme('cprofile_private_tab_message');
   }
@@ -962,25 +895,25 @@ function cprofile_view($node) {
  * $terms - array of terms
  * $en_terms - array of the enabled term ids
  */
-function cprofile_attr_terms_form(&$form_state, $nid, $terms, $en_terms){
+function cprofile_attr_terms_form(&$form_state, $nid, $terms, $en_terms) {
 
   // options array values and indices are the tids
   // defaults array values are the indices of the selected (enabled) terms
-  // array_intersect returns the first array index, value pairs                  
+  // array_intersect returns the first array index, value pairs
   $options = array_keys($terms);
   $options = array_combine($options, $options);
   $defaults = array_values(array_intersect($options, $en_terms));
   // make sure that one entry is always selected, otherwise when all religions are
-  // deselcted, nothing will be sent and the server will not have the cid info 
-  $options[0] = 0; 
+  // deselcted, nothing will be sent and the server will not have the cid info
+  $options[0] = 0;
   array_push($defaults, 0);
 
   $form['religion'][$nid] = array('#type' => 'select',
-				  '#multiple' => TRUE,
-				  '#options' => $options,
-				  '#default_value' => $defaults,
-				  '#attributes' => array('class' => 'select-init'),
-				  );
+          '#multiple' => TRUE,
+          '#options' => $options,
+          '#default_value' => $defaults,
+          '#attributes' => array('class' => 'select-init'),
+          );
 
   // Do not collapse form. Ensure the IDs of the forms differ
   $form['religion']['#tree'] = TRUE;
@@ -997,21 +930,21 @@ function cprofile_attr_terms_form(&$form_state, $nid, $terms, $en_terms){
  * $statements - a node with origin statement array (lang & value)
  * $en_statement - selected statement number
  */
-function cprofile_attr_os_form(&$form_state, $nid, $node, $en_statement){
+function cprofile_attr_os_form(&$form_state, $nid, $node, $en_statement) {
 
   $options = array(OS_OPTION_NONE => 'None');
-  if (is_array($node->field_origin_statement)){
+  if (is_array($node->field_origin_statement)) {
     foreach ($node->field_origin_statement AS $i => $v) {
       $options[$i] = truncate_utf8($v['value'], 96, TRUE, TRUE);
     }
   }
 
   $form['os'][$nid] = array('#type' => 'select',
-			    '#multiple' => FALSE,
-			    '#options' => array_reverse($options, TRUE),
-			    '#default_value' => $en_statement, 
-			    '#attributes' => array('class' => 'os-select fancy-select'),
-			    );
+          '#multiple' => FALSE,
+          '#options' => array_reverse($options, TRUE),
+          '#default_value' => $en_statement,
+          '#attributes' => array('class' => 'os-select fancy-select'),
+          );
 
   // Do not collapse form. Ensure the IDs of the forms differ
   $form['os']['#tree'] = TRUE;
@@ -1021,7 +954,7 @@ function cprofile_attr_os_form(&$form_state, $nid, $node, $en_statement){
 
 /**
  * Implementation of hook_forms
- * 
+ *
  * Make multiple forms on a page (for ajax) using a single function
  * Per: http://www.gtrlabs.org/node/185
  */
@@ -1038,16 +971,16 @@ function cprofile_forms($form_id, $args) {
   if (strpos($form_id, 'cprofile_attr_terms_form') === 0) {
     $forms[$form_id] = array('callback' => 'cprofile_attr_terms_form');
   }
-  else if (strpos($form_id, 'cprofile_attr_os_form') === 0) {
+  elseif (strpos($form_id, 'cprofile_attr_os_form') === 0) {
     $forms[$form_id] = array('callback' => 'cprofile_attr_os_form');
   }
-  
+
   return $forms;
 }
 
-function theme_cprofile_facet($term, $content, $position, $edit = false) {
+function theme_cprofile_facet($term, $content, $position, $edit = FALSE) {
   $tid = $term ? $term->tid : 0;
-  $position == 255 ? 
+  $position == 255 ?
     $output = '<li id ="facet-'. $tid .'" class="cprofile-facet fixed">':
     $output = '<li id ="facet-'. $tid .'" class="cprofile-facet">';
 
@@ -1076,7 +1009,7 @@ function theme_cprofile_facet($term, $content, $position, $edit = false) {
   $name = $term ? $term->name : t('Uncategorized');
   // taken from menu_css_names module
   $name_css = 'facet-'. drupal_strtolower(preg_replace('/(\s?&amp;\s?|[^-_\w\d])/i', '-', strip_tags($name)));
-  $output .= '<h4><a href="#'. $name_css .'">'. $name .'</a></h4>'; 
+  $output .= '<h4><a href="#'. $name_css .'">'. $name .'</a></h4>';
   $output .= '<a name="'. $name_css .'"></a>';
   $output .= '</div>';
 
@@ -1105,7 +1038,7 @@ function theme_cprofile_facet($term, $content, $position, $edit = false) {
 /**
  * Theme a cprofile entry
  */
-function theme_cprofile_entry1($data, $i = 0, $edit = false) {
+function theme_cprofile_entry1($data, $i = 0, $edit = FALSE) {
   $node = new stdClass();
   $node->field_origin_statement = array();
   $node->field_origin_statement_lang = array();
@@ -1127,11 +1060,11 @@ function theme_cprofile_entry1($data, $i = 0, $edit = false) {
   $vars['en_religion'] = $data->terms ? unserialize($data->terms): array();
   $vars['beliefset'] = $beliefset;
   $vars['new'] = $new;
-  $vars['adopt'] = flag_create_link('adopt', $data->nid); 
+  $vars['adopt'] = flag_create_link('adopt', $data->nid);
   $vars['close'] = theme('image', path_to_theme() .'/images/close.png', '', t('Close footer'));
   // hidden select for ajax purposes
   if ($edit) {
-    $vars['form_terms'] = 
+    $vars['form_terms'] =
       drupal_get_form('cprofile_attr_terms_form_'. $data->nid, $data->nid, $religion, $vars['en_religion']);
     $vars['form_os'] = drupal_get_form('cprofile_attr_os_form_'. $data->nid, $data->nid, $node, $data->statement);
   }
@@ -1145,7 +1078,7 @@ function theme_cprofile_entry1($data, $i = 0, $edit = false) {
 function theme_cprofile_howto($nid) {
   $output  = '<div id = "cprofile-howto">';
   $output .= '<div id = "cprofile-howto-flag-wrapper">';
-  $output .= flag_create_link('profile_howto', $nid); 
+  $output .= flag_create_link('profile_howto', $nid);
   $output .= '</div>';
   $output .= '</div>';
   return $output;
@@ -1199,10 +1132,10 @@ function cprofile_about_edit($node) {
 }
 
 /**
- * Profile edit tab 
+ * Profile edit tab
  */
 function cprofile_profile_edit() {
-  
+
 }
 
 
@@ -1224,17 +1157,17 @@ function cprofile_guestbook($node) {
   if ($user->uid == $node->uid) {
     $output .= t('The comments settings are available in the usercomment section of the edit preference tab. ');
     if ($num = usercomment_count_unapproved($node->nid)) {
-      $output .= '<em>'. format_plural($num,'You have 1 comment waiting for your approval', '@count comments are waiting for your approval.') . '</em>';
+      $output .= '<em>'. format_plural($num, 'You have 1 comment waiting for your approval', '@count comments are waiting for your approval.') . '</em>';
     }
   }
   $output .= '</p></h6>';
 
-  $output .= usercomment_approval_form($node); 
+  $output .= usercomment_approval_form($node);
   // add wrapper here
   $output .= '<div id="comments">';
   $output .= comment_render($node);
   $output .= '</div>';
-  $output .= drupal_get_form('comment_form', array('nid'=>$node->nid)); 
+  $output .= drupal_get_form('comment_form', array('nid' => $node->nid));
 
   return $output;
 }
@@ -1260,8 +1193,8 @@ function theme_cprofile_submit($form, &$form_state) {
   }
   if ($show) {
     $output .= '<div id="cprofile-hide" class="jsonly">';
-    $output .= '<span id="cprofile-hide-show" title="'. t('Show adopted interpretations'). '">'. t('Show') .'</span>';
-    $output .= '<span id="cprofile-hide-hide" style="display: none" title="'. t('Hide adopted interpretations.'). '">'. t('Hide') .'</span>';
+    $output .= '<span id="cprofile-hide-show" title="'. t('Show adopted interpretations') .'">'. t('Show') .'</span>';
+    $output .= '<span id="cprofile-hide-hide" style="display: none" title="'. t('Hide adopted interpretations.') .'">'. t('Hide') .'</span>';
     $output .= '</div>';
   }
 
@@ -1291,7 +1224,7 @@ function theme_cprofile_menu($lid) {
   //  for ($slid = 0; $slid < $num[$lid]; $slid++) {
   for ($slid = 1; $slid < $num[$lid]; $slid++) {
     $image = theme('image', path_to_theme() .'/images/cvote-'. $title[$slid] .'.gif', '', $title[$slid]);
-    $output .= '<li>'. l($image . ' '. $title[$slid], $path, array('fragment' => 
+    $output .= '<li>'. l($image . ' '. $title[$slid], $path, array('fragment' =>
                          'fragment-'. $lid ."-". $slid, 'html' => TRUE)) .'</li>';
   }
   $output .= '</ul>';
@@ -1336,11 +1269,7 @@ function theme_cprofile_profile_wrapper($content, $node, $lid) {
   $output = '<div class="cprofile-wrapper">';
   $output .= $content;
   $output .= '<div class="morelink">';
-  $output.= /* TODO
-   Please manually fix the parameters on the l() or url() function on the next line.
-   Typically, this was not changed because of a function call inside an array call like
-   array('title' => t('View user profile.')).*/
-l('More', $path , array('title' => t('View the complete profile')));
+  $output .= l('More', $path , array('attributes' => array('title' => t('View the complete profile'))));
   $output .= '</div>';
   $output .= '</div>';
   return $output;
@@ -1353,7 +1282,7 @@ l('More', $path , array('title' => t('View the complete profile')));
 function theme_cprofile_entry($data, $i, $interpretations) {
 }
 
- 
+
 /**
  * Delete the attribute columns
  * @Params
@@ -1361,7 +1290,7 @@ function theme_cprofile_entry($data, $i, $interpretations) {
  * $cid - creed nid. Relevant only if uid is not zero
  *        if non zero only the specific entry will be deleted.
  */
-function cprofile_attr_delete($uid = 0, $cid = 0){
+function cprofile_attr_delete($uid = 0, $cid = 0) {
 
   $sql = "DELETE FROM {cprofile_attr} ";
   $sql .= $uid ? "WHERE uid = %d " . ($cid ? "AND cid = %d" : "") : "";
@@ -1371,10 +1300,10 @@ function cprofile_attr_delete($uid = 0, $cid = 0){
 /**
  * Set Attribute
  * @Params
- * $uid - user id. 
- * $cid - creed nid. 
+ * $uid - user id.
+ * $cid - creed nid.
  */
-function cprofile_attr_set($uid, $cid, $tids, $num){
+function cprofile_attr_set($uid, $cid, $tids, $num) {
 
   $sql  = "INSERT INTO {cprofile_attr} (uid, cid, terms) ";
   $sql .= "VALUES (%d, %d, '%s')";
@@ -1388,7 +1317,7 @@ function cprofile_attr_set($uid, $cid, $tids, $num){
  * NOT SCALABLE FOR LARGE NUMBER OF USERS
  * USE CRON INSTEAD
  */
-function cprofile_attr_reset($uid = 0){
+function cprofile_attr_reset($uid = 0) {
 
   // First erase relevant columns
   cprofile_attr_delete($uid);
@@ -1407,7 +1336,7 @@ function cprofile_attr_reset($uid = 0){
     cprofile_attr_defaults($data->uid, $data->nid);
   }
 
-  $output = t('Profile attributes set to default for user number '). $uid;
+  $output = t('Profile attributes set to default for user number ') . $uid;
   return $output;
 
 }
@@ -1432,7 +1361,7 @@ function cprofile_attr_defaults($uid, $cid) {
   // If there is a match, show only the matched ones
   $tids = array_intersect($mtids, $ctids);
   // Else show all current creed set religions
-  if (!count($tids)){
+  if (!count($tids)) {
     $tids = $ctids;
   }
 
@@ -1451,7 +1380,7 @@ function cprofile_attr_defaults($uid, $cid) {
   // delete columns, just to make sure...
   cprofile_attr_delete($uid, $cid);
 
-  // set default values. 
+  // set default values.
   $sql  = "INSERT INTO {cprofile_attr} (uid, cid, terms, statement) ";
   $sql .= "VALUES (%d, %d, '%s', %d)";
   $tids = serialize($tids);
@@ -1468,7 +1397,7 @@ function cprofile_flag($event, $flag, $content_id, $account) {
   $uid = $account->uid;
   if ($flag->name == 'adopt' && $uid) {
     // if creed is de-selected, clean the creed attributes
-    if ($event == 'unflag'){
+    if ($event == 'unflag') {
       cprofile_attr_delete($uid, $content_id);
     }
     // if creed is selected, set the initial set of attributes
@@ -1492,7 +1421,7 @@ function cprofile_attr() {
   $os = 0;  // statement number
 
   $religion = $_POST['religion'];
-  if (is_array($religion)){
+  if (is_array($religion)) {
     $cid = key($religion);
     $tids = $religion[$cid];
     array_pop($tids);
@@ -1532,8 +1461,8 @@ function cprofile_attr() {
   else {
     $error = t('Oops... Something wrong. Please let us know so we can fix it.');
     print drupal_to_js(array('msg' => $error,
- 			     'success' => $success,
- 			     ));
+            'success' => $success,
+            ));
   }
 
   //return;
@@ -1554,17 +1483,17 @@ function cprofile_order() {
   $creeds = array();
 
   // I read somewhere that you don't need to check_plain
-  // the incoming parameters. 
-  foreach($_POST as $name => $value) {
+  // the incoming parameters.
+  foreach ($_POST as $name => $value) {
     $cid = (int)$value;
     $temp = explode('-', check_plain($name), 2);
     $wtid = (int)$temp[0];
     if ($wtid) {
       if ($cid) {
-	$creeds[$wtid][] = $cid;
+  $creeds[$wtid][] = $cid;
       }
       else {
-	$facets[] = $wtid;
+  $facets[] = $wtid;
       }
     }
   }
@@ -1582,7 +1511,7 @@ function cprofile_order() {
     $sql  = "INSERT INTO {cprofile_facets} (uid, wtid, position) ";
     $sql .= "VALUES (%d, %d, %d)";
 
-    foreach($facets as $position => $wtid) {
+    foreach ($facets as $position => $wtid) {
       db_query($sql, $uid, $wtid, $position);
     }
 
@@ -1592,11 +1521,11 @@ function cprofile_order() {
     $sql  = "INSERT INTO {cprofile_ways} (uid, cid, wtid, position) ";
     $sql .= "VALUES (%d, %d, %d, %d)";
 
-    foreach($creeds as $wtid => $m) {
-      foreach($m as $position => $cid) {
-	if ($cid) {
-	  db_query($sql, $uid, $cid, $wtid, $position);
-	}
+    foreach ($creeds as $wtid => $m) {
+      foreach ($m as $position => $cid) {
+  if ($cid) {
+    db_query($sql, $uid, $cid, $wtid, $position);
+  }
       }
     }
     $success = TRUE;
@@ -1614,8 +1543,8 @@ function cprofile_order() {
   else {
     $error = t('Oops... Something wrong. Please let us know so we can fix it.');
     print drupal_to_js(array('msg' => $error,
- 			     'success' => $success,
- 			     ));
+            'success' => $success,
+            ));
   }
 
   //return;
