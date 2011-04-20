@@ -1,5 +1,4 @@
 <?php
-// $Id: abuse-report.tpl.php,v 1.1.2.4 2008/10/15 17:50:58 btmash Exp $
 
 /**
  * @file
@@ -18,7 +17,7 @@
 ?>
 <li class="abuse-report corners">
   <div class="summary">
-    <h2><?php print l($object->title, $object->path['URL'], array('html' => TRUE, 'query' => $object->path['QUERY'], 'fragment' => $object->path['BREADCRUMB'])); ?></h2>
+    <h2><?php print l($object->title, $object->path['URL'], array('query' => $object->path['QUERY'], 'fragment' => $object->path['BREADCRUMB'])); ?></h2>
     <dl>
       <dt><?php print t('Type:'); ?></dt>
       <dd><?php print $object->type === 'comment' ? t('Comment') : t('Movie'); ?></dd>

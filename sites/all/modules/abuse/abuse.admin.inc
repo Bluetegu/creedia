@@ -1,5 +1,4 @@
 <?php
-// $Id: abuse.admin.inc,v 1.1.2.4 2008/10/15 17:50:58 btmash Exp $
 
 /**
  * @file
@@ -444,7 +443,7 @@ function abuse_admin_ban_user($uid) {
   $account = user_load(array('uid' => $uid));
   $status = FALSE;
   $message = 'User @name could not be banned.';
-  if ($user->uid > 1 && $user->uid !== $account->uid) {
+  if ($account->uid > 1 && $user->uid !== $account->uid) {
     abuse_remove_account_content($account);
     sess_destroy_uid($uid);
     db_query("INSERT INTO {access} (mask, type, status) VALUES ('%s', 'mail', 0)", $account->mail);
