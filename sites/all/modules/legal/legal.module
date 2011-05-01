@@ -48,7 +48,7 @@ function legal_menu() {
   );
 
 	$items['admin/settings/legal/terms'] = array(
-	  'title' => 'Add Terms & Conditions',
+	  'title' => 'Add T&C',
 	  'access arguments' => array('administer Terms and Conditions'),
 	  'description' => 'Display Terms and Conditions statement on the registration page.',
 	  'type' => MENU_DEFAULT_LOCAL_TASK, 
@@ -223,13 +223,15 @@ function legal_user($op, &$edit, &$account, $category = FALSE) {
       if (!empty($user->uid)) {
         $form_fields['legal']['legal_accept']['#attributes'] = array('disabled' => 'disabled');
         $form_fields['legal']['legal_accept']['#required'] = FALSE;
-
-        foreach ($conditions['extras'] as $key => $label) {
-          if (!empty($label)) {
-            $form_fields['legal'][$key]['#attributes'] = array('disabled' => 'disabled');
-            $form_fields['legal'][$key]['#required'] = FALSE;
-          }
-        }
+        
+				if (is_array($conditions['extras'])) {
+	        foreach ($conditions['extras'] as $key => $label) {
+	          if (!empty($label)) {
+	            $form_fields['legal'][$key]['#attributes'] = array('disabled' => 'disabled');
+	            $form_fields['legal'][$key]['#required'] = FALSE;
+	          }
+	        } 
+				}
       }
       else {
         $form_fields['legal']['legal_accept']['#default_value'] = $edit['legal_accept'];
@@ -358,9 +360,10 @@ function legal_user($op, &$edit, &$account, $category = FALSE) {
 
          if (!empty($conditions['extras'])) {
            reset($conditions['extras']);
+
            foreach ($conditions['extras'] as $key => $label) {
              if (!empty($label)) {
-               $form_fields['legal'][$key]['#default_value'] = $edit[$key];
+               $form_fields['legal'][$key]['#default_value'] = isset($edit[$key]) ? $edit[$key] : '';
                $form_fields['legal'][$key]['#required'] = TRUE;
              }
            }
@@ -379,8 +382,9 @@ function legal_user($op, &$edit, &$account, $category = FALSE) {
         return;
       }
 
+      // Record the accepted state before removing legal_accept from $edit.
+      $accepted = $edit['legal_accept'];
       $edit['legal_accept'] = NULL;
-
       $edit['conditions'] = NULL;
 
       foreach ($conditions['extras'] as $key => $label) {
@@ -392,7 +396,9 @@ function legal_user($op, &$edit, &$account, $category = FALSE) {
         break;
       }
 
-      legal_save_accept($conditions['version'], $conditions['revision'], $conditions['language'], $account->uid);
+      if ($accepted) {
+        legal_save_accept($conditions['version'], $conditions['revision'], $conditions['language'], $account->uid);
+      }
       break;
 
     case 'update':
@@ -401,6 +407,8 @@ function legal_user($op, &$edit, &$account, $category = FALSE) {
         return;
       }
 
+      // Record the accepted state before removing legal_accept from $edit.
+      $accepted = $edit['legal_accept'];
       $edit['legal_accept'] = NULL;
       $edit['conditions'] = NULL;
 
@@ -413,13 +421,15 @@ function legal_user($op, &$edit, &$account, $category = FALSE) {
       }
 
       // If already accepted skip data entry.
-      $accepted = legal_version_check($account->uid, $conditions['version'], $conditions['revision']);
+      $previously_accepted = legal_version_check($account->uid, $conditions['version'], $conditions['revision']);
 
-      if ($accepted === TRUE) {
+      if ($previously_accepted === TRUE) {
         break;
       }
 
-      legal_save_accept($conditions['version'], $conditions['revision'], $conditions['language'], $account->uid);
+      if ($accepted) {
+        legal_save_accept($conditions['version'], $conditions['revision'], $conditions['language'], $account->uid);
+      }
       break;
   }
 }
@@ -487,6 +497,8 @@ function legal_login($constructor, $uid, $id_hash = NULL) {
 
   $form = legal_display_changes($form, $uid);
 
+	$form['#redirect'] = 'user/'. $uid;
+
   $form['save'] = array(
     '#type' => 'submit',
     '#value' => t('Confirm'),
@@ -522,7 +534,7 @@ function legal_login_submit($form, &$form_state) {
   sess_regenerate();
 
   user_module_invoke('login', $edit, $user);
-  $form_state['redirect'] = 'user/'. $user->uid;
+  //$form_state['redirect'] = 'user/'. $user->uid;
 }
 
 function theme_legal_login($form) {
@@ -608,7 +620,6 @@ function legal_display_changes($form, $uid) {
 
 		if (!empty($changes)) {
 			$bullet_points = array_merge($bullet_points, explode("\r\n", $changes));
-			//$bullet_points = $bullet_points + explode("\r\n", $changes); 
 		}
   }
 
@@ -664,4 +675,14 @@ function legal_languages_access($perm) {
 	}
 	
 	return TRUE;
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function legal_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'legal') . '/views',
+  );
 }
