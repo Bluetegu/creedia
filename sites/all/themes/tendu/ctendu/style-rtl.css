@@ -1,0 +1,46 @@
+@charset "utf-8";
+/**
+ * Tendu Drupal 5.x Theme For Developers CSS
+ * Updated: $Date: 2008/06/04 00:50:12 $
+ * Author: Tom Bigelajzen - http://tombigel.com
+ */
+
+/* Incremental CSS overrides for RTL designs */
+
+/* Drupal reset */
+ul.menu{text-align:right;padding:0 1em 0 0}
+ul.menu li{margin:0 .5em 0 0;}
+thead th {padding-right:0;padding-left:1em;text-align:right;}
+li.collapsed {list-style-image:url(images/menu-collapsed_rtl.png);}
+/* Fix admin screens
+ * TODO: Check how this affects other parts of the site
+ */
+#node-admin-buttons {clear:left;float:right;margin-right:0.5em;}
+dl.multiselect dt, dl.multiselect dd {float:right;margin:0pt 0 0pt 1em;}
+
+/* Set text direction */
+body {direction:rtl}
+table, td, th{text-align:right;}
+#page{padding:0 1px;}/* Fix Horizontal scroll bug in FF2 (WTF?) */
+
+/* Flip sidebars */
+#sidebar-left{float:right;}
+#sidebar-right{float:left;}
+
+/* Reset LTR paddings and margins for one sidebar designs */
+.one-sidebar #content{padding-left:0 ;padding-right:0 ;margin-left:0;margin-right:0}
+
+/* Set RTL paddings and margins on sidebars */
+.with-sidebar-left #content{margin-right:188px;padding-right:20px}
+.with-sidebar-right #content{margin-left:214px;padding-left:20px}
+
+/* Flip main navagation */
+#main-nav ul.menu li {float:right;margin-left:0em;margin-right:1em}
+
+/* Flip everything else */
+#header-blocks {float:left;}
+#site-logo{float:right}
+#site-details{float:right;}
+
+
+
