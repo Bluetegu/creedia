@@ -102,9 +102,9 @@ function ctwitter_screenname() {
   static $checked;
   if (!$checked) {
     if (arg(0) == 'user' && is_numeric(arg(1))) {
-      $node = cprofile_get_member(arg(1));
+      $node = content_profile_load('member', arg(1));
       if ($node) {
-  $name = $node->field_twitter[0]['value'];
+      $name = $node->field_twitter[0]['value'];
       }
     }
     elseif (arg(0) == 'blog') {
@@ -113,7 +113,7 @@ function ctwitter_screenname() {
     elseif (arg(0) == 'node' && is_numeric(arg(1))) {
       $node = menu_get_object();
       if ($node && $node->type == 'blog') {
-  $name = 'creedia';
+        $name = 'creedia';
       }
     }
     $checked = TRUE;
@@ -142,17 +142,9 @@ function ctwitter_add_js($name) {
 function ctwitter_footer($main = 0) {
   if ($name = ctwitter_screenname()) {
     $output = '<script type="text/javascript" src="http://twitter.com/javascripts/blogger.js"></script>';
-    //    $output .= '<script type="text/javascript" src="http://twitter.com/statuses/user_timeline/';
-    //    $output .= $name;
-    //    $output .= '.json?callback=twitterCallback2&amp;count=5"></script>';
   }
 
   ctwitter_add_js($name);
-
-//   if ($name == 'creedia') {  // piggyback on twitter - not so elegant...
-//     $output .= '<script src="http://static.ak.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php/en_US" type="text/javascript"></script>';
-//     $output .= '<script type="text/javascript">FB.init("92ab9d752a33311111677ae3c494abd8");</script>';
-//   }
   return $output;
 }
 

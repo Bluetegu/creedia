@@ -1,6 +1,6 @@
 ;$Id$
 name = Ctwitter
-description = Creedia Twitter Integration
+description = Creedia Twitter and Facebook Integration
 package = Creedia
-dependencies[] = creedia
+dependencies[] = content_profile
 core = 6.x

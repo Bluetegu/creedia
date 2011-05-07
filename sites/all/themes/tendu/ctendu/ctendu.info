@@ -1,8 +1,8 @@
 ;$Id: tendu_default.info,v 1.1.2.1.2.5 2009/01/26 21:36:34 tombigel Exp $
 
-name = Tendu Creedia Design
+name = Ctheme
 version = 2.1
-description = Wireframe BiDi Theme for Developers. Tableless, Cross browser support.
+description = Creedia Theme Based on Tendu
 core = 6.x
 engine = phptemplate
 base theme = tendu
