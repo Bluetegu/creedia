@@ -1,8 +1,27 @@
 @charset "utf-8";
-/*$Id: style_subtheme.css,v 1.1.2.1.2.19 2009/01/26 23:49:05 tombigel Exp $*/
 /**
- * Creedia theme. Based on Tendu for Drupal 5. Ported to Drupal 6.
+ * Tendu Drupal 5.x Theme For Developers CSS
+ * Updated: $Date: 2008/06/04 00:50:12 $
+ * Author: Tom Bigelajzen - http://tombigel.com
  */
+
+/* Basic CSS Reset */
+body, div,  dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, p, a,
+pre, code, form, fieldset, legend, input, textarea, p, blockquote, table, th, td {margin:0;padding:0;}
+img, fieldset, legend, table, tr, td, th {border:none;}
+ol, ul, li {list-style-type:none;}
+table, td{vertical-align:top;text-align:left;}
+th{vertical-align:middle;text-align:left;}
+fieldset{padding:0;margin:0;}
+
+/* Drupal CSS Defaults reset */
+.profile,
+.node-form .standard{clear:none;}
+ul.menu{padding:0 0 0 1em;}
+ul.menu li{margin:0 0 0 .5em;}
+.item-list ul li{list-style-image:none;list-style-type:none;padding:0;margin:0;}
+li.leaf{list-style-image:none;list-style-type:none;}
+
  /* Page layout:
   *****************************************************
   * In this section the only changes you need to do are:
@@ -26,14 +45,14 @@
  * - Note that "line-height" unlike "font-size" is relative to the current element and not to a global line height.
  * - Basic font size 12px, set as .75em of browsers default 16px size
  * - Font sizes (when base size is .75em, calculated as desired font size devided by 12):
- *   10px = .83em
- *   11px = .916em
- *   12px = 1em
- *   13px = 1.083em
- *   14px = 1.166em
- *   16px = 1.333em
- *   18px = 1.5em
- *   20px = 1.666em
+ *	 10px = .83em
+ *	 11px = .916em
+ *	 12px = 1em
+ *	 13px = 1.083em
+ *	 14px = 1.166em
+ *	 16px = 1.333em
+ *	 18px = 1.5em
+ *	 20px = 1.666em
  *   etc...
  */
 body{font-family:Arial, Helvetica, sans-serif;font-size:100%;}
@@ -1155,4 +1174,3 @@ margin:0pt 50px 0pt 0pt;
 
 .fb-widget{clear:both; margin-top:1.666em;}
 
- 

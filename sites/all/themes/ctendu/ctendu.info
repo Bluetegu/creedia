@@ -5,11 +5,10 @@ version = 2.1
 description = Creedia Theme Based on Tendu
 core = 6.x
 engine = phptemplate
-base theme = tendu
 
-stylesheets[all][] = style_subtheme.css
+stylesheets[all][] = style.css
 
-conditional-stylesheets[if IE][all][] = ie_subtheme.css
+conditional-stylesheets[if IE][all][] = ie.css
 
 regions[header] = header
 regions[main_nav] = main navagation
@@ -20,10 +19,3 @@ regions[content] = content
 regions[content_bottom] = content bottom
 regions[closure_region] = closure
 regions[footer] = footer
-
-; Information added by drupal.org packaging script on 2009-02-22
-version = "6.x-2.1-beta5"
-core = "6.x"
-project = "creedia"
-datestamp = "1235344851"
-
