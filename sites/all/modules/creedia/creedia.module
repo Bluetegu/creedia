@@ -289,7 +289,8 @@ function creedia_creed_view($node) {
 function creedia_interpretation_render($node) {
   global $pager_total_items; // total items paged
   $sort = $_GET["sort"];
-  $content = cviews_interpretation_view($node->nid, $sort);
+  $content = 'interpreation view - waiting for cview module to be upgraded';
+  /*$content = cviews_interpretation_view($node->nid, $sort);  temporary @@@ */
   $tabs .= '<div class="tabs">';
   $tabs .= theme('pager_results', CREEDIA_INTERPRETATION_PER_PAGE, 1);
   $tabs .= '<span id="subtabs-title">'. t('Sort by:') .'</span>';
