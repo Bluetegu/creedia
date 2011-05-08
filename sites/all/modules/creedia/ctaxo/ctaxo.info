@@ -3,5 +3,6 @@ name = Creedia Taxonomy
 package = Creedia
 description = Creedia Taxonomy Navigation and Assignment
 dependencies[] = taxonomy
+dependencies[] = tagadelic
 dependencies[] = creedia
 core = 6.x

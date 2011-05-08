@@ -252,7 +252,7 @@ function theme_origin_statement($node, $one = FALSE, $trim = 0, $num = 0, $hidde
 }
 
 /**
- * Theme opinion or interpretation image.
+ * Theme opinion/interpretation image.
  * Pick either the embedded (referenced) image, video, audio
  * or uploaded image.
  *
@@ -427,8 +427,6 @@ function theme_interpretation_wrapper($content, $num) {
   return $output;
 }
 
-
-
 /**
  * Preprocess varialbles for nodes
  *
@@ -438,5 +436,3 @@ function ctendu_preprocess_node(&$variables) {
   $i = 1;
   //dpr($variables);
 }
-
-

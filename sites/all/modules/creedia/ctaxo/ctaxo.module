@@ -198,7 +198,7 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
 /**
  * Implementation of hook_menu
  */
-function ctaxo_menu() {
+/*function ctaxo_menu() {
   $items = array();
 
   // for unknown reason if I place this in may_cache section it doesn't work
@@ -219,13 +219,13 @@ function ctaxo_menu() {
   return $items;
 
 }
-
+@@@TODO*/
 
 
 /**
  * Creedia dynamic view
  */
-function ctaxo_dynamic($view) {
+/*function ctaxo_dynamic($view) {
 
   switch ($view) {
   case 'creeds':
@@ -290,12 +290,12 @@ function ctaxo_dynamic($view) {
   print drupal_to_js($answer);
   exit();
 }
-
+@@@TODO*/
 
 /**
  * Taxonomy override view (depth 0)
  */
-function ctaxo_taxonomy_page($terms = '', $op = '') {
+/*function ctaxo_taxonomy_page($terms = '', $op = '') {
 
   // The view description appears in RSS feeds below the feed title.
   $view = views_create_view(t('Taxonomy view'), t('The World\'s Creed As People See It.'));
@@ -339,6 +339,7 @@ function ctaxo_taxonomy_page($terms = '', $op = '') {
   views_sanitize_view($view);
   return views_build_view('page', $view, array($terms, $op), $view->use_pager, $view->nodes_per_page);
 }
+@@@TODO*/
 
 function _ctaxo_base_path() {
   $mid = menu_get_active_item();
@@ -350,7 +351,7 @@ function _ctaxo_base_path() {
  * Parse URL to a list of terms.
  * Ignores OR and AND indications.
  */
-function ctaxo_url_to_terms() {
+/*function ctaxo_url_to_terms() {
 
   $mterm_ids = cviews_url_to_terms_filtered();
   if ($mterm_ids) {
@@ -364,6 +365,7 @@ function ctaxo_url_to_terms() {
   }
   return $terms;
 }
+@@@TODO*/
 
 function ctaxo_add_js() {
   static $js_added = FALSE;
@@ -445,7 +447,7 @@ function ctaxo_firstlevel($vid, $all = TRUE) {
 
 function ctaxo_bar($go = TRUE) {
   // populate the already selected terms
-  $terms = ctaxo_url_to_terms();
+  /*$terms = ctaxo_url_to_terms(); @@@TODO*/
   $path = _ctaxo_base_path()  .'/';
   if ($terms) {
     foreach ($terms as $term) {

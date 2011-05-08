@@ -7,8 +7,10 @@ core = 6.x
 engine = phptemplate
 
 stylesheets[all][] = style.css
+stylesheets[print][] = print.css
 
 conditional-stylesheets[if IE][all][] = ie.css
+conditional-stylesheets[if lt IE 7][all][] = ie6.css
 
 regions[header] = header
 regions[main_nav] = main navagation

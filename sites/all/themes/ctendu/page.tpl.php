@@ -5,27 +5,6 @@
     <title><?php print $head_title; ?></title>
     <?php print $head; ?>
     <?php print $styles; ?>
-    <!--
-      Using conditional comments to load some CSS files with specific styles and CSS hacks for IE.
-      There are some non-standard hacks that relate to all IE versions and some
-      That are needed only for IE6 (or lower if your theme supports it),
-      so I added two different files - one for all IE versions and one for IE6 and below.
-      Hopefully, IE8 and above won't need any of this mess.
-      For more information: http://msdn.microsoft.com/en-us/library/ms537512.aspx
-    -->
-    <!--[if IE]>
-      <link rel="stylesheet" href="/<?php print path_to_theme() ?>/ie.css" type="text/css" media="screen" charset="utf-8" />
-      <?php if (module_invoke('i18n', 'language_rtl')) :?>
-        <link rel="stylesheet" href="/<?php print path_to_theme() ?>/ie-rtl.css" type="text/css" media="screen" charset="utf-8" />
-      <?php endif ?>
-    <![endif]-->
-	
-    <!--[if lt IE 7]>
-      <link rel="stylesheet" href="/<?php print path_to_theme() ?>/ie6.css" type="text/css" media="screen" charset="utf-8" />
-      <?php if (module_invoke('i18n', 'language_rtl')) :?>
-        <link rel="stylesheet" href="/<?php print path_to_theme() ?>/ie6-rtl.css" type="text/css" media="screen" charset="utf-8" />
-      <?php endif ?>
-    <![endif]-->
   </head>
   <body class="<?php print $body_classes; ?>">
     <div id="fb-root"></div>
@@ -37,28 +16,26 @@
         </div>
         <?php endif; ?>
         <!-- /logo -->
-		
-        <div id="site-details">          
+
+        <div id="site-details">
           <?php if ($main_nav): ?>
           <div id="main-nav">
             <?php print $main_nav; ?>
           </div>
         <?php endif; ?>
-        <!-- /main-nav -->       
+        <!-- /main-nav -->
 		</div>
         <!-- /site-details -->
-        
+
 		<?php if ($header): ?>
           <div id="header-blocks">
             <?php print $header; ?>
           </div>
         <?php endif; ?>
         <!-- /header-blocks -->
-        
-		
       </div>
       <!-- /header -->
-	  
+
       <div id="header-sub">
             <?php if ($title || $class): ?>
                 <h1 id="title">
@@ -73,20 +50,20 @@
           </div>
        <?php endif; ?>
         <!-- /sidebar-left -->
-        
+
        <?php if ($sidebar_right): ?>
           <div id="sidebar-right">
             <?php print $sidebar_right; ?>
           </div>
         <?php endif; ?>
         <!-- /sidebar-right -->
-        
+
 	<div id="content">
 
           <?php if ($breadcrumb): ?>
               <?php print $breadcrumb; ?>
           <?php endif; ?>
-          
+
 	  <?php if (!empty($content_top)):?>
           <div id="content-top">
           <?php print $content_top; ?>
@@ -112,14 +89,14 @@
             </div>
           <?php endif; ?>
           <!-- /content-header -->
-          
+
 	  <?php if (!empty($content)):?>
             <div id="content-area">
               <?php print $content; ?>
             </div>
           <?php endif; ?>
           <!-- /content -->
-          
+
 	  <?php if (!empty($content_bottom)):?>
             <div id="content-bottom">
               <?php print $content_bottom; ?>
@@ -133,9 +110,9 @@
         </div>
       </div>
       <!-- /main -->
-      
+
 	  <div id="footer">
-          <span id="copyright">Creedia &copy; 2009</span>
+          <span id="copyright">Creedia &copy; 2009-2011</span>
         <?php print $footer_message; ?>
       </div>
       <!-- /footer -->
@@ -145,7 +122,7 @@
           <?php print $closure_region; ?>
         </div>
         <?php endif; ?>
-      
+
     </div>
     <?php print $closure; ?>
     <!-- /page -->
