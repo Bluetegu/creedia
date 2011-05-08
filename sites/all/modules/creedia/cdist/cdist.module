@@ -102,7 +102,7 @@ function cdist_flag($event, $flag, $content_id, $account) {
  * The only sort option I failed to integrate within cview_generate_page
  *
  */
-function cdist_byway() {
+/*function cdist_byway() {
   global $user;
 
   $terms = array();
@@ -167,15 +167,15 @@ function cdist_byway() {
   }
   return $output;
 }
-
+@@@TODO*/
 /**
  * Create a block content that shows the 3 members that have most number
  * of creeds (ways) with the user whose profile is presented on the page.
  *
  */
-function cdist_myway($uid) {
+/*function cdist_myway($uid) {
   global $user;
-  $node = cprofile_get_member($uid);
+  $node = content_profile_load('member',$uid);
   $share = $node->field_profile_sharing[0]['value'];
 
   // don't reveal information about the profile by comparing it to other profiles.
@@ -263,11 +263,12 @@ function cdist_myway($uid) {
   $output = views_theme('views_view', $view, 'block', $items, NULL, array());
   return $output;
 }
+@@@TODO*/
 
 /**
  * Implementation of hook_block
  */
-function cdist_block($op = 'list', $delta = 0, $edit = array()) {
+/*function cdist_block($op = 'list', $delta = 0, $edit = array()) {
   global $user;
   $uid = $user->uid;
 
@@ -296,8 +297,7 @@ function cdist_block($op = 'list', $delta = 0, $edit = array()) {
   }
   return $block;
 }
-
-
+@@@TODO*/
 
 /**
  * Resets the cache and recalculate

@@ -2,5 +2,5 @@
 name = Creedia Distance
 description = Calculates Distance between Members
 package = Creedia
-dependencies[] = cprofile
+dependencies[] = content_profile
 core = 6.x

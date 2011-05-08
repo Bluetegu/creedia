@@ -432,7 +432,125 @@ function theme_interpretation_wrapper($content, $num) {
  *
  * @param $variables
  */
-function ctendu_preprocess_node(&$variables) {
-  $i = 1;
+function ctendu_preprocess_node(&$vars) {
+
+  $node = $vars['node'];
+
+  // Split the taxonomy up into one variable per vocabulary
+  $terms = ctaxo_node_taxonomy($node);
+  $vars['religions'] = $terms['religion'];
+  $vars['movements'] = $terms['movement'];
+  $vars['beliefset'] = $terms['beliefset'];
+  $vars['freetag'] = $terms['freetag'];
+  $vars['countries'] = $terms['country'];
+
+  // Featured
+  $flags = flag_get_counts('node', $node->nid);
+  //    if ($flags['featured_'. $node->type]) {
+  if ($flags['featured']) {
+    $ftitle = t('Featured !type',array('!type' => $node->type));
+    // theme_imagecache($namespace, $path, $alt = '', $title = '', $attributes = null)
+    $featured = theme('imagecache', 'featured', path_to_theme() . '/images/featured.png', '', $ftitle);
+
+  }
+  $vars['featured'] = $featured;
+
+  switch ($node->type) {
+    case 'interpretation':
+      $vars['show_vote'] = TRUE;
+      if (arg(0) == 'node' && is_numeric(arg(1)) && arg(1) != $node->nid) {
+        // In full node view both voting and adopting widgets are available. The adopt widget is
+        // available when the interpretation are listed under their creed. In all other lists
+        // the fivestar voting should be shown. Therefore we set 'show vote' to false only
+        // if we are within a node and its not that specific interpretation (i.e. we want
+        // preview to show vote and not adopt as well.
+        $vars['show_vote'] = FALSE;
+      }
+      $counts = flag_get_counts('node', $node->nid);
+      $vars['adopt'] = flag_create_link('adopt', $node->nid);
+      if (!$vars['adopt']) {
+        // for anonymous users
+        $vars['adopt'] = theme('image', path_to_theme() .'/images/flag-adopt-on.png');
+      }
+      $vars['adopt_text'] = t('Adopted: !count', array( '!count' => $counts['adopt'] ? $counts['adopt'] : 0 ));
+      break;
+    case 'image_cck':
+      $vars['picture'] = $node->field_image[0]['view'];
+      $vars['pic_url'] = $node->field_image[0]['filepath'];
+      $flags = flag_get_counts('node', $node->nid);
+      if ($flags['default_image']) {
+        $vars['default_image'] = theme('image',
+                                       path_to_theme() .'/images/link-flag-default_image.png',
+                                       '',
+                                       t('Used as default image in posts.'));
+      }
+      break;
+    case 'creed':
+      // Interpretation num
+      $intnum = db_result(db_query('SELECT COUNT(*) FROM {content_field_creed_reference1} WHERE field_creed_reference1_nid = %d', $node->nid));
+      $vars['intnum'] = $intnum;
+      $counts = flag_get_counts('node', $node->nid);
+      $vars['adopt'] = flag_create_link('adopt', $node->nid);
+      if (!$vars['adopt']) {
+        // for anonymous users
+        $vars['adopt'] = theme('image', path_to_theme() .'/images/flag-adopt-on.png');
+      }
+      $vars['adopt_text'] = t('Adopted: !count', array('!count' => $counts['adopt'] ? $counts['adopt'] : 0 ));
+      break;
+    case 'member':
+      $account = user_load(array('uid' => $node->uid));
+      if ($vars['page']) {
+        $vars['picture'] = theme('user_picture', $account, 'profile');
+      }
+      else {
+        $vars['picture'] = theme('user_picture', $account, 'comment');
+      }
+
+      $vars['empty'] = t('Not entered.');
+      $vars['religion_label'] = t('Religion ');
+      $vars['movement_label'] = t('Movement ');
+      //      $vars['country'] = $country;
+      $vars['country_label'] = t('Country ');
+      //      $vars['gender'] = $gender;
+      $vars['gender'] = $terms['gender'];
+      $vars['gender_label'] = t('Gender ');
+      $vars['oneliner'] = $node->field_one_liner[0]['view'];
+      $vars['oneliner_label'] = t('One Liner ');
+      $vars['fullname'] = $node->field_full_name[0]['view'];
+      $vars['fullname_label'] = t('Name ');
+      if ($node->field_home_page) {
+        foreach ($node->field_home_page as $page){
+          if ($page['view']) {
+            $vars['homepages'][] = $page['view'];
+          }
+        }
+        $vars['homepage_label'] = t('Home Page ');
+      }
+      if ($node->field_community_page) {
+        foreach ($node->field_community_page as $page){
+          if ($page['view']) {
+            $vars['communitypages'][] = $page['view'];
+          }
+        }
+        $vars['communitypage_label'] = t('Community Page ');
+      }
+      $vars['username_label'] = t('Username ');
+      $vars['body_label'] = t('Spiritual Biography ');
+      $vars['body'] = $node->content['body']['#value'];
+      $vars['dob'] = $field_birth_date[0]['view'];
+      $vars['dob_label'] = t('Date of Birth ');
+      if ($twittername = $node->field_twitter[0]['view']) {
+        //  $twitter_url = theme('image', path_to_theme() .'/images/twitter.png');
+        $twitter_url .= l($twittername, 'http://twitter.com/'. $twittername);
+        $vars['twittername'] = $twitter_url;
+      }
+      $vars['twittername_label'] = t('Twitter ');
+
+      if ($user->uid) {
+        $vars['common'] = cdist_dist($node->uid);
+      }
+      break;
+  }
   //dpr($variables);
 }
+
