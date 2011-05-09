@@ -15,68 +15,30 @@
 /**
  * Implementation of hook_theme
  */
-function ctendu_theme() {
+function ctendu_theme($existing, $type, $theme, $path) {
   return array(
     'term' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'format' => '',
-        'path' => '',
-        'parent' => NULL
-      ),
+      'arguments' => array('term' => NULL, 'format' => '', 'path' => '', 'parent' => NULL),
     ),
     'religion' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'format' => '',
-        'path' => '',
-      ),
+      'arguments' => array('term' => NULL, 'format' => '', 'path' => ''),
     ),
     'movement' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'parent' => NULL,
-        'format' => '',
-        'path' => '',
-      ),
+      'arguments' => array('term' => NULL, 'parent' => NULL, 'format' => '', 'path' => ''),
     ),
     'beliefset' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'format' => '',
-        'path' => '',
-      ),
+      'arguments' => array('term' => NULL, 'format' => '', 'path' => ''),
     ),
     'freetag' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'format' => '',
-        'path' => '',
-      ),
+      'arguments' => array('term' => NULL, 'format' => '', 'path' => ''),
     ),
     'country' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'format' => '',
-        'path' => '',
-      ),
+      'arguments' => array('term' => NULL, 'format' => '', 'path' => ''),
     ),
     'gender' => array(
-      'file' => 'template.php',
-      'arguments' => array(
-        'term' => NULL,
-        'format' => '',
-        'path' => '',
-      ),
+      'arguments' => array('term' => NULL, 'format' => '', 'path' => ''),
     ),
     'origin_statement' => array(
-      'file' => 'template.php',
       'arguments' => array(
         'node' => NULL,
         'one' => FALSE,
@@ -86,21 +48,18 @@ function ctendu_theme() {
       ),
     ),
     'opinion_image' => array(
-      'file' => 'template.php',
       'arguments' => array(
         'node' => NULL,
         'page' => TRUE,
       ),
     ),
     'interpretation_wrapper' => array(
-      'file' => 'template.php',
       'arguments' => array(
         'content' => NULL,
         'num' => 0,
       ),
     ),
     'truncated_user' => array(
-      'file' => 'template.php',
       'arguments' => array(
         'fullname' => '',
         'username' => '',
@@ -109,14 +68,12 @@ function ctendu_theme() {
       ),
     ),
     'truncated_title' => array(
-      'file' => 'template.php',
       'arguments' => array(
         'title' => '',
         'nid' => 0,
         'len' => 0,
       ),
     ),
-
   );
 }
 
@@ -129,7 +86,7 @@ function ctendu_theme() {
  * @param $path
  * @param $parent   pointer to parent term
  */
-function theme_term($term, $format = 'image', $path = 'members/featured', $parent = NULL) {
+function ctendu_term($term, $format = 'image', $path = 'members/featured', $parent = NULL) {
   switch ($format) {
   case 'link':
     $output = l($term->name, $path . $term->tid, array('attributes' => array('title' => $term->description)));
@@ -140,7 +97,7 @@ function theme_term($term, $format = 'image', $path = 'members/featured', $paren
       $output = $image;
     }
     else {
-      $output = theme_term($term, 'link', $path, NULL);
+      $output = theme('term', $term, 'link', $path, NULL);
     }
     break;
   case 'profile':
@@ -187,22 +144,22 @@ function theme_term($term, $format = 'image', $path = 'members/featured', $paren
 /**
  * Macros to theme_term
  */
-function theme_religion($term, $format, $path = 'members/featured/') {
+function ctendu_religion($term, $format, $path = 'members/featured/') {
   return theme('term', $term, $format, $path);
 }
-function theme_movement($term, $parent, $format, $path = 'members/featured/'){
+function ctendu_movement($term, $parent, $format, $path = 'members/featured/'){
   return theme('term', $term, $format, $path, $parent);
 }
-function theme_beliefset($term, $format='image', $path = 'members/featured/'){
+function ctendu_beliefset($term, $format='image', $path = 'members/featured/'){
   return theme('term', $term, $format, $path);
 }
-function theme_freetag($term, $format='link', $path = 'opinions/featured/') {
+function ctendu_freetag($term, $format='link', $path = 'opinions/featured/') {
   return theme('term', $term, $format, $path);
 }
-function theme_country($term, $format='link', $path = 'members/featured/') {
+function ctendu_country($term, $format='link', $path = 'members/featured/') {
   return theme('term', $term, $format, $path);
 }
-function theme_gender($term, $format='link', $path = 'members/featured/') {
+function ctendu_gender($term, $format='link', $path = 'members/featured/') {
   return theme('term', $term, $format, $path);
 }
 
@@ -216,7 +173,7 @@ function theme_gender($term, $format='link', $path = 'members/featured/') {
  * @param $hidden   If $hidden is true, all statements apart from $num will be hidden
  *                  (make sense only if $one = false)
  */
-function theme_origin_statement($node, $one = FALSE, $trim = 0, $num = 0, $hidden = FALSE) {
+function ctendu_origin_statement($node, $one = FALSE, $trim = 0, $num = 0, $hidden = FALSE) {
 //   ob_start();
 //   debug_print_backtrace();
 //   $trace = ob_get_contents();
@@ -233,7 +190,7 @@ function theme_origin_statement($node, $one = FALSE, $trim = 0, $num = 0, $hidde
     $output .= '<div class="origin-statement"';
     $lang = $langs[$i]['value'];
     if ($lang) {
-      $dir = i18n_language_rtl($lang) ? 'rtl' : 'ltr';
+      $dir = i18n_language_property($lang, 'direction') == LANGUAGE_LTR ? 'rtl' : 'ltr';
       $output .= ' lang="'. $lang .'" dir="'. $dir .'"';
     }
     if ($hidden && $num != $i) {
@@ -257,7 +214,7 @@ function theme_origin_statement($node, $one = FALSE, $trim = 0, $num = 0, $hidde
  * or uploaded image.
  *
  */
-function theme_opinion_image($node, $page = TRUE) {
+function ctendu_opinion_image($node, $page = TRUE) {
   $output = '';
 
   // Prepare the right image size in advance
@@ -297,14 +254,14 @@ function theme_opinion_image($node, $page = TRUE) {
 /**
  * Truncated title link
  */
-function theme_truncated_title($title, $nid, $len) {
+function ctendu_truncated_title($title, $nid, $len) {
   return l(truncate_utf8($title, $len, TRUE, TRUE), 'node/'.$nid, array('attributes' => array('title' => $title )));
 }
 
 /**
  * Truncated user link
  */
-function theme_truncated_user($fullname, $username, $uid, $len) {
+function ctendu_truncated_user($fullname, $username, $uid, $len) {
   if ($fullname) {
     //    $name = $fullname . ' ('. $username .')';
     $name = $fullname;
@@ -406,7 +363,7 @@ function ctendu_comment_wrapper($content) {
 /**
  * Theme wrapping of all interpretations.
  */
-function theme_interpretation_wrapper($content, $num) {
+function ctendu_interpretation_wrapper($content, $num) {
 
   $element['#collapsible'] = TRUE;
   if ($num) {
