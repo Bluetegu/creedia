@@ -227,7 +227,7 @@ function ctendu_opinion_image($node, $page = TRUE) {
   if ($image) {
     $output .= $image;
   }
-  else if ($audio) {
+  elseif ($audio) {
     if ($page) {
       $output .= swf('../'. $audio, FALSE, FALSE, FALSE, array('player' => 'onepixelout'));
     }
@@ -235,14 +235,14 @@ function ctendu_opinion_image($node, $page = TRUE) {
       $output .= swf('../'. $audio, array('width' => '60', 'height' => '62'));
     }
   }
-  else if ($em_picture) {
+  elseif ($em_picture) {
     // default picture is saved in em_picture.
     $output .= $em_picture;
   }
-  else if ($em_audio) {
+  elseif ($em_audio) {
     $output .= $em_audio;
   }
-  else if ($em_video) {
+  elseif ($em_video) {
     // for some unknown reason, em_video inserts a 'view viedo' link even if no em video is selected
     // so I'm setting it to be the last one, such that it won't override real images.
     $output .= $em_video;
@@ -385,12 +385,10 @@ function ctendu_interpretation_wrapper($content, $num) {
 }
 
 /**
- * Preprocess varialbles for nodes
- *
- * @param $variables
+ * Node varialbles preprocess
+ * @param $vars
  */
 function ctendu_preprocess_node(&$vars) {
-
   $node = $vars['node'];
 
   // Split the taxonomy up into one variable per vocabulary
@@ -508,6 +506,152 @@ function ctendu_preprocess_node(&$vars) {
       }
       break;
   }
-  //dpr($variables);
+  return;
 }
 
+/**
+ * Helper function for preprocess page
+ * @param $node   member node
+ */
+function _ctendu_member_title($node) {
+  $name = $node->field_full_name[0]['value'];
+  return $name ? $name : $node->title;
+}
+
+/**
+ * Page varialbles preprocess
+ * @param $vars
+ */
+function ctendu_preprocess_page(&$vars) {
+  /* Add classes to the "body" tag, for easier layout styling
+   * Idea taken from ZEN theme (but my changes make it incompatible with it)
+   */
+  $body_classes = array();
+  $body_classes[] = ($vars['is_front']) ? 'front' : 'not-front';
+  $body_classes[] = ($user->uid) ? 'logged-in' : 'not-logged-in';
+  if ($vars['sidebar_left'] && $vars['sidebar_right']) {
+    $body_classes[] = 'two-sidebars';
+  }
+  elseif (!$vars['sidebar_left'] && !$vars['sidebar_right']){
+    $body_classes[] = 'no-sidebars';
+  }
+  else{
+    $body_classes[] = 'one-sidebar';
+  }
+  if ($vars['sidebar_left']) {
+    $body_classes[] = 'with-sidebar-left';
+  }
+  if ($vars['sidebar_right']) {
+    $body_classes[] = 'with-sidebar-right';
+  }
+  //      if (in_array(arg(0), array('creeds','opinions','members', 'gallery'))) {
+  if (arg(0) != 'user' && arg(0) != "admin") {
+    $body_classes[] = 'tabs-sort-style';
+  }
+  elseif (arg(0) == 'user') {
+    $body_classes[] = 'tabs-user-style';
+  }
+  $vars['body_classes'] = implode(' ', $body_classes); // Concatenate with spaces
+
+  // add pager results
+  if (in_array(arg(0), array('creeds','opinions','members', 'blogs'))) {
+    $vars['tabs'] = theme('pager_results', CREEDIA_NODES_PER_PAGE) . '<span id="tabs-title">'. t('Sort by:') .'</span>'. $vars['tabs'];
+  }
+  elseif (in_array(arg(0), array('gallery','gallery3'))) {
+    $vars['tabs'] = theme('pager_results', CREEDIA_IMAGES_PER_GALLERY) . $vars['tabs'];
+  }
+  elseif (in_array(arg(0), array('taxonomy', 'blog'))) {
+    $vars['tabs'] = theme('pager_results', CREEDIA_NODES_PER_PAGE) . $vars['tabs'];
+  }
+  elseif (in_array(arg(0), array('deeds'))) {
+    $vars['tabs'] = '<span id="tabs-title">'. t('Sort by:') .'</span>'. $vars['tabs'];
+  }
+
+  // rewrite title
+  $breadcrumb = '';
+  $background = FALSE;
+  $use_title = TRUE;
+  $class = arg(0);
+  if (drupal_is_front_page()) {
+    $title = $vars['site_slogan'];
+  }
+  elseif (arg(0) == 'node'){
+    $class = 'Creedia';
+    $title = menu_get_active_title();
+    if (is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+      if ($node) {
+        $title = truncate_utf8d($node->title, 45, TRUE, TRUE);
+        $class = $node->type .'s';
+        switch ($node->type) {
+          case 'page':
+            $class = 'Creedia';
+            $background = TRUE;
+            break;
+          case 'image_cck':
+            $class = 'Gallery';
+            break;
+          case 'simplenews':
+            $class = 'Newsletter';
+            break;
+            //    case 'member':
+            //      $title = member_title($node);
+            //      break;
+          case 'blog': case 'dblog':
+            $class = 'Blog';
+            break;
+        }
+      }
+    }
+    elseif (arg(1) == 'add' && arg(2) == 'interpretation') {
+      $title = t(ucfirst(arg(2)));
+    }
+  }
+  elseif (arg(0) == 'user') {
+    $background = TRUE;
+    if (is_numeric(arg(1))) {
+      $uid = arg(1);
+      $class = 'Members';
+      $node = content_profile_load('member', $uid);
+      if ($node) {
+        $title = _ctendu_member_title($node);
+      }
+    }
+    else {
+      $class = 'Creedia';
+      $title = ucfirst(arg(1));
+    }
+  }
+  elseif (arg(0) == 'comment') {
+    $class = t('Comments');
+    $title = arg(1) ? ucfirst(arg(1)) : '';
+  }
+  elseif (in_array(arg(0), array('creeds', 'opinions', 'members', 'gallery', 'taxonomy', 'blogs', 'deeds'))){
+    if (arg(0) == 'opinions') {
+      $class = 'Discussions';
+    }
+    $use_title = FALSE;
+  }
+  elseif (arg(0) == 'blog') {
+    $class = 'Creedia';
+    $title = t('Company Blog');
+  }
+  elseif (arg(0) == 'admin') {
+    $breadcrumb = $vars['breadcrumb'];
+  }
+  else {
+    $background = TRUE;
+    $class = 'Creedia';
+  }
+  if (!$title) {
+    $title = menu_get_active_title();
+    $use_title = FALSE;
+  }
+  $vars['head_title'] = $title ? t('Creedia | !title', array('!title' => $title)) :
+                                 t('Creedia | !title', array('!title' => $vars['site_slogan']));
+  $vars['title'] = $use_title ? $title : '';
+  $vars['class'] = ucfirst($class);
+  $vars['content_background'] = $background;
+  $vars['breadcrumb'] = $breadcrumb;
+  return;
+}
