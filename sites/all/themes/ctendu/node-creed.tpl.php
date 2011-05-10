@@ -27,12 +27,12 @@
 	   <div class="featured"><?php print $featured ?></div>
 	 </div>
     </div>
-
+     
     <div class="creed-main">
-
+	
      <h2 class="title">
 	   <a href="<?php print $node_url ?>" title="<?php print $title ?>"><?php print $title ?></a>
- 	 </h2>
+ 	 </h2> 
     <?php if ($teaser) : ?>
       <div class="origin-statement-wrapper">
 	<?php echo theme('origin_statement', $node, TRUE); ?>
@@ -64,13 +64,15 @@
   <?php else: ?>
   <?php /* ------------------    page == 1    ------------------ */ ?>
     <div class="node-full">
-     <div class="middle"><div class="top"><div class="bottom">
+     <div class="middle"><div class="top"><div class="bottom">   
       <div class="creed-leftbar">
 	<div class="creed-leftbar-top">
 	  <?php if ($religions) { ?>
-  	  <?php foreach ($religions as $religion) { ?>
-	      <div class="religion"><?php print theme('religion', $religion, 'image'); ?></div>
-	    <?php };?>
+	  <?php foreach ($religions as $religion) { ?>
+	    <div class="religion">
+	      <?php print theme('religion', $religion, 'image'); ?>
+	    </div>
+	  <?php };?>
 	  <?php };?>
 	</div>
 	<div class="creed-leftbar-middle">
