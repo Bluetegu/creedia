@@ -655,3 +655,94 @@ function ctendu_preprocess_page(&$vars) {
   $vars['breadcrumb'] = $breadcrumb;
   return;
 }
+
+/**
+ * Helper function for block preprocess. Blocks of the same type are themed alike.
+ */
+function _ctendu_block_types($block, &$featured) {
+  $featured = FALSE;
+
+  switch ($block->module) {
+  case 'cviews':
+    switch ($block->delta) {
+    case 0: case 1: case 2: case 3: case 4: case 5: case 12: case 13:
+      return 'related';
+    case 6: case 7: case 8:
+      $featured = TRUE;
+      return 'front';
+    case 9: case 10: case 11: case 14:
+    default:
+      return 'front';
+    }
+  case 'ctaxo':
+    switch ($block->delta) {
+    case 1: case 2: case 4:
+      return 'taxo-images';
+    case 3:
+      return 'taxo-tagadelic';
+    }
+    break;
+  case 'creedia':
+    switch ($block->delta) {
+    case 0: case 1: case 2: case 3: case 4: case 5: case 7:
+      return 'action';
+    case 6:
+      return 'feedback';
+    }
+    break;
+  case 'cfront':
+    switch ($block->delta) {
+    case 0:
+      return 'register';
+    case 1:
+      return 'news';
+    }
+    break;
+  case 'feedback':
+    switch ($block->delta) {
+    default:
+      return 'feedback';
+    }
+  case 'ctwitter':
+    switch ($block->delta) {
+    default:
+      return 'twitter';
+    case 2:
+      return 'facebook';
+    case 3:
+      return 'services';
+    }
+  case 'cdist':
+    switch ($block->delta) {
+    case 0:
+      return 'related';
+    }
+  }
+  return 'default';
+}
+
+/**
+ * Block variables preprocess
+ * @vars   variables
+ */
+function ctendu_preprocess_block(&$vars) {
+  $block = $vars['block'];
+  $block_type = _ctendu_block_types($block, $featured);
+  $vars['block_type'] = $block_type;
+  $vars['featured'] = $featured;
+
+  $vars['scroll_up'] = theme('image', path_to_theme() .'/images/scroll-up.png', '',
+           t('scroll up to view all terms.'));
+  $vars['scroll_down'] = theme('image', path_to_theme() .'/images/scroll-down.png', '',
+           t('scroll down to view all terms.'));
+
+  $vars['template_files'][] = 'block';
+  $vars['template_files'][] = 'block-'. $block->region;
+  $vars['template_files'][] = 'block-'. $block->module;
+  $vars['template_files'][] = 'block-'. $block_type;
+  $vars['template_files'][] = 'block-'. $block->module .'-'. $block->delta;
+  $vars['template_files'][] = 'block-'. $block->type .'-'. $block->delta;
+
+  return;
+}
+

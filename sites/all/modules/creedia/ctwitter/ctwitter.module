@@ -76,12 +76,10 @@ function ctwitter_block($op = 'list', $delta = 0, $edit = array()) {
     switch ($delta) {
     case 0:
       $block['subject'] = t('My Tweets');
-      // theme('imagecache', 'block_title', path_to_theme() .'/images/twitter-member.png', t('My Tweets'));
       $block['content'] = theme('ctwitter_updates');
       break;
     case 1:
       $block['subject'] = t('Creedia Tweets');
-      // theme('imagecache', 'block_title', path_to_theme() .'/images/twitter-creedia.png', t('Creedia Tweets'));
       $block['content'] = theme('ctwitter_updates');
       break;
     case 2:
@@ -154,25 +152,21 @@ function ctwitter_footer($main = 0) {
 function ctwitter_theme() {
   return array(
     'ctwitter_updates' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         '' => NULL,
       ),
     ),
     'ctwitter_facebook' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         '' => NULL,
       ),
     ),
     'ctwitter_links' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         '' => NULL,
       ),
     ),
     'ctwitter_link' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         'service' => NULL,
         'url' => NULL,
@@ -180,26 +174,22 @@ function ctwitter_theme() {
       ),
     ),
     'ctwitter_fb_like' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         'url' => NULL,
         'teaser' => TRUE,
       ),
     ),
     'ctwitter_fb_comments' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         'node' => NULL,
       ),
     ),
     'ctwitter_fb_like_js' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         'node' => NULL,
       ),
     ),
     'ctwitter_fb_share' => array(
-      'file' => 'ctwitter.module',
       'arguments' => array(
         'node' => NULL,
       ),
@@ -211,7 +201,8 @@ function theme_ctwitter_updates() {
   if ($name = ctwitter_screenname()) {
     $output = '<div id="twitter_div">';
     $output .= '<ul id="twitter_update_list"></ul>';
-    $image = theme('image', path_to_theme() .'/images/twitter-followme.gif',
+    $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
+    $image = theme('image', $path_to_theme .'/images/twitter-followme.gif',
        t('follow me on Twitter.'), t('follow me on Twitter.'));
     $output .= l($image, 'http://twitter.com/'. $name, array('attributes' => array('id' => 'twitter-link'), 'absolute' => TRUE, 'html' => TRUE));
     $output .= '</div>';
@@ -250,11 +241,14 @@ function theme_ctwitter_links() {
 function theme_ctwitter_link($service, $url, $title) {
 
   $output .= '<div class="service-link">';
-  $image = theme('image', path_to_theme() .'/images/'. $service .'-icon.png');
+  $theme = variable_get('theme_default', '');
+  $path = drupal_get_path('theme', $theme) .'/images/'. $service .'-icon.png';
+  $image = theme('image', $path);
   $output .= l($image, $url, array('attributes' => array('title' => $title,
-           'rel' => 'nofollow',
-           'target' => '_blank',
-           'class' => 'pngfix'), 'absolute' => TRUE, 'html' => TRUE));
+                                                         'rel' => 'nofollow',
+                                                         'target' => '_blank',
+                                                         'class' => 'pngfix'),
+                                   'absolute' => TRUE, 'html' => TRUE));
   $output .= '</div>';
   return $output;
 }

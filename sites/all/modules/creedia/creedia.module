@@ -471,6 +471,8 @@ function creedia_node_meta_tags($node) {
 
 function creedia_link_alter(&$links, $node) {
   //  firep($node, 'node in link alter'); // node is null in comment links
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
+
   foreach ($links as $name => $link) {
     //        firep($link, 'link in link alter');
     //        firep($name, 'link name in link alter');
@@ -481,7 +483,7 @@ function creedia_link_alter(&$links, $node) {
     //        firep($links[$name], 'link in link alter');
 
     // add images to links.
-    $links[$name]['pre'] = theme('image', path_to_theme() . '/images/link-'. $name .'.png', '', '');
+    $links[$name]['pre'] = theme('image', $path_to_theme .'/images/link-'. $name .'.png', '', '');
     // guestbook comments require redirection to user/uid/guestbook. Otherwise they are redirected to node/nid
     // for the member node, which is then redirected to user/uid/view and not back to the guestbook.
     if (arg(0) == 'user' && is_numeric(arg(1)) && arg(2) == 'guestbook') {
@@ -824,7 +826,8 @@ function creedia_creed_img_generate($node) {
   imagealphablending($im, TRUE);
 
   // Get background image
-  $br = imagecreatefromgif(path_to_theme() .'/images/creed-base.gif');
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
+  $br = imagecreatefromgif($path_to_theme .'/images/creed-base.gif');
   if (!$br) {
     watchdog('Creedia', 'Failed to generate creed image; base image not found.', WATCHDOG_ERROR);
     return;

@@ -1061,7 +1061,8 @@ function theme_cprofile_entry1($data, $i = 0, $edit = FALSE) {
   $vars['beliefset'] = $beliefset;
   $vars['new'] = $new;
   $vars['adopt'] = flag_create_link('adopt', $data->nid);
-  $vars['close'] = theme('image', path_to_theme() .'/images/close.png', '', t('Close footer'));
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
+  $vars['close'] = theme('image', $path_to_theme .'/images/close.png', '', t('Close footer'));
   // hidden select for ajax purposes
   if ($edit) {
     $vars['form_terms'] =
@@ -1085,11 +1086,9 @@ function theme_cprofile_howto($nid) {
 }
 
 function theme_cprofile_tool($type, $i, $title = '') {
-  //  $output = '<input class="tool tool-'. $type .'" id="tool-'. $type .'-'. $i .'" type="image" title="'. $title .'" ';
-  //  $output .= 'src="'. base_path() . path_to_theme() .'/images/tool-'. $type .'.gif" alt="" ';
-  //  $output .= 'value="'. $type .'" name ="'. $type .'"></input>';
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
   $output = '<div class="tool tool-'. $type .'" id="tool-'. $type .'-'. $i .'" title="'. $title .'">';
-  $output .= '<img src="'. base_path() . path_to_theme() .'/images/tool-'. $type .'.gif" alt="" /> ';
+  $output .= '<img src="'. base_path() . $path_to_theme .'/images/tool-'. $type .'.gif" alt="" /> ';
   $output .= '</div>';
   return $output;
 }
@@ -1222,8 +1221,9 @@ function theme_cprofile_menu($lid) {
   $output = "<ul id=\"$id[$lid]-menu\">";
   //  ronc: Remove support of negative rating
   //  for ($slid = 0; $slid < $num[$lid]; $slid++) {
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
   for ($slid = 1; $slid < $num[$lid]; $slid++) {
-    $image = theme('image', path_to_theme() .'/images/cvote-'. $title[$slid] .'.gif', '', $title[$slid]);
+    $image = theme('image', $path_to_theme .'/images/cvote-'. $title[$slid] .'.gif', '', $title[$slid]);
     $output .= '<li>'. l($image . ' '. $title[$slid], $path, array('fragment' =>
                          'fragment-'. $lid ."-". $slid, 'html' => TRUE)) .'</li>';
   }
