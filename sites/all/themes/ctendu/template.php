@@ -385,6 +385,30 @@ function ctendu_interpretation_wrapper($content, $num) {
 }
 
 /**
+ * Logintoboggan: Add link to my profile
+ */
+function ctendu_lt_loggedinblock() {
+  global $user;
+  $output = l(t('Log out'), 'logout', array('title' => t('logout')));
+  $output .= l(t('My account'), 'user/'.$user->uid,
+         array('title' => t('!name account',array('!name' => $user->name))));
+  return $output;
+}
+
+/**
+ * Logintoboggan: Remove the register to a separate block in front page
+ */
+function ctendu_lt_login_link() {
+  // Only display register text if registration is allowed.
+  if (variable_get('user_register', 1) && !drupal_is_front_page()) {
+    return t('Login/Register');
+  }
+  else {
+    return t('Login');
+  }
+}
+
+/**
  * Node varialbles preprocess
  * @param $vars
  */
@@ -523,6 +547,7 @@ function _ctendu_member_title($node) {
  * @param $vars
  */
 function ctendu_preprocess_page(&$vars) {
+  global $user;
   /* Add classes to the "body" tag, for easier layout styling
    * Idea taken from ZEN theme (but my changes make it incompatible with it)
    */
