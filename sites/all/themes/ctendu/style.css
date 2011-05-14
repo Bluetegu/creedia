@@ -822,6 +822,8 @@ a.disabled { visibility: hidden; }
 #block-search-0 .form-text{vertical-align:middle;border:1px solid #475d75;font-size:1.333em;width:130px;padding:4px 1px;}
 #block-search-0 .form-submit{vertical-align:middle;border:1px solid #475d75;background:url(images/bg_btn_search.gif) repeat-y 0 0;color:#fff;font-size:1.083em;font-weight:bold;width:56px;padding:5px 0}
 #block-search-0 .container-inline{white-space:nowrap;}
+#block-search-0 h2{display:none;}
+#block-search-0 label{display:none;}
 
 /*Gallery*/
 #block-cgallery-0{border:1px solid #475d75;}
