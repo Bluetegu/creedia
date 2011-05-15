@@ -66,20 +66,6 @@ if (!defined(CREEDIA_CREEDIMAGE_DIRECTORY)) {
 function creedia_menu() {
   $items = array();
 
-  $items['node/%creedia_creed' ] = array(
-                       'page callback' => 'creedia_creed_view',
-                       'page arguments' => array(1), // passing $node returned by arg #1
-                       'access arguments' => array('access content'),
-  );
-
-  $items['node/%creedia_creed/view'] = array(
-                      'page callback' => 'creedia_creed_view',
-                      'page arguments' => array(1),
-                      'type' => MENU_DEFAULT_LOCAL_TASK,
-                      'access arguments' => array('access content'),
-                      'weight' => -10,
-  );
-
   // Generate creed images
   $items['creedimage'] = array(
             'page callback' => 'creedia_creed_img_reset',
@@ -104,21 +90,6 @@ function creedia_menu() {
   );
 
   return $items;
-}
-
-/**
- * Called by creedia_menu to determine if node is of type creed
- */
-function creedia_creed_load($arg) {
-  if (!is_numeric($arg)) {
-    return FALSE;
-  }
-  if ($node = node_load($arg)) {
-    if ($node->type == 'creed') {
-      return $node;
-    }
-  }
-  return FALSE;
 }
 
 /**
@@ -189,10 +160,7 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
       // purposes. The $delta parameter tells us which block is being requested.
 
       if (arg(0) == 'node' && is_numeric(arg(1))) {
-        // $node = menu_get_object(); doesn't work for creed nodes, because creedia_creed_load
-        // defines creed nodes as ones with type 'creed' for the menu system, and not of type 'node'
-        // which is the default for the first parameter of menu_get_item();
-        if ($node = node_load(arg(1))) {
+        if ($node = menu_get_object()) {
           $nid = $node->nid;
           $type = $node->type;
         }
@@ -556,7 +524,7 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         // Set the default value of the creed reference
         if (is_numeric(arg(3))) {
           if (!$form['field_creed_reference1'][0]['node_name']['#default_value']) {
-            $node = menu_get_object('creed', 3);
+            $node = menu_get_object('node', 3);
             if ($node) {
               $form['field_creed_reference1'][0]['node_name']['#default_value'] = $node->title;
             }
