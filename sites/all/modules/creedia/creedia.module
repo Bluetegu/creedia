@@ -188,12 +188,17 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
       // If $op is "view", then we need to generate the block for display
       // purposes. The $delta parameter tells us which block is being requested.
 
-      if ($node = menu_get_object()) {
-        $nid = $node->nid;
-        $type = $node->type;
-      }
-      else {
-        return $block;
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        // $node = menu_get_object(); doesn't work for creed nodes, because creedia_creed_load
+        // defines creed nodes as ones with type 'creed' for the menu system, and not of type 'node'
+        // which is the default for the first parameter of menu_get_item();
+        if ($node = node_load(arg(1))) {
+          $nid = $node->nid;
+          $type = $node->type;
+        }
+        else {
+          return $block;
+        }
       }
 
       switch ($delta) {
