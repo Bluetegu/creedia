@@ -556,7 +556,7 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         // Set the default value of the creed reference
         if (is_numeric(arg(3))) {
           if (!$form['field_creed_reference1'][0]['node_name']['#default_value']) {
-            $node = menu_get_object('node', 3);
+            $node = menu_get_object('creed', 3);
             if ($node) {
               $form['field_creed_reference1'][0]['node_name']['#default_value'] = $node->title;
             }
