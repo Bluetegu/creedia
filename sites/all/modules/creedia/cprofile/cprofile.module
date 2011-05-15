@@ -68,28 +68,6 @@ if (!defined(OS_OPTION_NONE)) {
 }
 
 /**
- * get member per user
- */
-
-function cprofile_get_member($uid) {
-//   $sql = "SELECT nid FROM {node} WHERE type = 'member' AND uid = %d";
-//   $nid = db_result(db_query($sql, $uid));
-//   if (!$nid) {
-//     drupal_set_message(t('No profile found for this user.'), 'error');
-//     return NULL;
-//   }
-//   $node = node_load($nid);
-
-  $node = node_load(array('type' => 'member', 'uid' => $uid));
-  if (!$node) {
-    if (!drupal_set_message()) { // set message only once
-      drupal_set_message(t('No profile found for this user.'), 'error');
-    }
-  }
-  return $node;
-}
-
-/**
  * Implementation of hook_menu
  */
 function cprofile_menu() {
@@ -124,7 +102,7 @@ function cprofile_menu() {
          );
 
     if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(arg(1));
+      $node = menu_get_object();
     }
     if ($node && in_array($node->type, array('usernode', 'member'))) {
       // forward usernodes and member nodes to users
@@ -133,10 +111,10 @@ function cprofile_menu() {
     }
     if (arg(0) == 'user' && is_numeric(arg(1))) {
       $uid = arg(1);
-      $node = cprofile_get_member($uid);
+      $node = content_profile_load('member', $uid);
       if (!$node) {
-  watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
-  return $items;  // no member profile for this user. This shouldn't happen
+        watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
+        return $items;  // no member profile for this user. This shouldn't happen
       }
 
       // process creed ordering
@@ -262,7 +240,7 @@ function cprofile_menu() {
 
 function cprofile_welcome($uid) {
   //  $user = user_load(array('uid' => $uid));
-  $member = cprofile_get_member($uid);
+  $member = content_profile_load('member', $uid);
   if ($member) {
     $teaser = TRUE;
     $page = TRUE;
@@ -304,19 +282,16 @@ function cprofile_preference_edit() {
 function cprofile_theme() {
   return array(
     'user_register' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'form' => NULL,
       ),
     ),
     'user_edit' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'form' => NULL,
       ),
     ),
     'cprofile_facet' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'term' => NULL,
         'content' => NULL,
@@ -324,8 +299,8 @@ function cprofile_theme() {
         'edit' => FALSE,
       ),
     ),
-    'cprofile_entry1' => array(
-      'file' => 'cprofile.module',
+    'cprofile_entry' => array(
+      'template' => 'cprofile_entry',
       'arguments' => array(
         'data' => NULL,
         'i' => 0,
@@ -333,13 +308,11 @@ function cprofile_theme() {
       ),
     ),
     'cprofile_howto' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'nid' => NULL,
       ),
     ),
     'cprofile_tool' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'type' => NULL,
         'i' => NULL,
@@ -347,7 +320,6 @@ function cprofile_theme() {
       ),
     ),
     'cprofile_wrapper' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'title' => NULL,
         'content' => NULL,
@@ -355,27 +327,24 @@ function cprofile_theme() {
       ),
     ),
     'cprofile_title_bar' => array(
-      'file' => 'cprofile.module',
+      'template' => 'cprofile_title',
       'arguments' => array(
         'title' => NULL,
         'node' => NULL,
       ),
     ),
     'cprofile_submit' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'form' => NULL,
         '&$form_state' => NULL,
       ),
     ),
     'cprofile_menu' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'lid' => NULL,
       ),
     ),
     'cprofile_tab' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'content' => NULL,
         'lid' => NULL,
@@ -383,37 +352,25 @@ function cprofile_theme() {
       ),
     ),
     'cprofile_empty_tab_message' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         '' => NULL,
       ),
     ),
     'cprofile_membersonly_tab_message' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         '' => NULL,
       ),
     ),
     'cprofile_private_tab_message' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         '' => NULL,
       ),
     ),
     'cprofile_profile_wrapper' => array(
-      'file' => 'cprofile.module',
       'arguments' => array(
         'content' => NULL,
         'node' => NULL,
         'lid' => NULL,
-      ),
-    ),
-    'cprofile_entry' => array(
-      'file' => 'cprofile.module',
-      'arguments' => array(
-        'data' => NULL,
-        'i' => NULL,
-        'interpretations' => NULL,
       ),
     ),
   );
@@ -527,8 +484,8 @@ function cprofile_user_register_validate($form, &$form_state) {
    This array is used in the revised file_save_upload */
   $validators = array(
     'file_validate_is_image' => array(),
-    'file_validate_image_resolution' => array('85x85')),
     'file_validate_size' => array(30 * 1024),
+    'file_validate_image_resolution' => array('85x85')
   );
 
 //   if ($info = file_save_upload(file_check_upload, $validators) {
@@ -627,7 +584,7 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
     db_query("DELETE FROM {cprofile} WHERE uid=%d", $user->uid);
     break;
   case 'login':
-    $node = cprofile_get_member($user->uid);
+    $node = content_profile_load('member', $user->uid);
     if (module_exists('usercomment')) {
       if ($num = usercomment_count_unapproved($node->nid)) {
   $message .= format_plural($num, 'You have 1 message waiting for you approval', '@count messages are waiting for your approval.');
@@ -642,7 +599,7 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
     // imagefield has already copied the file from $_FILES which now
     // no longer hold the uploaded file information. So, we need to
     // get the info from the node
-    $node = cprofile_get_member($user->uid);
+    $node = content_profile_load('member', $user->uid);
     $filepath = $node->field_reg_picture[0]['filepath'];
     $info = image_get_info($filepath);
 
@@ -793,7 +750,7 @@ function cprofile_facet($uid, $fid, $term, $num, $edit) {
   $langs = array();
       }
     }
-    $content .= theme('cprofile_entry1', $data, $i, $edit);
+    $content .= theme('cprofile_entry', $data, $i, $edit);
     $i += 1;
   }
 
@@ -883,6 +840,54 @@ function cprofile_view($node) {
   $output = theme('cprofile_wrapper', $title, $output, $node);
 
   return $view . $howto . $output;
+}
+
+/**
+ * Theme the title bar
+ */
+function cprofile_preprocess_title_bar(&$vars) {
+  if ($node) {
+    $terms = ctaxo_node_taxonomy($node);
+    $vars['religions'] = $terms['religion'];
+    $vars['movements'] = $terms['movement'];
+  }
+  $vars['title'] = $title;
+  return;
+}
+
+/**
+ * Theme a cprofile entry
+ */
+function cprofile_preprocess_cprofile_entry(&$vars) {
+  $node = new stdClass();
+  $node->field_origin_statement = array();
+  $node->field_origin_statement_lang = array();
+  $data = $var['data'];
+  if ($data->field_origin_statement_value) {
+    $node->field_origin_statement = $data->field_origin_statement_value;
+    $node->field_origin_statement_lang = $data->field_origin_statement_lang_value;
+  }
+  $religion = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_RELIGION_VID);
+  $beliefset = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_BELIEFSET_VID);
+  //  $new = !isset($data->position);
+  $edit = $var['edit'];
+  $vars['statement'] = $edit ? theme('origin_statement', $node, FALSE, FALSE, $data->statement, TRUE) :
+    theme('origin_statement', $node, TRUE, FALSE, $data->statement, FALSE);
+  $vars['node'] = $node;
+  $vars['religion'] = $religion;
+  $vars['en_religion'] = $data->terms ? unserialize($data->terms): array();
+  $vars['beliefset'] = $beliefset;
+  $vars['new'] = $new;
+  $vars['adopt'] = flag_create_link('adopt', $data->nid);
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
+  $vars['close'] = theme('image', $path_to_theme .'/images/close.png', '', t('Close footer'));
+  // hidden select for ajax purposes
+  if ($edit) {
+    $vars['form_terms'] =
+      drupal_get_form('cprofile_attr_terms_form_'. $data->nid, $data->nid, $religion, $vars['en_religion']);
+    $vars['form_os'] = drupal_get_form('cprofile_attr_os_form_'. $data->nid, $data->nid, $node, $data->statement);
+  }
+  return;
 }
 
 /**
@@ -1034,44 +1039,6 @@ function theme_cprofile_facet($term, $content, $position, $edit = FALSE) {
   $output .= '</li>';
   return $output;
 }
-
-/**
- * Theme a cprofile entry
- */
-function theme_cprofile_entry1($data, $i = 0, $edit = FALSE) {
-  $node = new stdClass();
-  $node->field_origin_statement = array();
-  $node->field_origin_statement_lang = array();
-  if ($data->field_origin_statement_value) {
-    $node->field_origin_statement = $data->field_origin_statement_value;
-    $node->field_origin_statement_lang = $data->field_origin_statement_lang_value;
-  }
-  $religion = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_RELIGION_VID);
-  $beliefset = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_BELIEFSET_VID);
-  //  $new = !isset($data->position);
-
-  $vars = array();
-  $vars['data'] = $data;
-  $vars['statement'] = $edit ? theme('origin_statement', $node, FALSE, FALSE, $data->statement, TRUE) :
-    theme('origin_statement', $node, TRUE, FALSE, $data->statement, FALSE);
-  $vars['i'] = $i;
-  $vars['node'] = $node;
-  $vars['religion'] = $religion;
-  $vars['en_religion'] = $data->terms ? unserialize($data->terms): array();
-  $vars['beliefset'] = $beliefset;
-  $vars['new'] = $new;
-  $vars['adopt'] = flag_create_link('adopt', $data->nid);
-  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
-  $vars['close'] = theme('image', $path_to_theme .'/images/close.png', '', t('Close footer'));
-  // hidden select for ajax purposes
-  if ($edit) {
-    $vars['form_terms'] =
-      drupal_get_form('cprofile_attr_terms_form_'. $data->nid, $data->nid, $religion, $vars['en_religion']);
-    $vars['form_os'] = drupal_get_form('cprofile_attr_os_form_'. $data->nid, $data->nid, $node, $data->statement);
-  }
-  return  _phptemplate_callback('cprofile-entry1', $vars);
-}
-
 
 /**
  * Theme cprofile howto message
@@ -1276,14 +1243,6 @@ function theme_cprofile_profile_wrapper($content, $node, $lid) {
 }
 
 /**
- * Theme a cprofile entry
- * FUNCTION IS OVERRIDEN IN PHPTEMPLATE..
- */
-function theme_cprofile_entry($data, $i, $interpretations) {
-}
-
-
-/**
  * Delete the attribute columns
  * @Params
  * $uid - user id. If not present, all table is deleted
@@ -1351,7 +1310,7 @@ function cprofile_attr_defaults($uid, $cid) {
   $tids = array();
 
   // Get the religion attributes of the member
-  $member = cprofile_get_member($uid);
+  $member = content_profile_load('member', $uid);
   $mtids = taxonomy_node_get_terms_by_vocabulary($member->nid, CREEDIA_RELIGION_VID);
   $mtids = array_keys($mtids);
   // Get the religion attributes of the creed statement
@@ -1414,7 +1373,7 @@ function cprofile_flag($event, $flag, $content_id, $account) {
 function cprofile_attr() {
 
   $uid = arg(1);
-  $member = cprofile_get_member($uid);
+  $member = content_profile_load('member', $uid);
   $success = FALSE;
   $cid = 0;
   $tids = array(); // enabled religions
@@ -1477,7 +1436,7 @@ function cprofile_attr() {
 function cprofile_order() {
 
   $uid = arg(1);
-  $member = cprofile_get_member($uid);
+  $member = content_profile_load('member', $uid);
   $success = FALSE;
   $facets = array();
   $creeds = array();
@@ -1490,10 +1449,10 @@ function cprofile_order() {
     $wtid = (int)$temp[0];
     if ($wtid) {
       if ($cid) {
-  $creeds[$wtid][] = $cid;
+        $creeds[$wtid][] = $cid;
       }
       else {
-  $facets[] = $wtid;
+        $facets[] = $wtid;
       }
     }
   }
@@ -1523,9 +1482,9 @@ function cprofile_order() {
 
     foreach ($creeds as $wtid => $m) {
       foreach ($m as $position => $cid) {
-  if ($cid) {
-    db_query($sql, $uid, $cid, $wtid, $position);
-  }
+        if ($cid) {
+          db_query($sql, $uid, $cid, $wtid, $position);
+        }
       }
     }
     $success = TRUE;
@@ -1538,7 +1497,6 @@ function cprofile_order() {
     // clear cache to allow anonymous users to see the changed profile immediately
     $url = url('user/'. $uid, array('absolute' => TRUE));
     cache_clear_all($url, 'cache_page');
-
   }
   else {
     $error = t('Oops... Something wrong. Please let us know so we can fix it.');

@@ -1,6 +1,7 @@
 ;$Id$
 name = Creedia Profile
 package = Creedia
-description = Creedia Profile
+description = Creedia Members Profile
+dependencies[] = content_profile
 dependencies[] = creedia
 core = 6.x
