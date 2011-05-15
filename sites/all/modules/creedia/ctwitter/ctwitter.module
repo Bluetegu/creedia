@@ -12,6 +12,15 @@
  */
 
 /**
+ * Implementation of hook init
+ */
+function ctwitter_init() {
+  if ($name = ctwitter_screenname()) {
+    ctwitter_add_js($name);
+  }
+}
+
+/**
  * Implementation of hook_block
  */
 function ctwitter_block($op = 'list', $delta = 0, $edit = array()) {
@@ -126,7 +135,7 @@ function ctwitter_screenname() {
 function ctwitter_add_js($name) {
   static $load = TRUE;
   if ($load) {
-    drupal_add_js(drupal_get_path('module', 'ctwitter') .'/ctwitter.js');
+    drupal_add_js(drupal_get_path('module', 'ctwitter') .'/ctwitter.js', 'module', 'footer');
     $settings = array('name' => array());
     $settings['name'] = $name;
     drupal_add_js(array('ctwitter' => $settings), 'setting');
@@ -141,8 +150,8 @@ function ctwitter_footer($main = 0) {
   if ($name = ctwitter_screenname()) {
     $output = '<script type="text/javascript" src="http://twitter.com/javascripts/blogger.js"></script>';
   }
-
-  ctwitter_add_js($name);
+  // ctwitter_add_js($name); moved to hook_init. Can not call drupal_add_js to keep settings
+  // from hook_footer. See http://drupal.org/node/212560
   return $output;
 }
 
