@@ -68,186 +68,202 @@ if (!defined(OS_OPTION_NONE)) {
 }
 
 /**
+ * implementation of hook_init
+ */
+function cprofile_init() {
+  menu_rebuild();
+}
+
+
+/**
+ * Impelementation of hook_menu_alter
+ */
+function cprofile_menu_alter(&$items) {
+  // Remove user.module menu items for user viewing. The alternate menu
+  // are added by cprofile_menu.
+  unset($items['user/%user_uid_optional']);
+  unset($items['user/%user/view']);
+  return;
+}
+
+/**
+ * Called by %cprofile argument in cprofile_menu to replace uid
+ * with associated member object.
+ */
+function cprofile_load($uid) {
+  if (is_numeric($uid)) {
+    $node = content_profile_load('member', $uid);
+    if (!$node) {
+      watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
+    }
+  }
+  return $node;
+}
+
+/**
+ * Called by cprofile_menu to varify access to profile ordering and attribute settings.
+ * Code adapted from user.module
+ * @param $member   associated member object
+ */
+function cprofile_access($member) {
+  return (($GLOBALS['user']->uid == $member->uid) || user_access('administer cprofile')) && $member->uid > 0;
+}
+
+/**
  * Implementation of hook_menu
  */
 function cprofile_menu() {
   global $user;
   $items = array();
-/* TODO
-   Non menu code that was placed in hook_menu under the '!$may_cache' block
-   so that it could be run during initialization, should now be moved to hook_init.
-   Previously we called hook_init twice, once early in the bootstrap process, second
-   just after the bootstrap has finished. The first instance is now called boot
-   instead of init.
+//    Redirecting member node pages to user pages
+//    Its not clear to me where to place this code, as hook_init or boot
+//    don't seem to be the right choice, and hook_menu is also not the best
+//    place either. The plan is to add this as aliases via configuration.
+//    if (arg(0) == 'node' && is_numeric(arg(1))) {
+//      $node = menu_get_object();
+//    }
+//    if ($node && in_array($node->type, array('usernode', 'member'))) {
+//      // forward usernodes and member nodes to users
+//      $destination = 'user/'. $node->uid;
+//      drupal_goto($destination, NULL, NULL, 301);
+//    }
 
-   In Drupal 6, there are now two hooks that can be used by modules to execute code
-   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
-   and runs on each page request, even for cached pages. hook_boot() now only runs
-   for non-cached pages and thus can be used for code that was previously placed in
-   hook_menu() with $may_cache = FALSE:
-
-   Dynamic menu items under a '!$may_cache' block can often be simplified
-   to remove references to arg(n) and use of '%<function-name>' to check
-   conditions. See http://drupal.org/node/103114.
-
-   The title and description arguments should not have strings wrapped in t(),
-   because translation of these happen in a later stage in the menu system.
-*/
-    $items['admin/content/creedia/cprofile/attr/reset'] = array(
+  $items['admin/content/creedia/cprofile/attr/reset'] = array(
          'title'    => 'Reset Profile Attributes Table',
          'description' => 'Reset Profile Attribute Table',
          'page callback' => 'cprofile_attr_reset',
          'type'     => MENU_CALLBACK,
          'access arguments' => array('administer site configuration'),
-         );
+  );
 
-    if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = menu_get_object();
-    }
-    if ($node && in_array($node->type, array('usernode', 'member'))) {
-      // forward usernodes and member nodes to users
-      $destination = 'user/'. $node->uid;
-      drupal_goto($destination, NULL, NULL, 301);
-    }
-    if (arg(0) == 'user' && is_numeric(arg(1))) {
-      $uid = arg(1);
-      $node = content_profile_load('member', $uid);
-      if (!$node) {
-        watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
-        return $items;  // no member profile for this user. This shouldn't happen
-      }
-
-      // process creed ordering
-      $items['user/'. $uid .'/order'] = array(
+  // process creed ordering
+  $items['user/%cprofile/order'] = array(
            'page callback' => 'cprofile_order',
+           'page arguments' => array(1),
            'type'     => MENU_CALLBACK,
-           'access arguments' => array('administer cprofile') || ($user->uid == $uid),
-           );
+           'access callback' => 'cprofile_access',
+           'access arguments' => array(1),
+  );
 
-      // process creed ordering
-      $items['user/'. $uid .'/attr'] = array(
+  // process creed ordering
+  $items['user/%cprofile/attr'] = array(
            'page callback' => 'cprofile_attr',
+           'page arguments' => array(1),
            'type'     => MENU_CALLBACK,
-           'access arguments' => array('administer cprofile') || ($user->uid == $uid),
-           );
+           'access callback' => 'cprofile_access',
+           'access arguments' => array(1),
+  );
 
-
-      // override node view
-      $items['user/'. $uid ] = array(
+  $items['user/%cprofile'] = array(
                        'title'    => 'My profile',
                        'description' => 'My profile.',
                        'page callback' => 'cprofile_view',
-                       'page arguments' => array('node' => $node),
+                       'page arguments' => array(1),
                        'access arguments' => array('access content'),
-                       );
+  );
 
-      $items['user/'. $uid . '/view'] = array(
+  $items['user/%cprofile/view'] = array(
                        'title'    => 'View',
                        'description' => 'View summary.',
-                       'page callback' => 'cprofile_view',
-                       'page arguments' => array('node' => $node),
                        'type'     => MENU_DEFAULT_LOCAL_TASK,
-                       'access arguments' => array('access content'),
                        'weight'   => -10,
-                       );
+  );
 
-      $items['user/'. $uid . '/about'] = array(
+  $items['user/%cprofile/about'] = array(
                        'title'    => 'About Me',
                        'description' => 'My spiritual biography and personal details.',
                        'page callback' => 'cprofile_about',
-                       'page arguments' => array('node' => $node),
+                       'page arguments' => array(1),
                        'type'     => MENU_LOCAL_TASK,
-                       'access arguments' => array('access content'),
                        'weight'   => -9,
-                       );
+  );
 
-      $items['user/'. $uid . '/blog'] = array(
+  $items['user/%cprofile/blog'] = array(
                        'title'    => 'My Blog',
                        'description' => 'My Blog.',
                        'page callback' => 'cviews_blog',
-                       'page arguments' => array('uid' => $node->uid),
+                       'page arguments' => array(1),    // TODO *** change cviews function
                        'type'     => MENU_LOCAL_TASK,
                        'access arguments' => array('access content'),
                        'weight'   => -6,
-                       );
+  );
 
-      $items['user/'. $uid . '/guestbook'] = array(
+  $items['user/%cprofile/guestbook'] = array(
                        'title'    => 'Comments',
                        'description' => 'Comment on my profile.',
                        'page callback' => 'cprofile_guestbook',
-                       'page arguments' => array('node' => $node),
+                       'page arguments' => array(1),
                        'type'     => MENU_LOCAL_TASK,
-                       'access arguments' => array('access content'),
                        'weight'   => -7,
-                       );
+  );
 
-      // Order the user/edit tabs. Ideas taken from category_weight module
-      $items['user/'. $uid . '/edit'] = array(
-                       'title'    => 'Edit',
-                       'description' => 'Edit account and personal details.',
-                       'page callback' => 'cprofile_about_edit',
-                       'page arguments' => array('node' => $node),
-                       'access arguments' => array('administer content') || ($user->uid == $uid),
-                       'weight'   => 7,
-                       );
-      $items['user/'. $uid . '/edit/about'] = array(
-                       'title'    => 'About',
-                       'description' => 'Edit personal details and spiritual biography.',
-                       'page callback' => 'cprofile_about_edit',
-                       'page arguments' => array('node' => $node),
-                       'type'     => MENU_DEFAULT_LOCAL_TASK,
-                       'access arguments' => array('edit own member content'),
-                       'weight'   => -7,
-                       );
-
-      $items['user/'. $uid . '/edit/picture'] = array(
-                       'title'    => 'Picture',
-                       'description' => 'Edit picture.',
-                       'page callback' => 'cprofile_picture_edit',
-                       'type'     => MENU_LOCAL_TASK,
-                       'access arguments' => array('administer content') || ($user->uid == $uid),
-                       'weight'   => -5,
-                       );
-      $items['user/'. $uid . '/edit/preference'] = array(
-                       'title'    => 'Preferences',
-                       'description' => 'Edit preferences.',
-                       'page callback' => 'cprofile_preference_edit',
-                       'type'     => MENU_LOCAL_TASK,
-                       'access arguments' => array('administer content') || ($user->uid == $uid),
-                       'weight'   => -4,
-                       );
-      $items['user/'. $uid . '/edit/account'] = array(
-                       'title'    => 'Account',
-                       'description' => 'Edit account details.',
-                       'page callback' => 'cprofile_account_edit',
-                       'type'     => MENU_LOCAL_TASK,
-                       'access arguments' => array('administer content') || ($user->uid == $uid),
-                       'weight'   => -3,
-                       );
-
-     }
-    $items['user/welcome'] = array(
+  // redirected from logintoboggan 'redirect path on registeration'
+  $items['user/%cprofile/welcome'] = array(
                        'title'    => 'Welcome',
                        'description' => 'Welcome Message',
                        'page callback' => 'cprofile_welcome',
+                        'page arguments' => array(1),
                        'type'     => MENU_CALLBACK,
                        'access arguments' => array('access content'),
-                       );
+  );
+
+  // Order the user/edit tabs. Ideas taken from category_weight module
+//      $items['user/'. $uid . '/edit'] = array(
+//                       'title'    => 'Edit',
+//                       'description' => 'Edit account and personal details.',
+//                       'page callback' => 'cprofile_about_edit',
+//                       'page arguments' => array('node' => $node),
+//                       'access arguments' => array('administer content') || ($user->uid == $uid),
+//                       'weight'   => 7,
+//                       );
+//      $items['user/'. $uid . '/edit/about'] = array(
+//                       'title'    => 'About',
+//                       'description' => 'Edit personal details and spiritual biography.',
+//                       'page callback' => 'cprofile_about_edit',
+//                       'page arguments' => array('node' => $node),
+//                       'type'     => MENU_DEFAULT_LOCAL_TASK,
+//                       'access arguments' => array('edit own member content'),
+//                       'weight'   => -7,
+//                       );
+//
+//      $items['user/'. $uid . '/edit/picture'] = array(
+//                       'title'    => 'Picture',
+//                       'description' => 'Edit picture.',
+//                       'page callback' => 'cprofile_picture_edit',
+//                       'type'     => MENU_LOCAL_TASK,
+//                       'access arguments' => array('administer content') || ($user->uid == $uid),
+//                       'weight'   => -5,
+//                       );
+//      $items['user/'. $uid . '/edit/preference'] = array(
+//                       'title'    => 'Preferences',
+//                       'description' => 'Edit preferences.',
+//                       'page callback' => 'cprofile_preference_edit',
+//                       'type'     => MENU_LOCAL_TASK,
+//                       'access arguments' => array('administer content') || ($user->uid == $uid),
+//                       'weight'   => -4,
+//                       );
+//      $items['user/'. $uid . '/edit/account'] = array(
+//                       'title'    => 'Account',
+//                       'description' => 'Edit account details.',
+//                       'page callback' => 'cprofile_account_edit',
+//                       'type'     => MENU_LOCAL_TASK,
+//                       'access arguments' => array('administer content') || ($user->uid == $uid),
+//                       'weight'   => -3,
+//                       );
+//
 
   return $items;
 }
 
-
-function cprofile_welcome($uid) {
-  //  $user = user_load(array('uid' => $uid));
-  $member = content_profile_load('member', $uid);
-  if ($member) {
-    $teaser = TRUE;
-    $page = TRUE;
-    $links = FALSE;
-    $output = node_view($member, $teaser, $page, $links);
-    //    drupal_set_title(t('Welcome @name', array('@name' => $member->field_full_name[0]['value'])));
-  }
+/**
+ * Print welcome message after successful registeration.
+ */
+function cprofile_welcome($member) {
+  $teaser = TRUE;
+  $page = TRUE;
+  $links = FALSE;
+  $output = node_view($member, $teaser, $page, $links);
+  //    drupal_set_title(t('Welcome @name', array('@name' => $member->field_full_name[0]['value'])));
 
   return $output;
 }
@@ -766,7 +782,6 @@ function cprofile_facet($uid, $fid, $term, $num, $edit) {
  * $node: The member node this profile belongs to.
  */
 function cprofile_view($node) {
-
   global $user;
 
   $teaser = TRUE;  // teaser only
@@ -1366,14 +1381,12 @@ function cprofile_flag($event, $flag, $content_id, $account) {
   }
 }
 
-
 /**
  * Callback function for cprofile/attr ajax settings.
  */
-function cprofile_attr() {
+function cprofile_attr($member) {
 
-  $uid = arg(1);
-  $member = content_profile_load('member', $uid);
+  $uid = $member->uid;
   $success = FALSE;
   $cid = 0;
   $tids = array(); // enabled religions
@@ -1431,12 +1444,10 @@ function cprofile_attr() {
 
 /**
  * Callback function for cprofile/order ajax callback
- *
  */
-function cprofile_order() {
+function cprofile_order($member) {
 
-  $uid = arg(1);
-  $member = content_profile_load('member', $uid);
+  $uid = $member->uid;
   $success = FALSE;
   $facets = array();
   $creeds = array();
