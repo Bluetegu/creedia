@@ -70,10 +70,9 @@ if (!defined(OS_OPTION_NONE)) {
 /**
  * implementation of hook_init
  */
-function cprofile_init() {
-  menu_rebuild();
-}
-
+//function cprofile_init() {
+//  menu_rebuild();
+//}
 
 /**
  * Impelementation of hook_menu_alter
@@ -145,7 +144,7 @@ function cprofile_menu() {
            'access arguments' => array(1),
   );
 
-  // process creed ordering
+  // save cprofile way (creed) attributes
   $items['user/%cprofile/attr'] = array(
            'page callback' => 'cprofile_attr',
            'page arguments' => array(1),
@@ -347,29 +346,6 @@ function cprofile_theme() {
       'arguments' => array(
         'title' => NULL,
         'node' => NULL,
-      ),
-    ),
-    'cprofile_submit' => array(
-      'arguments' => array(
-        'form' => NULL,
-        '&$form_state' => NULL,
-      ),
-    ),
-    'cprofile_menu' => array(
-      'arguments' => array(
-        'lid' => NULL,
-      ),
-    ),
-    'cprofile_tab' => array(
-      'arguments' => array(
-        'content' => NULL,
-        'lid' => NULL,
-        'slid' => NULL,
-      ),
-    ),
-    'cprofile_empty_tab_message' => array(
-      'arguments' => array(
-        '' => NULL,
       ),
     ),
     'cprofile_membersonly_tab_message' => array(
@@ -877,7 +853,7 @@ function cprofile_preprocess_cprofile_entry(&$vars) {
   $node = new stdClass();
   $node->field_origin_statement = array();
   $node->field_origin_statement_lang = array();
-  $data = $var['data'];
+  $data = $vars['data'];
   if ($data->field_origin_statement_value) {
     $node->field_origin_statement = $data->field_origin_statement_value;
     $node->field_origin_statement_lang = $data->field_origin_statement_lang_value;
@@ -1089,13 +1065,11 @@ function theme_cprofile_wrapper($title, $content, $node) {
  * Spiritual Biography and personal details
  */
 function cprofile_about($node, $teaser = FALSE) {
-
   $teaser = FALSE;  // all fields and full spiritual biography
   $page = TRUE;     // whole page
   $links = TRUE;
 
   $output = node_view($node, $teaser, $page, $links);
-
   return $output;
 }
 
@@ -1163,72 +1137,6 @@ function cprofile_perm() {
 function theme_cprofile_title_bar($title, $node) {
   /* FUNCTION IS OVERRIDEN IN PHPTEMPLATE..*/
   return '';
-}
-
-function theme_cprofile_submit($form, &$form_state) {
-  $output  = '<div id="cprofile-bar-wrapper">';
-  $output  .= '<div id="cprofile-bar">';
-  // theme buttons first as they are right align. This ease the CSS process.
-  if ($order) {
-    $output .= '<div id="cprofile-submit" class="jsonly" title="'. t('Save ordered creed entries.') .'">'. t('Submit') .'</div>';
-  }
-  if ($show) {
-    $output .= '<div id="cprofile-hide" class="jsonly">';
-    $output .= '<span id="cprofile-hide-show" title="'. t('Show adopted interpretations') .'">'. t('Show') .'</span>';
-    $output .= '<span id="cprofile-hide-hide" style="display: none" title="'. t('Hide adopted interpretations.') .'">'. t('Hide') .'</span>';
-    $output .= '</div>';
-  }
-
-  if ($show) {
-    $tip = t('Show or hide adopted interpretations. ');
-  }
-  if ($order) {
-    $tip .= t('Order creed statements using drag and drop. Point at the title of the statement you wish to move and drag it until the mouse points to the title of the target statement and drop. Press submit to save order. ');
-  }
-  $output .= '<span class="jsonly tip">'. $tip .'</span>';
-  if ($order) {
-    $output .= '<span class="jsdisabled tip">'. t('Enable Javascript to order profile entries. ') .'</span>';
-  }
-  $output .= '</div>';
-  $output .= '</div>';
-  $form_state['redirect'] = $output;
-}
-
-function theme_cprofile_menu($lid) {
-  $title = array('negative', 'positive', 'strong', 'core');
-  $num = array(4, 2);
-  $id = array('creed', 'bridge');
-  $path = $_GET['q']; // current path
-
-  $output = "<ul id=\"$id[$lid]-menu\">";
-  //  ronc: Remove support of negative rating
-  //  for ($slid = 0; $slid < $num[$lid]; $slid++) {
-  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
-  for ($slid = 1; $slid < $num[$lid]; $slid++) {
-    $image = theme('image', $path_to_theme .'/images/cvote-'. $title[$slid] .'.gif', '', $title[$slid]);
-    $output .= '<li>'. l($image . ' '. $title[$slid], $path, array('fragment' =>
-                         'fragment-'. $lid ."-". $slid, 'html' => TRUE)) .'</li>';
-  }
-  $output .= '</ul>';
-
-  return $output;
-}
-
-function theme_cprofile_tab($content, $lid, $slid) {
-  $itemid = $slid + $lid * ($slid + 4);
-  $output .= '<div id="fragment-'. $lid ."-". $slid .'">';
-  $output .= '<ul id="lid-'. $itemid .'">';
-  $output .= $content;
-  $output .= "</ul>";
-  $output .= "</div >";
-  return $output;
-}
-
-function theme_cprofile_empty_tab_message() {
-  $output = "<li><p>";
-  $output .=  t("No creed statement selected for this category.");
-  $output .= "</p></li>";
-  return $output;
 }
 
 function theme_cprofile_membersonly_tab_message() {
