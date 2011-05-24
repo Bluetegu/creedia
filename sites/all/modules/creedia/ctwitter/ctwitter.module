@@ -12,15 +12,6 @@
  */
 
 /**
- * Implementation of hook init
- */
-function ctwitter_init() {
-  if ($name = ctwitter_screenname()) {
-    ctwitter_add_js($name);
-  }
-}
-
-/**
  * Implementation of hook_block
  */
 function ctwitter_block($op = 'list', $delta = 0, $edit = array()) {
@@ -84,12 +75,18 @@ function ctwitter_block($op = 'list', $delta = 0, $edit = array()) {
 
     switch ($delta) {
     case 0:
-      $block['subject'] = t('My Tweets');
-      $block['content'] = theme('ctwitter_updates');
+      if ($name = ctwitter_screenname()) {
+        ctwitter_add_js($name);
+        $block['subject'] = t('My Tweets');
+        $block['content'] = theme('ctwitter_updates', $name);
+      }
       break;
     case 1:
-      $block['subject'] = t('Creedia Tweets');
-      $block['content'] = theme('ctwitter_updates');
+      if ($name = ctwitter_screenname()) {
+        ctwitter_add_js($name);
+        $block['subject'] = t('Creedia Tweets');
+        $block['content'] = theme('ctwitter_updates', $name);
+      }
       break;
     case 2:
       $block['subject'] = t('Creedia Fans');
@@ -162,7 +159,7 @@ function ctwitter_theme() {
   return array(
     'ctwitter_updates' => array(
       'arguments' => array(
-        '' => NULL,
+        'name' => NULL,
       ),
     ),
     'ctwitter_facebook' => array(
@@ -206,16 +203,14 @@ function ctwitter_theme() {
   );
 }
 
-function theme_ctwitter_updates() {
-  if ($name = ctwitter_screenname()) {
-    $output = '<div id="twitter_div">';
-    $output .= '<ul id="twitter_update_list"></ul>';
-    $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
-    $image = theme('image', $path_to_theme .'/images/twitter-followme.gif',
-       t('follow me on Twitter.'), t('follow me on Twitter.'));
-    $output .= l($image, 'http://twitter.com/'. $name, array('attributes' => array('id' => 'twitter-link'), 'absolute' => TRUE, 'html' => TRUE));
-    $output .= '</div>';
-  }
+function theme_ctwitter_updates($name) {
+  $output = '<div id="twitter_div">';
+  $output .= '<ul id="twitter_update_list"></ul>';
+  $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
+  $image = theme('image', $path_to_theme .'/images/twitter-followme.gif',
+  t('follow me on Twitter.'), t('follow me on Twitter.'));
+  $output .= l($image, 'http://twitter.com/'. $name, array('attributes' => array('id' => 'twitter-link'), 'absolute' => TRUE, 'html' => TRUE));
+  $output .= '</div>';
   return $output;
 }
 
