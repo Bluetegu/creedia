@@ -696,7 +696,7 @@ function cprofile_facet($uid, $fid, $term, $num, $edit) {
   //
   //   wtid  wcnt  wpos   cid   cpos  timestamp  data
   //
-  $sql  = "SELECT n.nid, p.position AS cpos, p.wtid, t.position AS wpos, ";
+  $sql  = "SELECT n.nid, n.vid, p.position AS cpos, p.wtid, t.position AS wpos, ";
   $sql .= "f.timestamp, ";
   $sql .= "n.title, c.field_origin_statement_value, c.delta AS statement_num, ";
   //  $sql .= "l.field_origin_statement_lang_value, COUNT(c.delta) AS num_statements, ";
@@ -858,8 +858,8 @@ function cprofile_preprocess_cprofile_entry(&$vars) {
     $node->field_origin_statement = $data->field_origin_statement_value;
     $node->field_origin_statement_lang = $data->field_origin_statement_lang_value;
   }
-  $religion = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_RELIGION_VID);
-  $beliefset = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_BELIEFSET_VID);
+  $religion = taxonomy_node_get_terms_by_vocabulary($data, CREEDIA_RELIGION_VID);
+  $beliefset = taxonomy_node_get_terms_by_vocabulary($data, CREEDIA_BELIEFSET_VID);
   //  $new = !isset($data->position);
   $edit = $vars['edit'];
   $vars['statement'] = $edit ? theme('origin_statement', $node, FALSE, FALSE, $data->statement, TRUE) :
@@ -1236,10 +1236,11 @@ function cprofile_attr_defaults($uid, $cid) {
 
   // Get the religion attributes of the member
   $member = content_profile_load('member', $uid);
-  $mtids = taxonomy_node_get_terms_by_vocabulary($member->nid, CREEDIA_RELIGION_VID);
+  $mtids = taxonomy_node_get_terms_by_vocabulary($member, CREEDIA_RELIGION_VID);
   $mtids = array_keys($mtids);
   // Get the religion attributes of the creed statement
-  $ctids = taxonomy_node_get_terms_by_vocabulary($cid, CREEDIA_RELIGION_VID);
+  $node = node_load($cid);
+  $ctids = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID);
   $ctids = array_keys($ctids);
 
   // If there is a match, show only the matched ones

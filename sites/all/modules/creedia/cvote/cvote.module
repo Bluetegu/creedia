@@ -179,36 +179,36 @@ function cvote_theme() {
    The new function names are built using the following format:
    [your-module-name]_form_[$form_id]_alter. */
 
-/** 
+/**
  * @file
  * Creedia creed voting twicks of fivestar.
  *
  **
- * This module provides creed rating widget to the user. 
+ * This module provides creed rating widget to the user.
  *
  * 1. use two axes for voting. The 'vote' axis is used for 'my creed' ratings,
  *   and as such can use the views default filter and sort pluggins. The
- *   'my bridge' ratings use the 'bridge' axis. 
+ *   'my bridge' ratings use the 'bridge' axis.
  *
  * 2. add creed nodes with either 'my creed' or 'my bridge' rating widgets
  *   depending on the user vs. creed religion settings. 'my creed' uses 3 positive
- *   stars and a single negative one, while 'my bridge' ratings uses a single 
+ *   stars and a single negative one, while 'my bridge' ratings uses a single
  *   negative and a single positive star. Both have a 'cancel' star that is used
  *   both to indicate zero average as well as to cancel the user voting.
- *   --- 14-Sep-09 --- 
- *   Change the default behavior to provide both my-creed and my-bridge rating 
+ *   --- 14-Sep-09 ---
+ *   Change the default behavior to provide both my-creed and my-bridge rating
  *   regardless of member's settings.
  *
  * 3. add support for negative votes. A (single) negative 'star' is added. Ratings
- *    results shown to the user are -1..number-of-stars. 
+ *    results shown to the user are -1..number-of-stars.
  *   --- 5-Oct-09 ---
  *   Remove the support of negative ratings.
- *    
+ *
  * 4. if the user changed religion settings and already votes on some of the creeds
  *    within that religion, the 'old' votes will not be converted automatically
  *    from my-creed to my-bridge voting (or vice versa). Rather the user will have
  *    to vote again on these creeds. When a user votes on a creed, votes on
- *    the other 'axis' are removed if they exists. 
+ *    the other 'axis' are removed if they exists.
  *
  **
  *
@@ -221,12 +221,12 @@ function cvote_theme() {
  * Fivestar doesn't support negative number ratings as well. See discussion
  * below.
  *
- * Negative numbers: 
+ * Negative numbers:
  *
  * Members can express both positive as well as negative identification with
  * a creed statement. When ordering creeds according to rate, those creed
  * entries that are not-rated should come before those creed statements that
- * received an overall negative ratings. 
+ * received an overall negative ratings.
  * Making Fivestar support negative rating is not easy. Fivestar uses average
  * precentage for calculating the rate. If we simply attempt to treat negative
  * as zero while no-vote is positive, and then to scale down the result, it
@@ -239,7 +239,7 @@ function cvote_theme() {
  *
  * 1. Religion Lineage is saved. That is, the religion taxonomy is always saved
  *    in the member profile object (and not the movement taxonomy only).
- * 
+ *
  **
  * Todo:
  *
@@ -264,22 +264,22 @@ function cvote_theme() {
  * 3. cvote_form calls cvote_custom_widget that builds a very long and elaborate
  *    form. It includes in the 'theme' property of the form theme_cvote_widget. It also
  *    calls directly (through theme function) for theme_cvote_summary to theme
- *    the description fields of the form. It calls theme_cvote_static and 
+ *    the description fields of the form. It calls theme_cvote_static and
  *    theme_cvote_static_element and embbeds the output into a 'markup' form
  *    element (It is not clear to me why this is not directly done cvote_
  *    custom_widget). It builds the form element 'vote' and assigns the 'type'
  *    property as 'cvote', which I believe calls theme_cvote when the
- *    form is rendered. 
- * 4. The above assume that fivestar form element was defined as part of the 
+ *    form is rendered.
+ * 4. The above assume that fivestar form element was defined as part of the
  *    form building process using hook_elements. This hook defines cvote_expand
  *    as the function that should be called as part of the form build of the
- *    fivestar element. cvote_expand indeed expands the element. 
+ *    fivestar element. cvote_expand indeed expands the element.
  * 5. theme_cvote adds the relevant js and css files in addition to its (minor)
  *    theming role.
  * 6. theme_cvote_widget add wrapper divs and unsets some form fields and calls
  *    drupal_render to generate the HTML output.
  *
- * 
+ *
  * Additional changes per 22-Feb-2009
  * 1. added 'My vote: vote' tip for static view
  * 2. fixed 'cancel' static CSS to hide it when negative is selected
@@ -290,7 +290,7 @@ function cvote_theme() {
  * Changes done 14-Sep-2009
  * 1. Add both my-creed and my-bridge rating widgets per creed statement regardless
  *    of user's religion settings.
- * 2. Support multi-axis voting, i.e. expand the widget to include the tag parameter 
+ * 2. Support multi-axis voting, i.e. expand the widget to include the tag parameter
  *    per http://drupal.org/node/185074 comment 72
  *
  * Changes done 5-Oct-2009
@@ -314,9 +314,10 @@ function _cvote_is_my_religion($nid) {
 
   global $user;
   if (!$user->uid){
-    return FALSE;  // anonymous users 
+    return FALSE;  // anonymous users
   }
-  $creed_religion = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID); 
+  ////// THERE IS AN ERROR HERE. WHAT IS NODE?
+  $creed_religion = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID);
   if (empty($creed_religion)) {
     return FALSE;
 
@@ -333,7 +334,7 @@ function _cvote_is_my_religion($nid) {
   //     return FALSE;
   //   }
   //   firep($member, 'is my religion: member');
-  //   $user_religions = taxonomy_node_get_terms_by_vocabulary($member[0]->nid, CREEDIA_RELIGION_VID, 'vid'); 
+  //   $user_religions = taxonomy_node_get_terms_by_vocabulary($member[0]->nid, CREEDIA_RELIGION_VID, 'vid');
 
   // Get the member's nid which created the member profile
   // Assumption here is that there is a single member node per user
@@ -342,9 +343,9 @@ function _cvote_is_my_religion($nid) {
   if (!$mnid) {
     return FALSE;
   }
-  $user_religions = taxonomy_node_get_terms_by_vocabulary($mnid, CREEDIA_RELIGION_VID); 
+  $user_religions = taxonomy_node_get_terms_by_vocabulary($mnid, CREEDIA_RELIGION_VID);
   //firep($user_religions, 'is my religion: user religions');
-  
+
   foreach ($user_religions as $religion) {
     if (isset($creed_religion[$religion->tid])) {
       // firep('TRUE', 'is my religion: bingo ');
@@ -357,10 +358,10 @@ function _cvote_is_my_religion($nid) {
 
 /**
  * Provide a stub for variable_get
- * 
+ *
  * @param string $param: variable name
  * @param var    $default: variable value default
- * @param int    $nid: the node id. 
+ * @param int    $nid: the node id.
  *               Required for 'stars', 'tag' and 'lables' variables.
  *
  */
@@ -425,17 +426,17 @@ function cvote_menu() {
    Previously we called hook_init twice, once early in the bootstrap process, second
    just after the bootstrap has finished. The first instance is now called boot
    instead of init.
-   
+
    In Drupal 6, there are now two hooks that can be used by modules to execute code
    at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
    and runs on each page request, even for cached pages. hook_boot() now only runs
    for non-cached pages and thus can be used for code that was previously placed in
    hook_menu() with $may_cache = FALSE:
-   
+
    Dynamic menu items under a '!$may_cache' block can often be simplified
    to remove references to arg(n) and use of '%<function-name>' to check
    conditions. See http://drupal.org/node/103114.
-   
+
    The title and description arguments should not have strings wrapped in t(),
    because translation of these happen in a later stage in the menu system.
 */
@@ -472,7 +473,7 @@ function cvote_perm() {
 /**
  * Implementation of hook_form_alter
  * Adds cvote enable and position to the node-type configuration form.
- * 
+ *
  */
 function cvote_form_alter(&$form, &$form_state, $form_id) {
 }
@@ -531,7 +532,7 @@ function theme_cvote_preview_wrapper($content, $type = 'direct') {
 
 /**
  * Callback function for cvote/vote.
- * 
+ *
  * @param type
  *   A content-type to log the vote to. 'node' is the most common.
  * @param tag
@@ -623,7 +624,7 @@ function _cvote_cast_vote($type, $cid, $value, $tag = NULL, $uid = NULL) {
 
   // Sanity-check the incoming values.
   if (is_numeric($cid) && is_numeric($value)) {
-    
+
     //  Support multiple widgets - need to rely on input parameters
     //  $tag = cvote_variable_get('cvote_tag_creed', 'vote', $cid);
     //  $stars = cvote_variable_get('cvote_stars_creed', 3, $cid);
@@ -677,10 +678,10 @@ function _cvote_cast_vote($type, $cid, $value, $tag = NULL, $uid = NULL) {
 
 /**
  * Internal function to check that node-type accepts votes
- * 
+ *
  * @param text $type type of target (currently only node is supported)
  * @param text $id identifier within the type (in this case node-type)
- * 
+ *
  * @return boolean
  */
 function _cvote_validate_target($type, $id) {
@@ -690,10 +691,10 @@ function _cvote_validate_target($type, $id) {
 
 /**
  * Implementation of hook_cvote_widgets.
- * 
+ *
  * This hook allows other modules to create additional custom widgets for
  * the cvote module.
- * 
+ *
  * @return array
  *   An array of key => value pairs suitable for inclusion as the #options in a
  *   select or radios form element. Each key must be the location of a css
@@ -715,7 +716,7 @@ function cvote_cvote_widgets() {
 
 /**
  * Implementation of hook_nodeapi()
- * 
+ *
  * Adds the fievestar widget to the node view.
  */
 function cvote_nodeapi(&$node, $op, $teaser, $page) {
@@ -842,7 +843,7 @@ function cvote_form(&$form_state, $content_type, $content_id, $tag) {
   //$current_points = votingapi_get_voting_result($content_type, $content_id, 'points', 'bridge', 'average');
   //$current_count_points = votingapi_get_voting_result($content_type, $content_id, 'points', 'bridge', 'count');
   if ($user->uid) {
-    // one of these should always be null. 
+    // one of these should always be null.
     $user_vote = votingapi_get_vote($content_type, $content_id, 'percent', $tag, $user->uid);
   }
   else {
@@ -893,7 +894,7 @@ function cvote_static($content_type, $content_id, $tag = 'vote', $node_type = NU
   $current_count = votingapi_get_voting_result($content_type, $content_id, 'percent', 'vote', 'count');
   //$user_vote = $user->uid ? votingapi_get_vote($content_type, $content_id, 'percent', 'vote', $user->uid) : 0;
   if ($user->uid) {
-    // one of these should always be null. 
+    // one of these should always be null.
     $user_vote = votingapi_get_vote($content_type, $content_id, 'percent', $tag, $user->uid);
   }
   else {
@@ -966,7 +967,7 @@ function cvote_static($content_type, $content_id, $tag = 'vote', $node_type = NU
     }
     break;
   }
-  
+
   $star_display = theme('cvote_static', $star_value, $stars, $tag, $hover_title);
   $text_display = $text_display == 'none' ? NULL : theme('cvote_summary', $user_value, $average_value, $count_value, $stars, FALSE);
 
@@ -1125,7 +1126,7 @@ function cvote_form_submit($form, &$form_state) {
 
 /**
  * Implementation of hook_elements
- * 
+ *
  * Defines 'cvote' form element type
  */
 function cvote_elements() {
@@ -1199,15 +1200,15 @@ function theme_cvote_widget($form) {
 /**
  * Display a plain HTML VIEW ONLY version of the widget
  * with the specified rating
- * 
+ *
  * @param $rating
- *   The desired rating to display out in the range of -100 to 300 
+ *   The desired rating to display out in the range of -100 to 300
  *   (The desired rating to display out of 100 (i.e. 80 is 4 out of 5 stars))
  * @param $stars
  *   The total number of stars this rating is out of
  * @return
  *   A themed HTML string representing the star widget
- * 
+ *
  */
 function theme_cvote_static($rating, $stars = 5, $tag = 'vote', $title = NULL) {
   global $user;
@@ -1220,14 +1221,14 @@ function theme_cvote_static($rating, $stars = 5, $tag = 'vote', $title = NULL) {
   //firep($rating, 'rating in theme cvote static');
 
   $output = '';
-  $output .= $title ? 
+  $output .= $title ?
     '<div class="cvote-widget-static cvote-widget-static-'. $stars .'-'. $tag .' clear-block" title="'. $title .'">' :
     '<div class="cvote-widget-static cvote-widget-static-'. $stars .'-'. $tag .' clear-block">' ;
 
   $numeric_rating = $rating/100;
 
   // 'negative'
-  // ronc: remove negative ratings: otherwise this would show in 
+  // ronc: remove negative ratings: otherwise this would show in
 //    if ($rating < 0 || !$user->uid) {
 //      $output .= '<div class="negative">';
 //      $output .= '<span class="on">';     $percent = 100 - $rating;
@@ -1406,7 +1407,7 @@ function cvote_expand($element) {
     // ronc: we are not using percentage anymore. We assign any star with 100 points and we take average
     $this_value = ($i - 1) * 100;
     $next_value = $i * 100;
-    
+
     // The negative button...
     if ($i == 0) {
       $options[$this_value] = isset($element['#labels'][$i]) ? t(filter_xss_admin($element['#labels'][$i])) :
