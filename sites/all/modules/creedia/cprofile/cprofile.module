@@ -731,15 +731,15 @@ function cprofile_facet($uid, $fid, $term, $num, $edit) {
       $statements[$data->statement_num]['value'] = $data->field_origin_statement_value;
       $langs[$data->statement_num]['value'] = $data->field_origin_statement_lang_value;
       if ($data->statement_num != 0) {
-  // Statements are ordered DESC by statement number,
-  // therefore statement number 0 is the last one
-  continue;
+        // Statements are ordered DESC by statement number,
+        // therefore statement number 0 is the last one
+        continue;
       }
       else {
-  $data->field_origin_statement_value = $statements;
-  $data->field_origin_statement_lang_value = $langs;
-  $statements = array();
-  $langs = array();
+        $data->field_origin_statement_value = $statements;
+        $data->field_origin_statement_lang_value = $langs;
+        $statements = array();
+        $langs = array();
       }
     }
     $content .= theme('cprofile_entry', $data, $i, $edit);
@@ -861,7 +861,7 @@ function cprofile_preprocess_cprofile_entry(&$vars) {
   $religion = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_RELIGION_VID);
   $beliefset = taxonomy_node_get_terms_by_vocabulary($data->nid, CREEDIA_BELIEFSET_VID);
   //  $new = !isset($data->position);
-  $edit = $var['edit'];
+  $edit = $vars['edit'];
   $vars['statement'] = $edit ? theme('origin_statement', $node, FALSE, FALSE, $data->statement, TRUE) :
     theme('origin_statement', $node, TRUE, FALSE, $data->statement, FALSE);
   $vars['node'] = $node;
@@ -891,7 +891,10 @@ function cprofile_preprocess_cprofile_entry(&$vars) {
  * $terms - array of terms
  * $en_terms - array of the enabled term ids
  */
-function cprofile_attr_terms_form(&$form_state, $nid, $terms, $en_terms) {
+function cprofile_attr_terms_form(&$form_state, $args) {
+  $nid = $args[0];
+  $terms = $args[1];
+  $en_terms = $args[2];
 
   // options array values and indices are the tids
   // defaults array values are the indices of the selected (enabled) terms
@@ -926,7 +929,10 @@ function cprofile_attr_terms_form(&$form_state, $nid, $terms, $en_terms) {
  * $statements - a node with origin statement array (lang & value)
  * $en_statement - selected statement number
  */
-function cprofile_attr_os_form(&$form_state, $nid, $node, $en_statement) {
+function cprofile_attr_os_form(&$form_state, $args) {
+  $nid = $args[0];
+  $node = $args[1];
+  $en_statement = $args[2];
 
   $options = array(OS_OPTION_NONE => 'None');
   if (is_array($node->field_origin_statement)) {
@@ -952,25 +958,21 @@ function cprofile_attr_os_form(&$form_state, $nid, $node, $en_statement) {
  * Implementation of hook_forms
  *
  * Make multiple forms on a page (for ajax) using a single function
- * Per: http://www.gtrlabs.org/node/185
+ * See hook_forms on api.drupal.org
  */
 function cprofile_forms($form_id, $args) {
-/* TODO Your function did not have $args in its signature.
-   Any $args[n] values have been converted to $args[n].
-   You may need to reduce these indices by one. */
-  // Get the form id
-  $args = func_get_args();
-  $form_id = $form_id;
-
-  // Indicate a single function to prepare form
   $forms = array();
+
   if (strpos($form_id, 'cprofile_attr_terms_form') === 0) {
-    $forms[$form_id] = array('callback' => 'cprofile_attr_terms_form');
+    $forms[$form_id] = array('callback' => 'cprofile_attr_terms_form',
+                             'callback arguments' => array($args)
+    );
   }
   elseif (strpos($form_id, 'cprofile_attr_os_form') === 0) {
-    $forms[$form_id] = array('callback' => 'cprofile_attr_os_form');
+    $forms[$form_id] = array('callback' => 'cprofile_attr_os_form',
+                             'callback arguments' => array($args)
+    );
   }
-
   return $forms;
 }
 
