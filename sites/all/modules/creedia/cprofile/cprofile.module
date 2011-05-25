@@ -440,6 +440,36 @@ function cprofile_theme() {
 }
 
 /**
+ * Implementation of hook_theme_regsitry_alter
+ */
+function cprofile_theme_registry_alter(&$registry) {
+  // add size paramter to user picture theme
+  $registry['user_picture']['arguments'] = array('account' => NULL, 'size' => 'comment');
+}
+
+/**
+ * Use imagecache module to scale down large uploaded profile pictures
+ * @param $size
+ *   Imagecache name to scale to. Default is 'comment' which covers both member
+ *   listing picture size as well as pictures in comments.
+ * @param $account is either a node or user object.
+ */
+function cprofile_preprocess_user_picture(&$vars) {
+  $account = $vars['account'];
+  $size = $vars['size'];
+  if (variable_get('user_pictures', 0)) {
+    // Display the user's photo if available
+    if ($account->picture && file_exists($account->picture)) {
+       $picture = theme('imagecache', $size, $account->picture);
+    }
+    else if (variable_get('user_picture_default', '')) {
+      $picture = theme('imagecache', $size, variable_get('user_picture_default', ''));
+    }
+    $vars['picture'] = $picture;
+  }
+}
+
+/**
  * Theme the user registration form
  */
 function theme_user_register($form) {
