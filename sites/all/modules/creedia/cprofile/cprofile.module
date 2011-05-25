@@ -1,11 +1,5 @@
 <?php
 // $Id$
-/* TODO hook_user('view')
-   The return value of hook_user('view') has changed, to match the process that
-   nodes use for rendering. Modules should add their custom HTML to
-   $account->content element. Further, this HTML should be in the form that
-   drupal_render() recognizes. */
-
 /* TODO
    An argument for replacements has been added to format_plural(),
    escaping and/or theming the values just as done with t().*/
@@ -68,21 +62,10 @@ if (!defined(OS_OPTION_NONE)) {
 }
 
 /**
- * implementation of hook_init
+ * Implementation of hook_perm()
  */
-//function cprofile_init() {
-//  menu_rebuild();
-//}
-
-/**
- * Impelementation of hook_menu_alter
- */
-function cprofile_menu_alter(&$items) {
-  // Remove user.module menu items for user viewing. The alternate menu
-  // are added by cprofile_menu.
-  unset($items['user/%user_uid_optional']);
-  unset($items['user/%user/view']);
-  return;
+function cprofile_perm() {
+  return array('administer cprofile');
 }
 
 /**
@@ -155,7 +138,7 @@ function cprofile_menu() {
 
   $items['user/%cprofile'] = array(
                        'title'    => 'My profile',
-                       'description' => 'My profile.',
+                       'description' => 'My Profile.',
                        'page callback' => 'cprofile_view',
                        'page arguments' => array(1),
                        'access arguments' => array('access content'),
@@ -163,17 +146,18 @@ function cprofile_menu() {
 
   $items['user/%cprofile/view'] = array(
                        'title'    => 'View',
-                       'description' => 'View summary.',
+                       'description' => 'My Profile',
                        'type'     => MENU_DEFAULT_LOCAL_TASK,
                        'weight'   => -10,
   );
 
   $items['user/%cprofile/about'] = array(
                        'title'    => 'About Me',
-                       'description' => 'My spiritual biography and personal details.',
+                       'description' => 'About Me.',
                        'page callback' => 'cprofile_about',
                        'page arguments' => array(1),
                        'type'     => MENU_LOCAL_TASK,
+                       'access arguments' => array('access content'),
                        'weight'   => -9,
   );
 
@@ -184,16 +168,17 @@ function cprofile_menu() {
                        'page arguments' => array(1),    // TODO *** change cviews function
                        'type'     => MENU_LOCAL_TASK,
                        'access arguments' => array('access content'),
-                       'weight'   => -6,
+                       'weight'   => -8,
   );
 
   $items['user/%cprofile/guestbook'] = array(
                        'title'    => 'Comments',
-                       'description' => 'Comment on my profile.',
+                       'description' => 'Comments.',
                        'page callback' => 'cprofile_guestbook',
                        'page arguments' => array(1),
                        'type'     => MENU_LOCAL_TASK,
-                       'weight'   => -7,
+                       'access arguments' => array('access content'),
+                       'weight'   => -6,
   );
 
   // redirected from logintoboggan 'redirect path on registeration'
@@ -255,6 +240,29 @@ function cprofile_menu() {
 }
 
 /**
+ * Impelementation of hook_menu_alter
+ */
+function cprofile_menu_alter(&$items) {
+  // Take control over user view. Remove user.module menu items.
+  unset($items['user/%user_uid_optional']);
+  unset($items['user/%user/view']);
+  // Modify title and weights
+  $items['user/%user/watcher']['title'] = 'My Watch';
+  $items['user/%user/watcher']['weight'] = -7;
+  $items['user/%user/contact']['weight'] = -5;
+  // remove tracker and imce file browser tab
+  unset($items['user/%user/imce']);
+  unset($items['user/%user/track']);
+  unset($items['user/%user/track/posts']);
+  unset($items['user/%user/track/navigation']); // statistics module
+  unset($items['user/%user/devel']);
+  unset($items['user/%user/devel/load']);
+  unset($items['user/%user/devel/render']);
+  unset($items['user/%user/devel/token']);
+  return;
+}
+
+/**
  * Print welcome message after successful registeration.
  */
 function cprofile_welcome($member) {
@@ -265,6 +273,69 @@ function cprofile_welcome($member) {
   //    drupal_set_title(t('Welcome @name', array('@name' => $member->field_full_name[0]['value'])));
 
   return $output;
+}
+/**
+ * Spiritual Biography and personal details
+ */
+function cprofile_about($node, $teaser = FALSE) {
+  $teaser = FALSE;  // all fields and full spiritual biography
+  $page = TRUE;     // whole page
+  $links = TRUE;
+  $output = node_view($node, $teaser, $page, $links);
+  return $output;
+}
+
+/**
+ * Guest Book (comments)
+ */
+function cprofile_guestbook($node) {
+  global $user;
+  $account = user_load(array('uid' => $node->uid));
+
+  $output = '<h6><p>';
+  $output .= t('View members comments and leave one of your own using the form below. ');
+  if ($account->skip_approval_field != 1) {
+    $output .= t('Submitted comments will be posted once approved by the user. ');
+  }
+  if ($account->contact) {
+    $output .= t('Use the contact form for private communication. ');
+  }
+  if ($user->uid == $node->uid) {
+    $output .= t('The comments settings are available in the usercomment section of the edit preference tab. ');
+    if ($num = usercomment_count_unapproved($node->nid)) {
+      $output .= '<em>'. format_plural($num, 'You have 1 comment waiting for your approval', '@count comments are waiting for your approval.') . '</em>';
+    }
+  }
+  $output .= '</p></h6>';
+
+  $output .= usercomment_approval_form($node);
+  // add wrapper here
+  $output .= '<div id="comments">';
+  $output .= comment_render($node);
+  $output .= '</div>';
+  $output .= drupal_get_form('comment_form', array('nid' => $node->nid));
+
+  return $output;
+}
+
+/**
+ * Edit form for the about details
+ */
+function cprofile_about_edit($node) {
+
+  if (!$node) {
+    return node_add('member');
+  }
+  else {
+    return node_page_edit($node);
+  }
+}
+
+/**
+ * Profile edit tab
+ */
+function cprofile_profile_edit() {
+
 }
 
 /**
@@ -1061,84 +1132,6 @@ function theme_cprofile_wrapper($title, $content, $node) {
   $output .= '</ul>';
   $output .= '</div>';
   return $output;
-}
-
-/**
- * Spiritual Biography and personal details
- */
-function cprofile_about($node, $teaser = FALSE) {
-  $teaser = FALSE;  // all fields and full spiritual biography
-  $page = TRUE;     // whole page
-  $links = TRUE;
-
-  $output = node_view($node, $teaser, $page, $links);
-  return $output;
-}
-
-/**
- * Edit form for the about details
- */
-function cprofile_about_edit($node) {
-
-  if (!$node) {
-    return node_add('member');
-  }
-  else {
-    return node_page_edit($node);
-  }
-}
-
-/**
- * Profile edit tab
- */
-function cprofile_profile_edit() {
-
-}
-
-
-/**
- * Guest Book (comments)
- */
-function cprofile_guestbook($node) {
-  global $user;
-  $account = user_load(array('uid' => $node->uid));
-
-  $output = '<h6><p>';
-  $output .= t('View members comments and leave one of your own using the form below. ');
-  if ($account->skip_approval_field != 1) {
-    $output .= t('Submitted comments will be posted once approved by the user. ');
-  }
-  if ($account->contact) {
-    $output .= t('Use the contact form for private communication. ');
-  }
-  if ($user->uid == $node->uid) {
-    $output .= t('The comments settings are available in the usercomment section of the edit preference tab. ');
-    if ($num = usercomment_count_unapproved($node->nid)) {
-      $output .= '<em>'. format_plural($num, 'You have 1 comment waiting for your approval', '@count comments are waiting for your approval.') . '</em>';
-    }
-  }
-  $output .= '</p></h6>';
-
-  $output .= usercomment_approval_form($node);
-  // add wrapper here
-  $output .= '<div id="comments">';
-  $output .= comment_render($node);
-  $output .= '</div>';
-  $output .= drupal_get_form('comment_form', array('nid' => $node->nid));
-
-  return $output;
-}
-
-/**
- * Implementation of hook_perm()
- */
-function cprofile_perm() {
-  return array('administer cprofile');
-}
-
-function theme_cprofile_title_bar($title, $node) {
-  /* FUNCTION IS OVERRIDEN IN PHPTEMPLATE..*/
-  return '';
 }
 
 function theme_cprofile_membersonly_tab_message() {
