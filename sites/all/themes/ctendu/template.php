@@ -295,19 +295,6 @@ function ctendu_usercomment_empty() {
 }
 
 /**
- * enable hook_link_alter for comments by overriding comments theming functions
- * see http://drupal.org/node/169890
- */
-function ctendu_comment_flat_expanded($comment) {
-  $links = module_invoke_all('link', 'comment', $comment, 0);
-  foreach (module_implements('link_alter') as $module) {
-    $function = $module .'_link_alter';
-    $function($node, $links);
-  }
-  return theme('comment_view', $comment, $links);
-}
-
-/**
  * Allow themable wrapping of all comments.
  */
 function ctendu_comment_wrapper($content) {
@@ -406,6 +393,68 @@ function ctendu_lt_login_link() {
   else {
     return t('Login');
   }
+}
+
+/**
+ * Override theme_links (includes/theme.inc)
+ * Function copied as is. Only change is add handling of 'pre' attribute
+ * added using hook_links_alter by creedia.module
+ */
+function ctendu_links($links, $attributes = array('class' => 'links')) {
+  global $language;
+  $output = '';
+
+  if (count($links) > 0) {
+    $output = '<ul'. drupal_attributes($attributes) .'>';
+
+    $num_links = count($links);
+    $i = 1;
+
+    foreach ($links as $key => $link) {
+      $class = $key;
+
+      // Add first, last and active classes to the list of links to help out themers.
+      if ($i == 1) {
+        $class .= ' first';
+      }
+      if ($i == $num_links) {
+        $class .= ' last';
+      }
+      if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page()))
+          && (empty($link['language']) || $link['language']->language == $language->language)) {
+        $class .= ' active';
+      }
+      $output .= '<li'. drupal_attributes(array('class' => $class)) .'>';
+
+      // add pre if available
+      if (isset($link['pre'])) {
+        $output .= $link['pre'];
+      }
+
+      if (isset($link['href'])) {
+        // Pass in $link as $options, they share the same keys.
+        $output .= l($link['title'], $link['href'], $link);
+      }
+      else if (!empty($link['title'])) {
+        // Some links are actually not links, but we wrap these in <span> for adding title and class attributes
+        if (empty($link['html'])) {
+          $link['title'] = check_plain($link['title']);
+        }
+        $span_attributes = '';
+        if (isset($link['attributes'])) {
+          $span_attributes = drupal_attributes($link['attributes']);
+        }
+        $output .= '<span'. $span_attributes .'>'. $link['title'] .'</span>';
+      }
+
+      $i++;
+      $output .= "</li>\n";
+    }
+
+    $output .= '</ul>';
+  }
+
+  return $output;
 }
 
 /**

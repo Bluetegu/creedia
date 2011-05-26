@@ -441,11 +441,8 @@ function creedia_node_meta_tags($node) {
 /**
  * Implementation of hook_link_alter
  */
-
-function creedia_link_alter(&$links, $node) {
-  //  firep($node, 'node in link alter'); // node is null in comment links
+function creedia_link_alter(&$links, $node, $comment) {
   $path_to_theme = drupal_get_path('theme', variable_get('theme_default', ''));
-
   foreach ($links as $name => $link) {
     //        firep($link, 'link in link alter');
     //        firep($name, 'link name in link alter');
@@ -468,6 +465,7 @@ function creedia_link_alter(&$links, $node) {
       case 'comment_add':
       case 'flag-adopt':
       case 'blog_usernames_blog':
+      case 'abuse_node_history':
         unset($links[$name]);
         break;
       case 'abuse_flag_comment':
