@@ -458,6 +458,21 @@ function ctendu_links($links, $attributes = array('class' => 'links')) {
 }
 
 /**
+ * Replace links with images (flag module) per http://drupal.org/node/305061
+ */
+function ctendu_preprocess_flag(&$vars) {
+  $image_file = path_to_theme() . '/images/flag-' . $vars['flag_name_css'] . '-' . ($vars['action'] == 'flag' ? 'off' : 'on') . '.png';
+  // Uncomment the following line when debugging.
+  //   drupal_set_message("Flag is looking for '$image_file'...");
+  //     dvr($vars);
+  if (file_exists($image_file)) {
+    // note that flags that appear in links are themed using link alter and not
+    // using this function, as it doesn't allow for text and image together.
+    $vars['link_text'] = '<img src="' . base_path() . $image_file . '" />';
+  }
+}
+
+/**
  * Node varialbles preprocess
  * @param $vars
  */
