@@ -1,15 +1,5 @@
 <?php
 // $Id$
-/* TODO FormAPI image buttons are now supported.
- FormAPI now offers the 'image_button' element type, allowing developers to
- use icons or other custom images in place of traditional HTML submit buttons.
-
- $form['my_image_button'] = array(
- '#type'         => 'image_button',
- '#title'        => t('My button'),
- '#return_value' => 'my_data',
- '#src'          => 'my/image/path.jpg',
- ); */
 
 /* TODO hook_nodeapi('submit') has been replaced by op='presave'
  There is no longer a 'submit' op for nodeapi. Instead you may use the newly
@@ -58,6 +48,16 @@ if (!defined(CREEDIA_CREED_MAXLENGTH)) {
 }
 if (!defined(CREEDIA_CREEDIMAGE_DIRECTORY)) {
   define("CREEDIA_CREEDIMAGE_DIRECTORY", 'files/creeds');
+}
+
+/**
+ * Implementation of hook_views_api
+ */
+function creedia_views_api() {
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'creedia') .'/includes'
+  );
 }
 
 /**
