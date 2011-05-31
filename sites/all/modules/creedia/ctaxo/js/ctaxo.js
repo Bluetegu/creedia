@@ -1,5 +1,9 @@
 Drupal.behaviors.ctaxoBehavior = function(context) {
   $('#taxobar-throbber').css("display", "none");
+  if ($("#fb-root > *").length){
+    // rerun xfbml parser to process all fbml tags loaded via ajax
+    FB.XFBML.parse(document.getElementById('content-area'));
+  }
 }
 
 if (Drupal.jsEnabled) {
