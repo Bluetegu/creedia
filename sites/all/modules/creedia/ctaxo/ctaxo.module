@@ -342,9 +342,7 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
 @@@TODO*/
 
 function _ctaxo_base_path() {
-  $mid = menu_get_active_item();
-  $item = menu_get_item($mid);
-  return $item['path'];
+  return $_GET['q'];
 }
 
 /**
@@ -374,8 +372,15 @@ function ctaxo_add_js() {
     drupal_add_js(drupal_get_path('module', 'ctaxo') .'/js/jquery.scrollable-1.0.1.js');
     drupal_add_js(drupal_get_path('module', 'ctaxo') .'/js/jquery.mousewheel.min.js');
     drupal_add_js(drupal_get_path('module', 'ctaxo') .'/js/ctaxo.js');
-    //    $settings = array('path' => $language .'/'._ctaxo_base_path());
-    //    drupal_add_js(array('ctaxo' => $settings), 'setting');
+
+    $settings = array(
+                  "vid_". CREEDIA_RELIGION_VID => 'religion',
+                  "vid_". CREEDIA_BELIEFSET_VID => 'beliefset',
+                  "vid_". CREEDIA_FREETAG_VID => 'freetag',
+                  "vid_". CREEDIA_COUNTRY_VID => 'country',
+    );
+    drupal_add_js(array('ctaxo' => $settings), 'setting');
+
     $js_added = TRUE;
   }
 }
@@ -509,7 +514,64 @@ function ctaxo_theme() {
         'go' => NULL,
       ),
     ),
+    'views_exposed_form__Creeds' => array(
+      'arguments' => array()  // args are needed only if its tpl.php file
+    ),
+    'ctaxo_voc_box' => array(
+      'arguments' => array()
+    ),
   );
+}
+
+/**
+ * Theme the exposed filter form for the Creeds view
+ * @param $form
+ */
+function theme_views_exposed_form__Creeds($form) {
+
+  // Add class for js code
+  // for some strange reason inserting the class doesn't work
+  //  $form['#attributes'] = array('class' => 'views-exposed-form');
+  $form['#prefix'] = '<div class="views-exposed-form">';
+  $form['#suffix'] = '</div>';
+  // operators are kept at default
+//  $form['religion_op']['#access'] = FALSE;
+//  $form['beliefset_op']['#access'] = FALSE;
+//
+//  // select boxes and submit button are hidden
+//  $form['religion']['#prefix'] = '<div style="display:none;">';
+//  $form['religion']['#suffix'] = '</div>';
+//  $form['beliefset']['#prefix'] = '<div style="display:none;">';
+//  $form['beliefset']['#suffix'] = '</div>';
+//  $form['submit']['#prefix'] = '<div style="display:none;">';
+//  $form['submit']['#suffix'] = '</div>';
+
+  $output = drupal_render($form);
+
+//  $output .= theme('ctaxo_voc_box', $form, 'religion', CREEDIA_RELIGION_VID);
+//  $output .= theme('ctaxo_voc_box', $form, 'beliefset', CREEDIA_BELIEFSET_VID);
+  return $output;
+}
+
+/*
+ *
+ */
+function theme_ctaxo_voc_box($form, $vname, $vid) {
+  $options = $form[$vname]['#options'];
+  $path = substr($form['#action'],1) .'/'; // omit the first /.
+  $term = new stdClass();
+  $term->vid = $vid;
+  foreach($options as $tid => $name) {
+    $term->tid = $tid;
+    $term->description = $name;
+    $term->name = $name;
+    if (drupal_strlen($name) > 19) {
+      $term->name = drupal_substr($term->name, 0, 19) . '.';
+    }
+    $entry = theme('term', $term, 'both', $path);
+    $content .= theme('ctaxo_term', $term, $entry);
+  }
+  return theme('ctaxo_list', $vid, $content);
 }
 
 function theme_ctaxo_list($vid, $content) {
