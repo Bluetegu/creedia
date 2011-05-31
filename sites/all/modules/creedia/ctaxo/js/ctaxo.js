@@ -1,4 +1,9 @@
 Drupal.behaviors.ctaxoBehavior = function(context) {
+  $('#taxobar-throbber').css("display", "none");
+}
+
+if (Drupal.jsEnabled) {
+  $(document).ready(function(){
 
   var initialized = false;
   var taxoPath = '';
@@ -98,7 +103,8 @@ Drupal.behaviors.ctaxoBehavior = function(context) {
       vals.splice($.inArray(tid, vals),1); // remove 
     }
     $('#edit-' + name).val(vals); // update the new values
-    $('.views-exposed-form .form-submit').click();
+    $('#taxobar-throbber').css("display", "block");
+    $('.views-exposed-form').parents('form').submit();
   }
 
   function ajaxify(basePath, addTaxoPath) {
@@ -228,5 +234,5 @@ Drupal.behaviors.ctaxoBehavior = function(context) {
 //// location.pathname = url;
 
 //});
-
+  });
 }

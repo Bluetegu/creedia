@@ -599,7 +599,7 @@ function theme_ctaxo_bar($content, $go) {
   $output =  '<div id="taxobar">';
   if ($go) {
     // set the submit bottom first such that it will not be pushed down by overflowing symbols
-    $output .= '<div id="taxobar-submit" class="jsonly" >'. t('Go') .'</div>';
+//    $output .= '<div id="taxobar-submit" class="jsonly" >'. t('Go') .'</div>';
     $output .= '<div id="taxobar-throbber" style="display:none;" ></div>';
     $output .= '<span class = "jsonly taxobar-tip" >'. t('<em>Select</em> terms on the left to filter list.') .'</span>';
     //  $output .= '<span class="jsdisabled tip">'. t('Enable Javascript to select multiple terms.') .'</span>';
