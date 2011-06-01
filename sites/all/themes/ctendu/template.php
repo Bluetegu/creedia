@@ -507,8 +507,8 @@ function ctendu_preprocess_flag(&$vars) {
  * Ajax code extract the message to update the pager results in page.
  */
 function ctendu_preprocess_views_view(&$vars) {
-  $pager = $vars['pager'];
-  $vars['pager_result'] = theme('pager_result', $pager['items_per_page']);
+  $view = $vars['view'];
+  $vars['pager_result'] = theme('pager_result', $view->pager['items_per_page']);
   return;
 }
 
