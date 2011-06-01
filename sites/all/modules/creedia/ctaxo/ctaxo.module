@@ -93,6 +93,9 @@ function ctaxo_get_voc_by_name($name) {
   }
 }
 
+/**
+ * Implementation of hook_block
+ */
 function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
   // The $op parameter determines what piece of information is being requested.
   switch ($op) {
@@ -110,10 +113,10 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
       $blocks[2]['visibility'] = 1; // show only on listed pages
       $blocks[3]['visibility'] = 1; // show only on listed pages
       $blocks[4]['visibility'] = 1; // show only on listed pages
-      $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."taxonomy\n"."taxonomy/*\n";;
-      $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."opinions\n"."opinions/*\n";
-      $blocks[2]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n";
-      $blocks[3]['pages'] = "opinions\n"."opinions/*\n";
+      $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."taxonomy\n"."taxonomy/*\n"."blogs\n"."blogs/*\n";
+      $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."opinions\n"."opinions/*\n"."blogs\n"."blogs/*\n";
+      $blocks[2]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."blogs\n"."blogs/*\n";
+      $blocks[3]['pages'] = "opinions\n"."opinions/*\n"."blogs\n"."blogs/*\n";
       $blocks[4]['pages'] = "members\n"."members/*\n";
       $blocks[0]['weight'] = -5;
       $blocks[1]['weight'] = -3;

@@ -16,6 +16,9 @@ function creedia_views_default_views() {
   $view = creedia_discussions_default_view();
   $views[$view->name] = $view;
 
+  $view = creedia_blogs_default_view();
+  $views[$view->name] = $view;
+
   return $views;
 }
 
@@ -646,6 +649,300 @@ function creedia_discussions_default_view() {
   'title' => 'Highest Rated',
   'description' => '',
   'weight' => '3',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  return $view;
+}
+
+/**
+ * Exported creeds view
+ */
+function creedia_blogs_default_view() {
+  $view = new view;
+  $view->name = 'Blogs';
+  $view->description = 'Blogss using exposed filters in node format';
+  $view->tag = '';
+  $view->view_php = '';
+  $view->base_table = 'node';
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->override_option('relationships', array(
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 0,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'dblog' => 'dblog',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'field_religion_single_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 1,
+      'operator' => 'religion_op',
+      'identifier' => 'religion',
+      'label' => 'Traditions & Philosophies',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_religion_single_value',
+    'table' => 'node_data_field_religion_single',
+    'field' => 'field_religion_single_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'field_beliefset_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 1,
+      'operator' => 'beliefset_op',
+      'identifier' => 'beliefset',
+      'label' => 'Category',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_beliefset_value',
+    'table' => 'node_data_field_beliefset',
+    'field' => 'field_beliefset_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'field_free_tag_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 1,
+      'operator' => 'freetag_op',
+      'identifier' => 'freetag',
+      'label' => 'Free Tags',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_free_tag_value',
+    'table' => 'node_data_field_free_tag',
+    'field' => 'field_free_tag_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  ));
+  $handler->override_option('access', array(
+  'type' => 'none',
+  ));
+  $handler->override_option('cache', array(
+  'type' => 'none',
+  ));
+  $handler->override_option('title', 'Blogs');
+  $handler->override_option('empty', 'No blog posts tagged with selected terms.');
+  $handler->override_option('empty_format', '4');
+  $handler->override_option('use_ajax', TRUE);
+  $handler->override_option('use_pager', '1');
+  $handler->override_option('distinct', 1);
+  $handler->override_option('row_plugin', 'node');
+  $handler->override_option('exposed_block', TRUE);
+  $handler = $view->new_display('page', 'Main', 'page_2');
+  $handler->override_option('path', 'blogs');
+  $handler->override_option('menu', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'Featured', 'page_1');
+  $handler->override_option('relationships', array(
+  'votingapi_cache' => array(
+    'label' => 'Vote Number',
+    'required' => 0,
+    'votingapi' => array(
+      'value_type' => 'percent',
+      'tag' => 'vote',
+      'function' => 'count',
+  ),
+    'id' => 'votingapi_cache',
+    'table' => 'node',
+    'field' => 'votingapi_cache',
+    'relationship' => 'none',
+  ),
+  'votingapi_cache_1' => array(
+    'label' => 'Vote Average',
+    'required' => 0,
+    'votingapi' => array(
+      'value_type' => 'percent',
+      'tag' => 'vote',
+      'function' => 'average',
+  ),
+    'id' => 'votingapi_cache_1',
+    'table' => 'node',
+    'field' => 'votingapi_cache',
+    'relationship' => 'none',
+  ),
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 0,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'relationship' => 'none',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'timestamp' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'timestamp',
+    'table' => 'flag_content',
+    'field' => 'timestamp',
+    'relationship' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'blogs/featured');
+  $handler->override_option('menu', array(
+  'type' => 'default tab',
+  'title' => 'Featured',
+  'description' => '',
+  'weight' => '0',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => '0',
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'Recent', 'page_3');
+  $handler->override_option('path', 'blogs/recent');
+  $handler->override_option('menu', array(
+  'type' => 'tab',
+  'title' => 'Recent',
+  'description' => '',
+  'weight' => '1',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'Most Viewed', 'page_5');
+  $handler->override_option('sorts', array(
+  'totalcount' => array(
+    'order' => 'DESC',
+    'id' => 'totalcount',
+    'table' => 'node_counter',
+    'field' => 'totalcount',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'blogs/viewed');
+  $handler->override_option('menu', array(
+  'type' => 'tab',
+  'title' => 'Most Viewed',
+  'description' => '',
+  'weight' => '2',
   'name' => 'navigation',
   ));
   $handler->override_option('tab_options', array(
