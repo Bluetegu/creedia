@@ -352,12 +352,6 @@ function creedia_discussions_default_view() {
     'field' => 'created',
     'relationship' => 'none',
   ),
-  'value' => array(
-    'id' => 'value',
-    'table' => 'votingapi_cache',
-    'field' => 'value',
-    'relationship' => 'votingapi_cache',
-  ),
   ));
   $handler->override_option('filters', array(
   'status' => array(
@@ -466,6 +460,7 @@ function creedia_discussions_default_view() {
   $handler->override_option('empty_format', '4');
   $handler->override_option('use_ajax', TRUE);
   $handler->override_option('use_pager', '1');
+  $handler->override_option('distinct', 1);
   $handler->override_option('row_plugin', 'node');
   $handler->override_option('exposed_block', TRUE);
   $handler = $view->new_display('page', 'Main', 'page_2');
