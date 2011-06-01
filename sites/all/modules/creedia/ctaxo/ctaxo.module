@@ -268,7 +268,7 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
   $answer = array();
   if ($view == 'gallery') {
     $answer['view'] = cgallery_view($arg_list);
-    $answer['pager'] = theme('pager_results', CREEDIA_IMAGES_PER_GALLERY);
+    $answer['pager'] = theme('pager_result', CREEDIA_IMAGES_PER_GALLERY);
   }
   else {
     if ($sort == 'byway') {
@@ -277,7 +277,7 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
     else {
       $answer['view'] = cviews_generate_page($cargs, $arg_list);
     }
-    $answer['pager'] = theme('pager_results', CREEDIA_NODES_PER_PAGE);
+    $answer['pager'] = theme('pager_result', CREEDIA_NODES_PER_PAGE);
   }
   $answer['blocks'] = theme('blocks', 'sidebar_right');
   //  $html = '<textarea rows="20" cols="80">'. $answer['blocks']  . '</textarea>';

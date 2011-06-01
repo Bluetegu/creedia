@@ -74,6 +74,9 @@ function ctendu_theme($existing, $type, $theme, $path) {
         'len' => 0,
       ),
     ),
+    'pager_result' => array(
+      'arguments' => array(),
+    ),
   );
 }
 
@@ -256,6 +259,33 @@ function ctendu_opinion_image($node, $page = TRUE) {
  */
 function ctendu_truncated_title($title, $nid, $len) {
   return l(truncate_utf8($title, $len, TRUE, TRUE), 'node/'.$nid, array('attributes' => array('title' => $title )));
+}
+
+/**
+ * Theme the pager results
+ * @params pager_limit - max number of nodes per page.
+ * @params i - pager index
+ */
+function ctendu_pager_result($pager_limit = CREEDIA_NODES_PER_PAGE, $i = 0) {
+
+  global $pager_page_array;  // current page number
+  global $pager_total_items; // total items paged
+  global $pager_total;       // number of pages
+
+  if ($pager_total[$i]) {
+    // Multiply pager_limit by page number (eg 0, 15, 30) and add 1 to get first item
+    $start = 1 + ($pager_page_array[$i] * $pager_limit);
+
+    // Multiply pager_limit by page number + 1 (eg 15, 30, 45) to get last item
+    $end = (1 + $pager_page_array[$i]) * $pager_limit;
+    // Use total items count if this is less than that
+    if ($end > $pager_total_items[$i]) {
+      $end = $pager_total_items[$i];
+    }
+    $content =  t('Results %start-%end of %total',
+      array('%start' => $start, '%end' => $end, '%total' => $pager_total_items[$i]));
+  }
+  return '<span class="pager-result">'. $content .'</span>';
 }
 
 /**
@@ -473,6 +503,16 @@ function ctendu_preprocess_flag(&$vars) {
 }
 
 /**
+ * Add 'Results i-j of N' hidden message.
+ * Ajax code extract the message to update the pager results in page.
+ */
+function ctendu_preprocess_views_view(&$vars) {
+  $pager = $vars['pager'];
+  $vars['pager_result'] = theme('pager_result', $pager['items_per_page']);
+  return;
+}
+
+/**
  * Node varialbles preprocess
  * @param $vars
  */
@@ -643,17 +683,17 @@ function ctendu_preprocess_page(&$vars) {
   $vars['body_classes'] = implode(' ', $body_classes); // Concatenate with spaces
 
   // add pager results
-  if (in_array(arg(0), array('creeds','opinions','members', 'blogs'))) {
-    $vars['tabs'] = theme('pager_results', CREEDIA_NODES_PER_PAGE) . '<span id="tabs-title">'. t('Sort by:') .'</span>'. $vars['tabs'];
+  if (in_array(arg(0), array('gallery','gallery3'))) {
+    $pager_result = theme('pager_result', CREEDIA_IMAGES_PER_GALLERY);
   }
-  elseif (in_array(arg(0), array('gallery','gallery3'))) {
-    $vars['tabs'] = theme('pager_results', CREEDIA_IMAGES_PER_GALLERY) . $vars['tabs'];
+  else {
+    $pager_result = theme('pager_result');
   }
-  elseif (in_array(arg(0), array('taxonomy', 'blog'))) {
-    $vars['tabs'] = theme('pager_results', CREEDIA_NODES_PER_PAGE) . $vars['tabs'];
+  if (in_array(arg(0), array('creeds','opinions','members', 'blogs', 'deeds'))) {
+    $vars['tabs'] = $pager_result . '<span id="tabs-title">'. t('Sort by:') .'</span>'. $vars['tabs'];
   }
-  elseif (in_array(arg(0), array('deeds'))) {
-    $vars['tabs'] = '<span id="tabs-title">'. t('Sort by:') .'</span>'. $vars['tabs'];
+  elseif (in_array(arg(0), array('gallery','gallery3', 'taxonomy', 'blog'))) {
+    $vars['tabs'] = $pager_result . $vars['tabs'];
   }
 
   // rewrite title
