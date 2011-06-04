@@ -196,7 +196,7 @@ function ctendu_origin_statement($node, $one = FALSE, $trim = 0, $num = 0, $hidd
     $output .= '<div class="origin-statement"';
     $lang = $langs[$i]['value'];
     if ($lang) {
-      $dir = i18n_language_property($lang, 'direction') == LANGUAGE_LTR ? 'rtl' : 'ltr';
+      $dir = i18n_language_property($lang, 'direction') == LANGUAGE_LTR ? 'ltr' : 'rtl';
       $output .= ' lang="'. $lang .'" dir="'. $dir .'"';
     }
     if ($hidden && $num != $i) {
