@@ -3,7 +3,7 @@
   <?php if ($page == 0): ?>
     <?php /* ------------------    page == 0    ------------------ */ ?>
     <div class="node-item">
-     <div class="middle"><div class="top"><div class="bottom">   
+     <div class="middle"><div class="top"><div class="bottom">
       <div class="opinion-leftbar">
 	<div class="opinion-leftbar-top">
 	  <?php if ($religions) { ?>
@@ -32,7 +32,7 @@
     </div>
     <h2 class="title">
 	  <a href="<?php print $node_url ?>" title="<?php print $title ?>"><?php print $title ?></a>
-	</h2>	
+	</h2>
     <div class="body">
           <?php print $node->content['body']['#value']; ?>
           <?php if ($node->readmore): ?>
@@ -41,7 +41,7 @@
             </div>
           <?php endif; ?>
 	</div>
-	
+
     <div class="opinion-main-footer">
       <?php if ($freetag) { ?>
         <?php foreach ($freetag as $term) { ?>
@@ -56,9 +56,9 @@
      </div>
    </div>
 
-      
-     </div></div></div> 
-      
+
+     </div></div></div>
+
       <div class="opinion-footer">
 	<div class="vote">
 	  <?php print $node->content['fivestar_widget']['#value'] ?>
@@ -78,7 +78,7 @@
   <?php else: ?>
   <?php /* ------------------    page == 1    ------------------ */ ?>
     <div class="node-full">
-     <div class="middle"><div class="top"><div class="bottom">   
+     <div class="middle"><div class="top"><div class="bottom">
       <div class="opinion-leftbar">
 	<div class="opinion-leftbar-top">
 	  <?php if ($religions) { ?>
@@ -107,11 +107,11 @@
     <h2 class="title">
 	  <a href="<?php print $node_url ?>" title="<?php print $title ?>"><?php print $title ?></a>
 	</h2>
-   
+
 	<div class="body">
 	  <?php print $node->content['body']['#value']; ?>
 	</div>
-	
+
     <div class="opinion-main-footer">
       <?php if ($freetag) { ?>
         <?php foreach ($freetag as $term) { ?>
@@ -125,8 +125,8 @@
       <?php };?>
      </div>
    </div>
-      
-     </div></div></div> 
+
+     </div></div></div>
       <div class="opinion-footer">
 	<div class="vote-text">
           <?php print theme('fivestar_average', $node->nid); ?>

@@ -77,6 +77,9 @@ function ctendu_theme($existing, $type, $theme, $path) {
     'pager_result' => array(
       'arguments' => array(),
     ),
+    'fivestar_average' => array(
+      'arguments' => array(),
+    ),
   );
 }
 
@@ -474,12 +477,12 @@ function ctendu_fivestar_static($rating, $stars = 5, $tag = 'vote') {
 
 /**
  * Fivestar theme function to print out average vote in text form.
+ * This is not an override function.
  */
 function ctendu_fivestar_average($nid) {
-  $current_avg = votingapi_get_voting_result('node', $nid, 'percent', 'vote', 'average');
-  $current_count = votingapi_get_voting_result('node', $nid, 'percent', 'vote', 'count');
-  $average_value = $current_avg->value;
-  $count_value = $current_count->value;
+  $votes = fivestar_get_votes('node', $nid);
+  $average_value = $votes['average']['value'];
+  $count_value = $votes['count']['value'];
 
   $output = '<span class="average-rating" title="';
   $output .= $count_value ? format_plural($count_value, '1 vote', '@count votes') : t('No votes yet');
