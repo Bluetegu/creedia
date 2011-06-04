@@ -426,6 +426,72 @@ function ctendu_lt_login_link() {
 }
 
 /**
+ * override Fivestar static widget view to formulate a 'my vote:' tool tip.
+ * assumptions: Fivestar is configured to print user vote.
+ */
+function ctendu_fivestar_static($rating, $stars = 5, $tag = 'vote') {
+  global $user;
+  // Add necessary CSS.
+  fivestar_add_css();
+  if ($user->uid) {
+    $labels = variable_get('fivestar_labels_opinion', array());
+    $user_label = round($rating/(100/$stars), 0);
+    $title =   t('My vote: !vote', array('!vote' => t($labels[$user_label])));
+  }
+  else {
+    $title =   t('Login or Register to vote');
+  }
+  $output = '';
+  $output .= '<div class="fivestar-widget-static fivestar-widget-static-'. $tag .' fivestar-widget-static-'. $stars .' clear-block"';
+  $output .= 'title="'. $title .'">';
+  if (empty($stars)) {
+    $stars = 5;
+  }
+  $numeric_rating = $rating/(100/$stars);
+  for ($n=1; $n <= $stars; $n++) {
+    $star_value = ceil((100/$stars) * $n);
+    $prev_star_value = ceil((100/$stars) * ($n-1));
+    $zebra = ($n % 2 == 0) ? 'even' : 'odd';
+    $first = $n == 1 ? ' star-first' : '';
+    $last = $n == $stars ? ' star-last' : '';
+    $output .= '<div class="star star-'. $n .' star-'. $zebra . $first . $last .'">';
+    if ($rating < $star_value && $rating > $prev_star_value) {
+      $percent = (($rating - $prev_star_value) / ($star_value - $prev_star_value)) * 100;
+      $output .= '<span class="on" style="width: '. $percent .'%">';
+    }
+    elseif ($rating >= $star_value) {
+      $output .= '<span class="on">';
+    }
+    else {
+      $output .= '<span class="off">';
+    }
+    if ($n == 1)$output .= $numeric_rating;
+    $output .= '</span></div>';
+  }
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Fivestar theme function to print out average vote in text form.
+ */
+function ctendu_fivestar_average($nid) {
+  $current_avg = votingapi_get_voting_result('node', $nid, 'percent', 'vote', 'average');
+  $current_count = votingapi_get_voting_result('node', $nid, 'percent', 'vote', 'count');
+  $average_value = $current_avg->value;
+  $count_value = $current_count->value;
+
+  $output = '<span class="average-rating" title="';
+  $output .= $count_value ? format_plural($count_value, '1 vote', '@count votes') : t('No votes yet');
+  $output .= '">';
+  if (!$average_value) {
+    $average_value = 0;
+  }
+  $output .= t('Rate: !value', array('!value' => round($average_value, 0))) .'</span>';
+  return $output;
+}
+
+/**
  * Override theme_links (includes/theme.inc)
  * Function copied as is. Only change is add handling of 'pre' attribute
  * added using hook_links_alter by creedia.module
