@@ -27,6 +27,17 @@
  */
 
 /**
+ * Implementation of hook_views_api
+ */
+function cdist_views_api() {
+  firep('In cdist views api');
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'cdist'),
+  );
+}
+
+/**
  * Get distance between two users
  *
  * If user2 is NULL, the distance between user1 and the current logged-in

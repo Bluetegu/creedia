@@ -413,7 +413,7 @@ function cprofile_theme() {
       ),
     ),
     'cprofile_title_bar' => array(
-      'template' => 'cprofile_title',
+      'template' => 'cprofile_title_bar',
       'arguments' => array(
         'title' => NULL,
         'node' => NULL,
@@ -937,13 +937,13 @@ function cprofile_view($node) {
 /**
  * Theme the title bar
  */
-function cprofile_preprocess_title_bar(&$vars) {
+function cprofile_preprocess_cprofile_title_bar(&$vars) {
+  $node = $vars['node'];
   if ($node) {
     $terms = ctaxo_node_taxonomy($node);
     $vars['religions'] = $terms['religion'];
     $vars['movements'] = $terms['movement'];
   }
-  $vars['title'] = $title;
   return;
 }
 
