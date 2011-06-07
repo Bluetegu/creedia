@@ -30,7 +30,6 @@
  * Implementation of hook_views_api
  */
 function cdist_views_api() {
-  firep('In cdist views api');
   return array(
     'api' => 2.0,
     'path' => drupal_get_path('module', 'cdist'),
