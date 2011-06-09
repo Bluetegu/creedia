@@ -586,6 +586,7 @@ function ctendu_preprocess_views_view(&$vars) {
  * @param $vars
  */
 function ctendu_preprocess_node(&$vars) {
+  global $user;
   $node = $vars['node'];
 
   // Split the taxonomy up into one variable per vocabulary
