@@ -40,12 +40,6 @@ function cdist_views_data() {
       'uid' => array(
         'title' => t('User #1'),
         'help' => t('User id of first user'),
-//        'relationship' => array(
-//          'base' => 'users',
-//          'field' => 'uid',
-//          'handler' => 'views_handler_relationship',
-//          'label' => 'User Id',
-//        ),
       ),
 
       'mid' => array(
@@ -55,9 +49,9 @@ function cdist_views_data() {
         'argument' => array(
           'handler' => 'views_handler_argument_numeric',
         ),
-        // calculate the distance of all users with respect to the filter user.
+        // calculate the distance of all users with respect to the current user.
         'filter' => array(
-          'handler' => 'views_handler_filter_numeric',
+          'handler' => 'views_handler_filter_user_current',
         ),
       ),
 
@@ -71,7 +65,6 @@ function cdist_views_data() {
         'sort' => array(
           'handler' => 'views_handler_sort',
         ),
-        // required for AND distance between users is not zero.
         'filter' => array(
           'handler' => 'views_handler_filter_numeric',
         ),

@@ -58,7 +58,7 @@ function cdist_dist($uid1, $uid2 = NULL, $filter = TRUE) {
   $sql  = "SELECT cnt FROM {cdist_cache} d WHERE d.uid = %d AND d.mid = %d ";
   $dist = db_result(db_query($sql, $uid1, $uid2));
 
-  if ($filter && $dist && !$uid2) {
+  if ($filter) {
     $sql  = "SELECT m.field_profile_sharing_value AS share ";
     $sql .= "FROM {content_type_member} m ";
     $sql .= "INNER JOIN {node} n ";
@@ -67,8 +67,8 @@ function cdist_dist($uid1, $uid2 = NULL, $filter = TRUE) {
     $share = db_result(db_query($sql, $uid1));
 
     if ($share == 255 ||   // If profile is private
-    ($share > 0 && !$user->uid)) {   // Or if anonymous and profile is only for members
-      $dist = 0;
+    ($share > 0 && !$uid2)) {   // Or if anonymous and profile is only for members
+      $dist = NULL;
     }
   }
 

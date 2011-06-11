@@ -2,8 +2,8 @@
 <?php /*firep(get_defined_vars(), 'defined variables member tpl '); */ ?>
   <?php if ($page == 0): ?>
     <?php /* ------------------    page == 0    ------------------ */ ?>
-    <div class="node-item">      
-      <div class="middle"><div class="top"><div class="bottom">   
+    <div class="node-item">
+      <div class="middle"><div class="top"><div class="bottom">
       <div class="member-leftbar">
         <div class="member-leftbar-top">
     	  <?php if ($religions) { ?>
@@ -54,16 +54,18 @@
         </div>
       </div>
       </div>
-      
+
       </div></div></div>
-      
+
       <div class="member-footer">
         <div class="childnum">
           <?php print t('Comments: !num', array('!num' => $node->comment_count ? $node->comment_count : '0')); ?>
         </div>
+        <?php if (isset($common) && $common !== NULL): ?>
         <div class="common" title="<?php print t('Common ways'); ?>">
           <?php print t('Common: !num', array('!num' => $common ? $common : '0')); ?>
         </div>
+        <?php endif; ?>
         <div class="joined">
           <?php print t('Joined: !date', array('!date' => date("d M Y", $node->created))); ?>
         </div>
@@ -102,12 +104,12 @@
 	      <?php if (!empty($movements[$rid])):  ?>
 	      <tr class="movements">
 		<td class="label"><?php print $movement_label; ?></td>
-		<td> 
-		  <?php $c = ''; ?> 
+		<td>
+		  <?php $c = ''; ?>
 		  <?php foreach($movements[$rid] as $movement) { ?>
 		  <span class="movement">
 		  <?php print $c . theme('movement', $movement, $religions[$rid], 'link'); ?>
-		  <?php $c = ', '; ?> 
+		  <?php $c = ', '; ?>
 		  </span>
 		  <?php } ?>
 		</td>
@@ -204,11 +206,11 @@
             <td class="label"><?php print $religion_label; ?></td>
             <td><?php if (empty($religions)) {print $empty; ?>
 	    <?php } else { ?>
-            <?php $c = ''; ?> 
+            <?php $c = ''; ?>
             <?php foreach($religions as $religion) { ?>
               <span class="religion">
                 <?php print $c . theme('religion', $religion, 'link'); ?>
-                <?php $c = ', '; ?> 
+                <?php $c = ', '; ?>
               </span>
             <?php } ?>
 	    <?php } ?></td>
@@ -217,12 +219,12 @@
           <tr class="movements">
             <td class="label"><?php print $movement_label; ?></td>
             <td>
-            <?php $c = ''; ?> 
+            <?php $c = ''; ?>
             <?php foreach($movements as $rid => $religion) { ?>
               <?php foreach($religion as $movement) { ?>
                 <span class="movement">
                   <?php print $c . theme('movement', $movement, $religions[$rid], 'link'); ?>
-                  <?php $c = ', '; ?> 
+                  <?php $c = ', '; ?>
                 </span>
               <?php } ?>
             <?php } ?>
@@ -252,7 +254,7 @@
             <?php print l('More', 'user/'. $node->uid .'/about' , array('title' => t('Read more about !user', array('!usr' => $name)))); ?>
           </div>
         </div>
-        
+
         <div class="body">
           <span class="label"><?php print $body_label; ?></span>
           <?php print $body ? $body : '<p>'. $empty . '</p>'; ?>
