@@ -410,13 +410,13 @@ function ctaxo_tagadelic($vid) {
  * Return an array of taxonomy terms which are used by at least one node
  */
 function ctaxo_only_used($vid) {
-  $sql = "SELECT DISTINCT n.tid, d.* FROM {term_node} n ";
-  $sql .= "INNER JOIN {term_data} d ";
+  $sql = "SELECT DISTINCT d.tid, d.* FROM {term_data} d ";
+  $sql .= "INNER JOIN {term_node} n ";
   $sql .= "ON d.tid = n.tid WHERE d.vid = %d ";
-  $sql .= "ORDER BY n.tid";
+  $sql .= "ORDER BY d.tid";
 
-  $result = db_query(db_rewrite_sql($sql), $vid);
-
+  // $result = db_query(db_rewrite_sql($sql), $vid); This doesn't work - overriden by locale
+  $result = db_query($sql, $vid);
   while ($data = db_fetch_object($result)) {
     $terms[] = $data;
   }
@@ -433,25 +433,23 @@ function ctaxo_firstlevel($vid, $all = TRUE) {
   else {
     $terms = ctaxo_only_used($vid);
   }
-
   if ($terms) {
     foreach ($terms as $term) {
       if (drupal_strlen($term->name) > 19) {
-  $term->name = drupal_substr($term->name, 0, 19) . '.';
+        $term->name = drupal_substr($term->name, 0, 19) . '.';
       }
       switch ($vid) {
-      case CREEDIA_RELIGION_VID:
-      case CREEDIA_BELIEFSET_VID:
-      case CREEDIA_COUNTRY_VID:
-  $entry = theme('term', $term, 'both', $path);
-  break;
+        case CREEDIA_RELIGION_VID:
+        case CREEDIA_BELIEFSET_VID:
+        case CREEDIA_COUNTRY_VID:
+          $entry = theme('term', $term, 'both', $path);
+          break;
       }
       $content .= theme('ctaxo_term', $term, $entry);
     }
   }
   return theme('ctaxo_list', $vid, $content);
 }
-
 
 function ctaxo_bar($go = TRUE) {
   // populate the already selected terms
