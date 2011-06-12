@@ -38,20 +38,20 @@ function cdist_views_data() {
       ),
 
       'uid' => array(
-        'title' => t('User #1'),
-        'help' => t('User id of first user'),
+        'title' => t('Distancee'),
+        'help' => t('Running User Id associated with measured distance'),
       ),
 
       'mid' => array(
-        'title' => t('User #2'),
-        'help' => t('User id of second user'),
+        'title' => t('Distance Anchor'),
+        'help' => t('User from which to measure distance'),
         // calculate the distance of all users with respect to the arg user.
         'argument' => array(
           'handler' => 'views_handler_argument_numeric',
         ),
         // calculate the distance of all users with respect to the current user.
         'filter' => array(
-          'handler' => 'views_handler_filter_user_current',
+          'handler' => 'views_handler_filter_user_current_or_NULL',
         ),
       ),
 
