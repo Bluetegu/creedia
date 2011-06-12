@@ -1633,7 +1633,7 @@ function creedia_deeds_bydate_default_view() {
 }
 
 /**
- * Exported creeds view
+ * Exported members view
  */
 function creedia_members_default_view() {
   $view = new view;
@@ -1763,7 +1763,7 @@ function creedia_members_default_view() {
   $handler->override_option('relationships', array(
   'flag_content_rel' => array(
     'label' => 'flag',
-    'required' => 1,
+    'required' => 0,
     'flag' => 'featured',
     'user_scope' => 'any',
     'id' => 'flag_content_rel',
