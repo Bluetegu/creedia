@@ -531,14 +531,6 @@ function creedia_discussions_default_view() {
   ),
   ));
   $handler->override_option('sorts', array(
-  'created' => array(
-    'order' => 'DESC',
-    'granularity' => 'hour',
-    'id' => 'created',
-    'table' => 'node',
-    'field' => 'created',
-    'relationship' => 'none',
-  ),
   'timestamp' => array(
     'order' => 'DESC',
     'granularity' => 'second',
@@ -548,6 +540,14 @@ function creedia_discussions_default_view() {
     'relationship' => 'flag_content_rel',
     'override' => array(
       'button' => 'Use default',
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
   ),
   ),
   ));
