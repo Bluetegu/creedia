@@ -2066,6 +2066,3 @@ function creedia_members_default_view() {
 
   return $view;
 }
-
-
-}
