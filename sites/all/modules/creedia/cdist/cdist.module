@@ -37,19 +37,6 @@ function cdist_views_api() {
 }
 
 /**
- * Implementation of hook_views_handlers
- */
-function cdist_views_handlers() {
-  return array(
-    'handlers' => array(
-      'views_handler_filter_user_current_or_NULL' => array(
-        'parent' => 'views_handler_filter_user_current',
-      ),
-    ),
-  );
-}
-
-/**
  * Get distance between two users
  *
  * If user2 is NULL, the distance between user1 and the current logged-in

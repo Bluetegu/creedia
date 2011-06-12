@@ -85,3 +85,37 @@ function cdist_views_data() {
   return $data;
 }
 
+/**
+ * Implementation of hook_views_data_alter
+ */
+function cdist_views_data_alter(&$data) {
+  // add filter for members listing taking into account the profile sharing of
+  // currently logged in user.
+  $data['node_data_field_profile_sharing']['field_profile_sharing_value_dist'] = array(
+    'group' => 'Creedia',
+    'title' => t('Profile Share Filtering'),
+    'help' => t('Filter members according to sharing setting.'),
+    'filter' => array(
+      'field' => 'field_profile_sharing_value',
+      'table' => 'content_type_member',
+      'handler' => 'cdist_handler_filter_profile_sharing',
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_views_handlers
+ */
+function cdist_views_handlers() {
+  return array(
+    'handlers' => array(
+      'views_handler_filter_user_current_or_NULL' => array(
+        'parent' => 'views_handler_filter_user_current',
+      ),
+      'cdist_handler_filter_profile_sharing' => array(
+        'parent' => 'views_handler_filter',
+      ),
+    ),
+  );
+}
+
