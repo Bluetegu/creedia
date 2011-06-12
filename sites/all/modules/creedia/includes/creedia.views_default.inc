@@ -1,7 +1,7 @@
 <?php
 //$Id:
 /**
- * Set up so it can be used as an API to create default calendars for
+ * Default Creedia Views
  */
 
 /**
@@ -17,6 +17,9 @@ function creedia_views_default_views() {
   $views[$view->name] = $view;
 
   $view = creedia_blogs_default_view();
+  $views[$view->name] = $view;
+
+  $view = creedia_members_default_view();
   $views[$view->name] = $view;
 
   $view = creedia_deeds_default_view();
@@ -1629,3 +1632,440 @@ function creedia_deeds_bydate_default_view() {
   return $view;
 }
 
+/**
+ * Exported creeds view
+ */
+function creedia_members_default_view() {
+  $view = new view;
+  $view->name = 'Members';
+  $view->description = 'Members using exposed filters in node format';
+  $view->tag = '';
+  $view->view_php = '';
+  $view->base_table = 'node';
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->override_option('sorts', array(
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'status_1' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status_1',
+    'table' => 'users',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'member' => 'member',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'field_country_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'country_op',
+      'identifier' => 'country',
+      'label' => 'Content: Country (field_country)',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_country_value',
+    'table' => 'node_data_field_country',
+    'field' => 'field_country_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'field_religion_affiliation_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'field_religion_affiliation_value_op',
+      'identifier' => 'religion',
+      'label' => 'Content: Religion and Movement (field_religion_affiliation)',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_religion_affiliation_value',
+    'table' => 'node_data_field_religion_affiliation',
+    'field' => 'field_religion_affiliation_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'field_gender_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'field_gender_value',
+    'table' => 'node_data_field_gender',
+    'field' => 'field_gender_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  ));
+  $handler->override_option('access', array(
+  'type' => 'none',
+  ));
+  $handler->override_option('cache', array(
+  'type' => 'none',
+  ));
+  $handler->override_option('title', 'Members');
+  $handler->override_option('empty', 'No member tagged with selected terms.');
+  $handler->override_option('empty_format', '4');
+  $handler->override_option('use_ajax', TRUE);
+  $handler->override_option('use_pager', '1');
+  $handler->override_option('distinct', 1);
+  $handler->override_option('row_plugin', 'node');
+  $handler->override_option('exposed_block', TRUE);
+  $handler = $view->new_display('page', 'Main', 'page_2');
+  $handler->override_option('relationships', array(
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 1,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'timestamp' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'timestamp',
+    'table' => 'flag_content',
+    'field' => 'timestamp',
+    'relationship' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'members');
+  $handler->override_option('menu', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'Featured', 'page_1');
+  $handler->override_option('relationships', array(
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 0,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'timestamp' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'timestamp',
+    'table' => 'flag_content',
+    'field' => 'timestamp',
+    'relationship' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'members/featured');
+  $handler->override_option('menu', array(
+  'type' => 'default tab',
+  'title' => 'Featured',
+  'description' => '',
+  'weight' => '0',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => '0',
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'Recently Joined', 'page_3');
+  $handler->override_option('path', 'members/joined');
+  $handler->override_option('menu', array(
+  'type' => 'tab',
+  'title' => 'Recently Joined',
+  'description' => '',
+  'weight' => '1',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'By Name', 'page_5');
+  $handler->override_option('sorts', array(
+  'field_full_name_value' => array(
+    'order' => 'ASC',
+    'delta' => -1,
+    'id' => 'field_full_name_value',
+    'table' => 'node_data_field_full_name',
+    'field' => 'field_full_name_value',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'members/byfullname');
+  $handler->override_option('menu', array(
+  'type' => 'tab',
+  'title' => 'By Name',
+  'description' => '',
+  'weight' => '2',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'By Way', 'page_4');
+  $handler->override_option('sorts', array(
+  'cnt' => array(
+    'order' => 'DESC',
+    'id' => 'cnt',
+    'table' => 'cdist_cache',
+    'field' => 'cnt',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'status_1' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status_1',
+    'table' => 'users',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'member' => 'member',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'field_profile_sharing_value_dist' => array(
+    'id' => 'field_profile_sharing_value_dist',
+    'table' => 'node_data_field_profile_sharing',
+    'field' => 'field_profile_sharing_value_dist',
+  ),
+  'field_country_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'country_op',
+      'identifier' => 'country',
+      'label' => 'Content: Country (field_country)',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_country_value',
+    'table' => 'node_data_field_country',
+    'field' => 'field_country_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'field_religion_affiliation_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'field_religion_affiliation_value_op',
+      'identifier' => 'religion',
+      'label' => 'Content: Religion and Movement (field_religion_affiliation)',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+  ),
+    'id' => 'field_religion_affiliation_value',
+    'table' => 'node_data_field_religion_affiliation',
+    'field' => 'field_religion_affiliation_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'field_gender_value' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'field_gender_value',
+    'table' => 'node_data_field_gender',
+    'field' => 'field_gender_value',
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'mid_current' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'mid_current',
+    'table' => 'cdist_cache',
+    'field' => 'mid_current',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'members/byway');
+  $handler->override_option('menu', array(
+  'type' => 'tab',
+  'title' => 'By Way',
+  'description' => '',
+  'weight' => '3',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+
+  return $view;
+}
+
+
+}
