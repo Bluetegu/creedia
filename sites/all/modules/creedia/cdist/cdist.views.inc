@@ -49,6 +49,16 @@ function cdist_views_data() {
         'argument' => array(
           'handler' => 'views_handler_argument_numeric',
         ),
+        // calculate the distance of all users with respect to the specified user.
+        'filter' => array(
+          'handler' => 'views_handler_filter_numeric',
+        ),
+      ),
+
+      'mid_current' => array(
+        'title' => t('Distance Current User'),
+        'help' => t('Measure distance from current user'),
+        'real field' => 'mid',
         // calculate the distance of all users with respect to the current user.
         'filter' => array(
           'handler' => 'views_handler_filter_user_current_or_NULL',
