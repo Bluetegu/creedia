@@ -42,20 +42,6 @@ function creedia_creeds_default_view() {
   $view->api_version = 2;
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
-  $handler->override_option('relationships', array(
-  'flag_count_rel' => array(
-    'label' => 'counter',
-    'required' => 0,
-    'flag' => 'adopt',
-    'id' => 'flag_count_rel',
-    'table' => 'node',
-    'field' => 'flag_count_rel',
-    'relationship' => 'none',
-    'override' => array(
-      'button' => 'Override',
-  ),
-  ),
-  ));
   $handler->override_option('sorts', array(
   'created' => array(
     'order' => 'DESC',
@@ -67,12 +53,6 @@ function creedia_creeds_default_view() {
       'button' => 'Override',
   ),
     'relationship' => 'none',
-  ),
-  'count' => array(
-    'id' => 'count',
-    'table' => 'flag_counts',
-    'field' => 'count',
-    'relationship' => 'flag_count_rel',
   ),
   ));
   $handler->override_option('filters', array(
@@ -168,6 +148,20 @@ function creedia_creeds_default_view() {
   $handler->override_option('row_plugin', 'node');
   $handler->override_option('exposed_block', TRUE);
   $handler = $view->new_display('page', 'Main', 'page_1');
+  $handler->override_option('relationships', array(
+  'flag_count_rel' => array(
+    'label' => 'counter',
+    'required' => 0,
+    'flag' => 'adopt',
+    'id' => 'flag_count_rel',
+    'table' => 'node',
+    'field' => 'flag_count_rel',
+    'relationship' => 'none',
+    'override' => array(
+      'button' => 'Override',
+  ),
+  ),
+  ));
   $handler->override_option('sorts', array(
   'count' => array(
     'order' => 'DESC',
@@ -259,6 +253,20 @@ function creedia_creeds_default_view() {
   'name' => 'navigation',
   ));
   $handler = $view->new_display('page', 'Popular', 'page_4');
+  $handler->override_option('relationships', array(
+  'flag_count_rel' => array(
+    'label' => 'counter',
+    'required' => 0,
+    'flag' => 'adopt',
+    'id' => 'flag_count_rel',
+    'table' => 'node',
+    'field' => 'flag_count_rel',
+    'relationship' => 'none',
+    'override' => array(
+      'button' => 'Override',
+  ),
+  ),
+  ));
   $handler->override_option('sorts', array(
   'count' => array(
     'order' => 'DESC',
@@ -297,6 +305,7 @@ function creedia_creeds_default_view() {
   'weight' => '0',
   'name' => 'navigation',
   ));
+
   return $view;
 }
 
@@ -314,44 +323,6 @@ function creedia_discussions_default_view() {
   $view->api_version = 2;
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
-  $handler->override_option('relationships', array(
-  'votingapi_cache' => array(
-    'label' => 'Vote Number',
-    'required' => 0,
-    'votingapi' => array(
-      'value_type' => 'percent',
-      'tag' => 'vote',
-      'function' => 'count',
-  ),
-    'id' => 'votingapi_cache',
-    'table' => 'node',
-    'field' => 'votingapi_cache',
-    'relationship' => 'none',
-  ),
-  'votingapi_cache_1' => array(
-    'label' => 'Vote Average',
-    'required' => 0,
-    'votingapi' => array(
-      'value_type' => 'percent',
-      'tag' => 'vote',
-      'function' => 'average',
-  ),
-    'id' => 'votingapi_cache_1',
-    'table' => 'node',
-    'field' => 'votingapi_cache',
-    'relationship' => 'none',
-  ),
-  'flag_content_rel' => array(
-    'label' => 'flag',
-    'required' => 0,
-    'flag' => 'featured',
-    'user_scope' => 'any',
-    'id' => 'flag_content_rel',
-    'table' => 'node',
-    'field' => 'flag_content_rel',
-    'relationship' => 'none',
-  ),
-  ));
   $handler->override_option('sorts', array(
   'created' => array(
     'order' => 'DESC',
@@ -473,6 +444,42 @@ function creedia_discussions_default_view() {
   $handler->override_option('row_plugin', 'node');
   $handler->override_option('exposed_block', TRUE);
   $handler = $view->new_display('page', 'Main', 'page_2');
+  $handler->override_option('relationships', array(
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 0,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'timestamp' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'timestamp',
+    'table' => 'flag_content',
+    'field' => 'timestamp',
+    'relationship' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
   $handler->override_option('path', 'opinions');
   $handler->override_option('menu', array(
   'type' => 'none',
@@ -490,32 +497,6 @@ function creedia_discussions_default_view() {
   ));
   $handler = $view->new_display('page', 'Featured', 'page_1');
   $handler->override_option('relationships', array(
-  'votingapi_cache' => array(
-    'label' => 'Vote Number',
-    'required' => 0,
-    'votingapi' => array(
-      'value_type' => 'percent',
-      'tag' => 'vote',
-      'function' => 'count',
-  ),
-    'id' => 'votingapi_cache',
-    'table' => 'node',
-    'field' => 'votingapi_cache',
-    'relationship' => 'none',
-  ),
-  'votingapi_cache_1' => array(
-    'label' => 'Vote Average',
-    'required' => 0,
-    'votingapi' => array(
-      'value_type' => 'percent',
-      'tag' => 'vote',
-      'function' => 'average',
-  ),
-    'id' => 'votingapi_cache_1',
-    'table' => 'node',
-    'field' => 'votingapi_cache',
-    'relationship' => 'none',
-  ),
   'flag_content_rel' => array(
     'label' => 'flag',
     'required' => 0,
@@ -541,6 +522,7 @@ function creedia_discussions_default_view() {
     'override' => array(
       'button' => 'Use default',
   ),
+  ),
   'created' => array(
     'order' => 'DESC',
     'granularity' => 'hour',
@@ -548,7 +530,6 @@ function creedia_discussions_default_view() {
     'table' => 'node',
     'field' => 'created',
     'relationship' => 'none',
-  ),
   ),
   ));
   $handler->override_option('path', 'opinions/featured');
@@ -619,6 +600,34 @@ function creedia_discussions_default_view() {
   'name' => 'navigation',
   ));
   $handler = $view->new_display('page', 'Highest Rated', 'page_4');
+  $handler->override_option('relationships', array(
+  'votingapi_cache' => array(
+    'label' => 'Vote Number',
+    'required' => 0,
+    'votingapi' => array(
+      'value_type' => 'percent',
+      'tag' => 'vote',
+      'function' => 'count',
+  ),
+    'id' => 'votingapi_cache',
+    'table' => 'node',
+    'field' => 'votingapi_cache',
+    'relationship' => 'none',
+  ),
+  'votingapi_cache_1' => array(
+    'label' => 'Vote Average',
+    'required' => 0,
+    'votingapi' => array(
+      'value_type' => 'percent',
+      'tag' => 'vote',
+      'function' => 'average',
+  ),
+    'id' => 'votingapi_cache_1',
+    'table' => 'node',
+    'field' => 'votingapi_cache',
+    'relationship' => 'none',
+  ),
+  ));
   $handler->override_option('sorts', array(
   'value_1' => array(
     'order' => 'DESC',
@@ -681,18 +690,6 @@ function creedia_blogs_default_view() {
   $view->api_version = 2;
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
-  $handler->override_option('relationships', array(
-  'flag_content_rel' => array(
-    'label' => 'flag',
-    'required' => 0,
-    'flag' => 'featured',
-    'user_scope' => 'any',
-    'id' => 'flag_content_rel',
-    'table' => 'node',
-    'field' => 'flag_content_rel',
-    'relationship' => 'none',
-  ),
-  ));
   $handler->override_option('sorts', array(
   'created' => array(
     'order' => 'DESC',
@@ -813,6 +810,39 @@ function creedia_blogs_default_view() {
   $handler->override_option('row_plugin', 'node');
   $handler->override_option('exposed_block', TRUE);
   $handler = $view->new_display('page', 'Main', 'page_2');
+  $handler->override_option('relationships', array(
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 0,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'timestamp' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'timestamp',
+    'table' => 'flag_content',
+    'field' => 'timestamp',
+    'relationship' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
   $handler->override_option('path', 'blogs');
   $handler->override_option('menu', array(
   'type' => 'none',
@@ -830,32 +860,6 @@ function creedia_blogs_default_view() {
   ));
   $handler = $view->new_display('page', 'Featured', 'page_1');
   $handler->override_option('relationships', array(
-  'votingapi_cache' => array(
-    'label' => 'Vote Number',
-    'required' => 0,
-    'votingapi' => array(
-      'value_type' => 'percent',
-      'tag' => 'vote',
-      'function' => 'count',
-  ),
-    'id' => 'votingapi_cache',
-    'table' => 'node',
-    'field' => 'votingapi_cache',
-    'relationship' => 'none',
-  ),
-  'votingapi_cache_1' => array(
-    'label' => 'Vote Average',
-    'required' => 0,
-    'votingapi' => array(
-      'value_type' => 'percent',
-      'tag' => 'vote',
-      'function' => 'average',
-  ),
-    'id' => 'votingapi_cache_1',
-    'table' => 'node',
-    'field' => 'votingapi_cache',
-    'relationship' => 'none',
-  ),
   'flag_content_rel' => array(
     'label' => 'flag',
     'required' => 0,
