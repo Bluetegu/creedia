@@ -534,7 +534,7 @@ function ctaxo_theme() {
  * Internal function to process exposed filter forms.
  * @param $form
  */
-function _ctaxo_exposed_from($form) {
+function _ctaxo_exposed_form_from($form) {
   // Add class for js code
   // for some strange reason inserting the class doesn't work
   //  $form['#attributes'] = array('class' => 'views-exposed-form');
@@ -589,7 +589,7 @@ function _ctaxo_exposed_from($form) {
  * @param $form
  */
 function theme_views_exposed_form__Creeds($form) {
-  return _ctaxo_exposed_from($form);
+  return _ctaxo_exposed_form($form);
 }
 
 /**
@@ -597,7 +597,7 @@ function theme_views_exposed_form__Creeds($form) {
  * @param $form
  */
 function theme_views_exposed_form__Discussions($form) {
-  return _ctaxo_exposed_from($form);
+  return _ctaxo_exposed_form($form);
 }
 
 /**
@@ -605,7 +605,7 @@ function theme_views_exposed_form__Discussions($form) {
  * @param $form
  */
 function theme_views_exposed_form__Blogs($form) {
-  return _ctaxo_exposed_from($form);
+  return _ctaxo_exposed_form($form);
 }
 
 /**
@@ -613,7 +613,7 @@ function theme_views_exposed_form__Blogs($form) {
  * @param $form
  */
 function theme_views_exposed_form__Members($form) {
-  return _ctaxo_exposed_from($form);
+  return _ctaxo_exposed_form($form);
 }
 
 function theme_ctaxo_list($vid, $content) {
