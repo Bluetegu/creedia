@@ -108,21 +108,25 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
       $blocks[2]['info'] = t('Creedia: Religion Selector');
       $blocks[3]['info'] = t('Creedia: Free Tag Selector');
       $blocks[4]['info'] = t('Creedia: Country Selector');
+      $blocks[5]['info'] = t('Creedia: Exposed Filters');
       $blocks[0]['visibility'] = 1; // show only on listed pages
       $blocks[1]['visibility'] = 1; // show only on listed pages
       $blocks[2]['visibility'] = 1; // show only on listed pages
       $blocks[3]['visibility'] = 1; // show only on listed pages
       $blocks[4]['visibility'] = 1; // show only on listed pages
+      $blocks[5]['visibility'] = 1; // show only on listed pages
       $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."taxonomy\n"."taxonomy/*\n"."blogs\n"."blogs/*\n";
       $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."opinions\n"."opinions/*\n"."blogs\n"."blogs/*\n";
       $blocks[2]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."blogs\n"."blogs/*\n";
       $blocks[3]['pages'] = "opinions\n"."opinions/*\n"."blogs\n"."blogs/*\n";
       $blocks[4]['pages'] = "members\n"."members/*\n";
+      $blocks[5]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."blogs\n"."blogs/*\n";
       $blocks[0]['weight'] = -5;
       $blocks[1]['weight'] = -3;
       $blocks[2]['weight'] = -4;
       $blocks[3]['weight'] = -2;
       $blocks[4]['weight'] = -1;
+      $blocks[5]['weight'] = 10;
 
       return $blocks;
     case 'configure':
@@ -191,12 +195,103 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
         $block['content'] = ctaxo_firstlevel(CREEDIA_COUNTRY_VID, FALSE);
         $block['subject'] = t('Country');
         break;
+      case 5:
+        $block['content'] = ctaxo_exposed_block();
+        break;
       }
 
       return $block;
   }
 }
 
+/**
+ * Renders the relevant exposed filter block
+ * Saves manallualy enabling and placing the views-created exposed filter blocks.
+ */
+function ctaxo_exposed_block() {
+  $view_name = '';
+  $display_id = 'default';
+
+  switch(arg(0)) {
+    case 'creeds':
+      $view_name = 'Creeds';
+      switch (arg(1)) {
+        case 'byname':
+          $display_id = 'page_2';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'popular':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_1';
+          break;
+      }
+      break;
+    case 'members':
+      $view_name = 'Members';
+      switch (arg(1)) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'joined':
+          $display_id = 'page_3';
+          break;
+        case 'byfullname':
+          $display_id = 'page_5';
+          break;
+        case 'byway':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_2';
+          break;
+      }
+      break;
+    case 'opinions':
+      $view_name = 'Discussions';
+      switch (arg(1)) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'viewed':
+          $display_id = 'page_5';
+          break;
+        case 'rated':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_2';
+          break;
+      }
+      break;
+    case 'blogs':
+      $view_name = 'Blogs';
+      switch (arg(1)) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'viewed':
+          $display_id = 'page_5';
+          break;
+        default:
+          $display_id = 'page_2';
+          break;
+      }
+      break;
+  }
+
+  $block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
+  return $block['content'];
+}
 
 /**
  * Implementation of hook_menu
