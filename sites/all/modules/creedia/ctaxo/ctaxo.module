@@ -534,7 +534,7 @@ function ctaxo_theme() {
  * Internal function to process exposed filter forms.
  * @param $form
  */
-function _ctaxo_exposed_form_from($form) {
+function _ctaxo_exposed_form($form) {
   // Add class for js code
   // for some strange reason inserting the class doesn't work
   //  $form['#attributes'] = array('class' => 'views-exposed-form');
