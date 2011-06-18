@@ -64,7 +64,8 @@ function taxonomy_image_display($tid, $tags = NULL, $profile = NULL, $overrides 
         $current->title = taxonomy_image_tt("taxonomy:term:$current->tid:name", $current->name);
       }
       // Have to dump double quotes for attribute.
-      $current->title = htmlspecialchars(strip_tags($current->title), ENT_COMPAT);
+      // Now preserving & (ampersand) character
+      $current->title = str_replace("&amp;", "&", htmlspecialchars(strip_tags($current->title), ENT_COMPAT));
 
       $my_attrs = array(
         'width' => $current->width,
