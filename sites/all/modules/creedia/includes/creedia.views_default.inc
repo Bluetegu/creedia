@@ -38,7 +38,7 @@ function creedia_creeds_default_view() {
   $view = new view;
   $view->name = 'Creeds';
   $view->description = 'Creeds using exposed filters in node format';
-  $view->tag = '';
+  $view->tag = 'creedia-directory';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
@@ -56,6 +56,83 @@ function creedia_creeds_default_view() {
       'button' => 'Override',
   ),
     'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+  'name' => array(
+    'id' => 'name',
+    'table' => 'term_data',
+    'field' => 'name',
+  ),
+  'tid' => array(
+    'default_action' => 'ignore',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'breadcrumb' => '',
+    'default_argument_type' => 'fixed',
+    'default_argument' => '',
+    'validate_type' => 'none',
+    'validate_fail' => 'not found',
+    'break_phrase' => 1,
+    'add_table' => 1,
+    'require_value' => 0,
+    'reduce_duplicates' => 0,
+    'set_breadcrumb' => 0,
+    'id' => 'tid',
+    'table' => 'term_node',
+    'field' => 'tid',
+    'validate_user_argument_type' => 'uid',
+    'validate_user_roles' => array(
+      '2' => 0,
+      '3' => 0,
+  ),
+    'relationship' => 'none',
+    'default_options_div_prefix' => '',
+    'default_argument_fixed' => '',
+    'default_argument_user' => 0,
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(
+      'blog' => 0,
+      'faq' => 0,
+      'creed' => 0,
+      'dblog' => 0,
+      'deed' => 0,
+      'image_cck' => 0,
+      'interpretation' => 0,
+      'member' => 0,
+      'opinion' => 0,
+      'page' => 0,
+      'profile' => 0,
+      'religion_info' => 0,
+      'simplenews' => 0,
+      'story' => 0,
+  ),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+      '1' => 0,
+      '3' => 0,
+      '5' => 0,
+      '6' => 0,
+      '9' => 0,
+      '7' => 0,
+      '2' => 0,
+      '8' => 0,
+      '4' => 0,
+  ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_transform' => 0,
+    'validate_user_restrict_roles' => 0,
+    'validate_argument_node_flag_name' => '*relationship*',
+    'validate_argument_node_flag_test' => 'flaggable',
+    'validate_argument_node_flag_id_type' => 'id',
+    'validate_argument_user_flag_name' => '*relationship*',
+    'validate_argument_user_flag_test' => 'flaggable',
+    'validate_argument_user_flag_id_type' => 'id',
+    'validate_argument_php' => '',
   ),
   ));
   $handler->override_option('filters', array(
@@ -335,7 +412,7 @@ function creedia_discussions_default_view() {
   $view = new view;
   $view->name = 'Discussions';
   $view->description = 'Discussions using exposed filters in node format';
-  $view->tag = '';
+  $view->tag = 'creedia-directory';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
@@ -350,6 +427,78 @@ function creedia_discussions_default_view() {
     'table' => 'node',
     'field' => 'created',
     'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+  'tid' => array(
+    'default_action' => 'ignore',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'breadcrumb' => '',
+    'default_argument_type' => 'fixed',
+    'default_argument' => '',
+    'validate_type' => 'none',
+    'validate_fail' => 'not found',
+    'break_phrase' => 1,
+    'add_table' => 1,
+    'require_value' => 0,
+    'reduce_duplicates' => 0,
+    'set_breadcrumb' => 0,
+    'id' => 'tid',
+    'table' => 'term_node',
+    'field' => 'tid',
+    'validate_user_argument_type' => 'uid',
+    'validate_user_roles' => array(
+      '2' => 0,
+      '3' => 0,
+  ),
+    'relationship' => 'none',
+    'default_options_div_prefix' => '',
+    'default_argument_fixed' => '',
+    'default_argument_user' => 0,
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(
+      'blog' => 0,
+      'faq' => 0,
+      'creed' => 0,
+      'dblog' => 0,
+      'deed' => 0,
+      'image_cck' => 0,
+      'interpretation' => 0,
+      'member' => 0,
+      'opinion' => 0,
+      'page' => 0,
+      'profile' => 0,
+      'religion_info' => 0,
+      'simplenews' => 0,
+      'story' => 0,
+  ),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+      '1' => 0,
+      '3' => 0,
+      '5' => 0,
+      '6' => 0,
+      '9' => 0,
+      '7' => 0,
+      '2' => 0,
+      '8' => 0,
+      '4' => 0,
+  ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_transform' => 0,
+    'validate_user_restrict_roles' => 0,
+    'validate_argument_node_flag_name' => '*relationship*',
+    'validate_argument_node_flag_test' => 'flaggable',
+    'validate_argument_node_flag_id_type' => 'id',
+    'validate_argument_user_flag_name' => '*relationship*',
+    'validate_argument_user_flag_test' => 'flaggable',
+    'validate_argument_user_flag_id_type' => 'id',
+    'validate_argument_php' => '',
   ),
   ));
   $handler->override_option('filters', array(
@@ -727,7 +876,7 @@ function creedia_blogs_default_view() {
   $view = new view;
   $view->name = 'Blogs';
   $view->description = 'Blogss using exposed filters in node format';
-  $view->tag = '';
+  $view->tag = 'creedia-directory';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
@@ -742,6 +891,78 @@ function creedia_blogs_default_view() {
     'table' => 'node',
     'field' => 'created',
     'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+  'tid' => array(
+    'default_action' => 'ignore',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'breadcrumb' => '',
+    'default_argument_type' => 'fixed',
+    'default_argument' => '',
+    'validate_type' => 'none',
+    'validate_fail' => 'not found',
+    'break_phrase' => 1,
+    'add_table' => 1,
+    'require_value' => 0,
+    'reduce_duplicates' => 0,
+    'set_breadcrumb' => 0,
+    'id' => 'tid',
+    'table' => 'term_node',
+    'field' => 'tid',
+    'validate_user_argument_type' => 'uid',
+    'validate_user_roles' => array(
+      '2' => 0,
+      '3' => 0,
+  ),
+    'relationship' => 'none',
+    'default_options_div_prefix' => '',
+    'default_argument_fixed' => '',
+    'default_argument_user' => 0,
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(
+      'blog' => 0,
+      'faq' => 0,
+      'creed' => 0,
+      'dblog' => 0,
+      'deed' => 0,
+      'image_cck' => 0,
+      'interpretation' => 0,
+      'member' => 0,
+      'opinion' => 0,
+      'page' => 0,
+      'profile' => 0,
+      'religion_info' => 0,
+      'simplenews' => 0,
+      'story' => 0,
+  ),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+      '1' => 0,
+      '3' => 0,
+      '5' => 0,
+      '6' => 0,
+      '9' => 0,
+      '7' => 0,
+      '2' => 0,
+      '8' => 0,
+      '4' => 0,
+  ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_transform' => 0,
+    'validate_user_restrict_roles' => 0,
+    'validate_argument_node_flag_name' => '*relationship*',
+    'validate_argument_node_flag_test' => 'flaggable',
+    'validate_argument_node_flag_id_type' => 'id',
+    'validate_argument_user_flag_name' => '*relationship*',
+    'validate_argument_user_flag_test' => 'flaggable',
+    'validate_argument_user_flag_id_type' => 'id',
+    'validate_argument_php' => '',
   ),
   ));
   $handler->override_option('filters', array(
@@ -1708,7 +1929,7 @@ function creedia_members_default_view() {
   $view = new view;
   $view->name = 'Members';
   $view->description = 'Members using exposed filters in node format';
-  $view->tag = '';
+  $view->tag = 'creedia-directory';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
@@ -1723,6 +1944,78 @@ function creedia_members_default_view() {
     'table' => 'node',
     'field' => 'created',
     'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+  'tid' => array(
+    'default_action' => 'ignore',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'breadcrumb' => '',
+    'default_argument_type' => 'fixed',
+    'default_argument' => '',
+    'validate_type' => 'none',
+    'validate_fail' => 'not found',
+    'break_phrase' => 1,
+    'add_table' => 1,
+    'require_value' => 0,
+    'reduce_duplicates' => 0,
+    'set_breadcrumb' => 0,
+    'id' => 'tid',
+    'table' => 'term_node',
+    'field' => 'tid',
+    'validate_user_argument_type' => 'uid',
+    'validate_user_roles' => array(
+      '2' => 0,
+      '3' => 0,
+  ),
+    'relationship' => 'none',
+    'default_options_div_prefix' => '',
+    'default_argument_fixed' => '',
+    'default_argument_user' => 0,
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(
+      'blog' => 0,
+      'faq' => 0,
+      'creed' => 0,
+      'dblog' => 0,
+      'deed' => 0,
+      'image_cck' => 0,
+      'interpretation' => 0,
+      'member' => 0,
+      'opinion' => 0,
+      'page' => 0,
+      'profile' => 0,
+      'religion_info' => 0,
+      'simplenews' => 0,
+      'story' => 0,
+  ),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+      '1' => 0,
+      '3' => 0,
+      '5' => 0,
+      '6' => 0,
+      '9' => 0,
+      '7' => 0,
+      '2' => 0,
+      '8' => 0,
+      '4' => 0,
+  ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_transform' => 0,
+    'validate_user_restrict_roles' => 0,
+    'validate_argument_node_flag_name' => '*relationship*',
+    'validate_argument_node_flag_test' => 'flaggable',
+    'validate_argument_node_flag_id_type' => 'id',
+    'validate_argument_user_flag_name' => '*relationship*',
+    'validate_argument_user_flag_test' => 'flaggable',
+    'validate_argument_user_flag_id_type' => 'id',
+    'validate_argument_php' => '',
   ),
   ));
   $handler->override_option('filters', array(
