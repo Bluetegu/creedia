@@ -53,20 +53,12 @@ $form['my_image_button'] = array(
  * - Add support for taxonomy assignment wizard
  *
  */
-
-// if (!defined(CREEDIA_RELIGION_VID)) {
-//   define("CREEDIA_RELIGION_VID", 2);
-//   define("CREEDIA_BELIEFSET_VID", 3);
-//   define("CREEDIA_FREETAG_VID", 4);
-//   define("CREEDIA_COUNTRY_VID", 5);
-//   define("CREEDIA_GENDER_VID", 6);
-// }
 if (!defined(CREEDIA_RELIGION_VID)) {
-  define("CREEDIA_RELIGION_VID", ctaxo_get_voc_by_name('Religion'));
-  define("CREEDIA_BELIEFSET_VID", ctaxo_get_voc_by_name('Belief Set'));
-  define("CREEDIA_FREETAG_VID", ctaxo_get_voc_by_name('Free Tags'));
-  define("CREEDIA_COUNTRY_VID", ctaxo_get_voc_by_name('Country'));
-  define("CREEDIA_GENDER_VID", ctaxo_get_voc_by_name('Gender'));
+  define("CREEDIA_RELIGION_VID", 2);
+  define("CREEDIA_BELIEFSET_VID", 3);
+  define("CREEDIA_FREETAG_VID", 4);
+  define("CREEDIA_COUNTRY_VID", 5);
+  define("CREEDIA_GENDER_VID", 6);
 }
 
 if (!defined(CREEDIA_DEFAULTSORT_ID)) {
@@ -76,21 +68,6 @@ if (!defined(CREEDIA_DEFAULTSORT_ID)) {
 if (!defined(CREEDIA_TAGADELIC_MAX_TERMS)) {
   define("CREEDIA_TAGADELIC_MAX_TERMS", 320);
   define("CREEDIA_TAGADELIC_AUTOCOMPLETE_MIN", 1);
-}
-
-function ctaxo_get_voc_by_name($name) {
-  static $vocid = array();
-  if (isset($vocid[$name])) {
-    return $vocid[$name];
-  }
-  else {
-    $sql = "SELECT vid FROM {vocabulary} WHERE name = '%s'";
-    $vid = db_result(db_query($sql, $name));
-    if ($vid) {
-      $vocid[$name] = $vid;
-    }
-    return $vid;
-  }
 }
 
 /**
@@ -625,34 +602,63 @@ function ctaxo_theme() {
   );
 }
 
+function _ctaxo_get_voc_name($vid) {
+  switch ($vid) {
+    case CREEDIA_RELIGION_VID:
+      return 'religion';
+    case CREEDIA_BELIEFSET_VID:
+      return 'beliefset';
+    case CREEDIA_FREETAG_VID:
+      return 'freetag';
+    case CREEDIA_COUNTRY_VID:
+      return 'country';
+    case CREEDIA_GENDER_VID:
+      return 'gender';
+    default:
+      return NULL;
+  }
+}
+
+/**
+ * Implementation of hook_form_alter for a specific form
+ * Convert arguments to selected exposed filter values.
+ *
+ * Currently clears all arguments (should add some check here...)
+ */
 function creedia_form_views_exposed_form_alter(&$form, &$form_state) {
 
-  $term_args = $form_state['view']->args;
+  if ($form_state['view']->tag == 'creedia-directory') {
+    // copy arguments locally
+    $term_args = $form_state['view']->args;
 
-  if (isset($term_args[0])) {
-    unset($form_state['view']->args);
-    $term_ids = explode(' ', $term_args[0]);
-    if (isset($form_state['input']['religion'])) {
-      $term_defaults = array_merge($term_ids, $form_state['input']['religion']);
-      $term_defaults = array_unique($term_defaults);
+    if (isset($term_args)) {
+      foreach ($term_args as $term_arg) {
+        $term_ids = explode(' ', $term_arg);
+        $term = taxonomy_get_term($term_ids[0]);
+        if (isset($term)) {
+          // determine the vocuabulary according to first term
+          $vname = _ctaxo_get_voc_name($term->vid);
+          if ($vname) {
+            // if filters values are already set, add them to the argument
+            if (isset($form_state['input'][$vname])) {
+              $term_defaults = array_merge($term_ids, $form_state['input'][$vname]);
+              $term_defaults = array_unique($term_defaults);
+            }
+            $term_defaults = array_combine($term_defaults, $term_defaults);
+            $form_state['input'][$vname] = $term_defaults;
+          }
+        }
+      }
+      unset($form_state['view']->args);
+
+      //    // The code below breaks views ajax
+      //    $path_args = explode('/', $form['#action']);
+      //    array_pop($path_args);
+      //    $form['#action'] = implode('/', $path_args);
     }
-    $term_defaults = array_combine($term_defaults, $term_defaults);
-
-
-    $form_state['input']['religion'] = $term_defaults;
-
-//    $path_args = explode('/', $form['#action']);
-//    firep($path_args, 'path args');
-//
-//    array_pop($path_args);
-//
-//    $form['#action'] = implode('/', $path_args);
-
   }
-
-//  krumo($form_state);
-//  krumo($form);
-  //firep($form, 'exposed form');
+  //  krumo($form_state);
+  //  krumo($form);
 }
 
 /**
