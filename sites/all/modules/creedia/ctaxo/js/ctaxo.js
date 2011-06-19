@@ -8,6 +8,8 @@ Drupal.behaviors.ctaxoBehavior = function(context) {
     // replace the pager results text with the hidden udpated one returned by ajax
     $('.pager-result').html($('.pager-hidden-result span', context).html());
   }
+  // vertical align left bars
+  creediaVerAlign();
 }
 
 if (Drupal.jsEnabled) {
