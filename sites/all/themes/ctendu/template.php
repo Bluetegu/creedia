@@ -943,3 +943,26 @@ function ctendu_preprocess_block(&$vars) {
   return;
 }
 
+/**
+ * views Creed blocks preprocess
+ */
+function ctendu_preprocess_views_view_fields__Creed_blocks(&$vars) {
+  $node = new stdClass();
+  $node->nid = $vars['fields']['nid']->raw;
+  $node->vid = $vars['fields']['vid']->raw;
+  $node->title = $vars['fields']['title']->raw;
+  $religion = array();
+  $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID);
+  foreach($terms as $term) {
+    $religion[] = theme('religion', $term, 'image');
+  }
+  $beliefset = array();
+  $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_BELIEFSET_VID);
+  foreach($terms as $term) {
+    $beliefset[] = theme('beliefset', $term, 'image');
+  }
+  $vars['religion'] = $religion;
+  $vars['beliefset'] = $beliefset;
+  $vars['title'] = theme('truncated_title', $node->title, $node->nid, 32);
+}
+

@@ -1,57 +1,5 @@
 <?php
 // $Id$
-/* TODO FormAPI image buttons are now supported.
-   FormAPI now offers the 'image_button' element type, allowing developers to
-   use icons or other custom images in place of traditional HTML submit buttons.
-
-$form['my_image_button'] = array(
-  '#type'         => 'image_button',
-  '#title'        => t('My button'),
-  '#return_value' => 'my_data',
-  '#src'          => 'my/image/path.jpg',
-); */
-
-/* TODO New user_mail_tokens() method may be useful.
-   user.module now provides a user_mail_tokens() function to return an array
-   of the tokens available for the email notification messages it sends when
-   accounts are created, activated, blocked, etc. Contributed modules that
-   wish to make use of the same tokens for their own needs are encouraged
-   to use this function. */
-
-/* TODO
-   There is a new hook_watchdog in core. This means that contributed modules
-   can implement hook_watchdog to log Drupal events to custom destinations.
-   Two core modules are included, dblog.module (formerly known as watchdog.module),
-   and syslog.module. Other modules in contrib include an emaillog.module,
-   included in the logging_alerts module. See syslog or emaillog for an
-   example on how to implement hook_watchdog.
-function example_watchdog($log = array()) {
-  if ($log['severity'] == WATCHDOG_ALERT) {
-    mysms_send($log['user']->uid,
-      $log['type'],
-      $log['message'],
-      $log['variables'],
-      $log['severity'],
-      $log['referer'],
-      $log['ip'],
-      format_date($log['timestamp']));
-  }
-} */
-
-/* TODO Implement the hook_theme registry. Combine all theme registry entries
-   into one hook_theme function in each corresponding module file.
-function cviews_theme() {
-  return array(
-    'pager_results' => array(
-      'file' => 'cviews.module',
-      'arguments' => array(
-        'pager_limit' => 0,
-        'i' => 0,
-      ),
-    ),
-  );
-} */
-
 /*
  * @file
  * Builds Creedia's views programatically
@@ -101,6 +49,17 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[12]['info'] = t('Creedia: Related Blogs');
     $blocks[13]['info'] = t('Creedia: Latest Blogs');
     $blocks[14]['info'] = t('Creedia: Front Latest Blogs');
+    $blocks[3]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[4]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[5]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[6]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[7]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[8]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[9]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[10]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[11]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[13]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[14]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[0]['visibility'] = 1; // show only on listed pages
     $blocks[1]['visibility'] = 1; // show only on listed pages
     $blocks[2]['visibility'] = 1; // show only on listed pages
@@ -176,674 +135,294 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $add_d = FALSE;
 
     switch ($delta) {
-    case 0:
-      $type = 'creed';
-      $title = 'Related Creeds';
-      $description = 'Related Creeds';
-      $name = 'related_creeds_prog';
-      $nid = 0;
-      $add_d = TRUE;
-
-      if ($node) {
-	if ($node->type != 'opinion') {
-	  // related creed block shown in opinion view
-	  $view_block = FALSE;
-	}
+      case 0:
+//        $type = 'creed';
+//        $title = 'Related Creeds';
+//        $content = views_embed_view('Creed_blocks', 'block_1');
+//        $description = 'Related Creeds';
+//        $name = 'related_creeds_prog';
+//        $nid = 0;
+//        $add_d = TRUE;
+//
+//        if ($node) {
+//          if ($node->type != 'opinion') {
+//            // related creed block shown in opinion view
+//            $view_block = FALSE;
+//          }
+//        }
+        break;
+//      case 1:
+//        $type = 'opinion';
+//        $title = 'Related Discussions';
+//        $description = 'Related Discussions';
+//        $name = 'related_opinions_prog';
+//        $nid = 0;
+//        $add_d = TRUE;
+//
+//        if ($node) {
+//          switch ($node->type) {
+//            case 'opinion':
+//            case 'interpretation':
+//              $nid = $node->nid; // avoid self
+//              break;
+//            case 'creed':
+//              break;  // show block
+//            case 'member':
+//            default:
+//              $view_block = FALSE;
+//              break;
+//          }
+//        }
+//        break;
+//      case 2:
+//        $type = 'member';
+//        $title = 'Related Members';
+//        $description = 'Related Members';
+//        $name = 'related_members_prog';
+//        $nid = 0;
+//        $add_d = TRUE;
+//
+//        if ($node) {
+//          $view_block = FALSE;
+//        }
+//        break;
+      case 3:
+        $type = 'creed';
+        $title = 'Latest Creeds';
+        $view_name = 'Creed_blocks';
+        $display_id = 'block_1';
+        $nid = 0;
+        $sort = 'recent';
+        $ignore_terms = TRUE;
+        $add_d = TRUE;
+        break;
+//      case 4:
+//        $type = 'opinion';
+//        $title = 'Latest Discussions';
+//        $description = 'Latest Discussions';
+//        $name = 'latest_opinions_prog';
+//        $nid = 0;
+//        $sort = 'recent';
+//        $ignore_terms = TRUE;
+//        $add_d = TRUE;
+//        break;
+//      case 5:
+//        $type = 'member';
+//        $title = 'Latest Members';
+//        $description = 'Latest Members';
+//        $name = 'latest_members_prog';
+//        $nid = 0;
+//        $sort = 'joined';
+//        $ignore_terms = TRUE;
+//        $add_d = TRUE;
+//        break;
+//      case 6:
+//        $type = 'creed';
+//        $title = 'Featured Creeds';
+//        $description = 'Featured Creeds';
+//        $name = 'featured_creeds_prog';
+//        $nid = 0;
+//        $ignore_terms = TRUE;
+//        $featured = TRUE;
+//        break;
+//      case 7:
+//        $type = 'opinion';
+//        $title = 'Featured Discussions';
+//        $description = 'Featured Discussions';
+//        $name = 'featured_opinions_prog';
+//        $nid = 0;
+//        $ignore_terms = TRUE;
+//        $featured = TRUE;
+//        break;
+//      case 8:
+//        $type = 'member';
+//        $title = 'Featured Members';
+//        $description = 'Featured Members';
+//        $name = 'featured_members_prog';
+//        $nid = 0;
+//        $ignore_terms = TRUE;
+//        $featured = TRUE;
+//        break;
+      case 9:
+        $type = 'creed';
+        $title = 'Latest Creeds';
+        $view_name = 'Creed_blocks';
+        $display_id = 'block_1';
+        $nid = 0;
+        $sort = 'recent';
+        $ignore_terms = TRUE;
+        break;
+//      case 10:
+//        $type = 'opinion';
+//        $title = 'Latest Discussions';
+//        $description = 'Latest opinions';
+//        $name = 'front_latest_opinions_prog';
+//        $nid = 0;
+//        $sort = 'recent';
+//        $ignore_terms = TRUE;
+//        break;
+//      case 11:
+//        $type = 'member';
+//        $title = 'Latest Members';
+//        $description = 'Latest members';
+//        $name = 'front_latest_members_prog';
+//        $nid = 0;
+//        $sort = 'joined';
+//        $ignore_terms = TRUE;
+//        break;
+//      case 12:
+//        $type = 'blog';
+//        $title = 'Related Blogs';
+//        $description = 'Related Blogs';
+//        $name = 'related_blogs_prog';
+//        $nid = 0;
+//        $add_d = TRUE;
+//
+//        if ($node) {
+//          $view_block = FALSE;
+//        }
+//        break;
+//      case 13:
+//        $type = 'blog';
+//        $title = 'Latest Blogs';
+//        $description = 'Latest Blogs';
+//        $name = 'latest_blogs_prog';
+//        $nid = 0;
+//        $sort = 'recent';
+//        $ignore_terms = TRUE;
+//        $add_d = TRUE;
+//        break;
+//      case 14:
+//        $type = 'blog';
+//        $title = 'Latest Blogs';
+//        $description = 'Latest Blogs';
+//        $name = 'front_latest_blogs_prog';
+//        $nid = 0;
+//        $sort = 'recent';
+//        $ignore_terms = TRUE;
+//        break;
       }
-      break;
-    case 1:
-      $type = 'opinion';
-      $title = 'Related Discussions';
-      $description = 'Related Discussions';
-      $name = 'related_opinions_prog';
-      $nid = 0;
-      $add_d = TRUE;
-
-      if ($node) {
-	switch ($node->type) {
-	case 'opinion':
-	case 'interpretation':
-	  $nid = $node->nid; // avoid self
-	  break;
-	case 'creed':
-	  break;  // show block
-	case 'member':
-	default:
-	  $view_block = FALSE;
-	  break;
-	}
-      }
-      break;
-    case 2:
-      $type = 'member';
-      $title = 'Related Members';
-      $description = 'Related Members';
-      $name = 'related_members_prog';
-      $nid = 0;
-      $add_d = TRUE;
-
-      if ($node) {
-	$view_block = FALSE;
-      }
-      break;
-    case 3:
-      $type = 'creed';
-      $title = 'Latest Creeds';
-      $description = 'Latest Creeds';
-      $name = 'latest_creeds_prog';
-      $nid = 0;
-      $sort = 'recent';
-      $ignore_terms = TRUE;
-      $add_d = TRUE;
-      break;
-    case 4:
-      $type = 'opinion';
-      $title = 'Latest Discussions';
-      $description = 'Latest Discussions';
-      $name = 'latest_opinions_prog';
-      $nid = 0;
-      $sort = 'recent';
-      $ignore_terms = TRUE;
-      $add_d = TRUE;
-      break;
-    case 5:
-      $type = 'member';
-      $title = 'Latest Members';
-      $description = 'Latest Members';
-      $name = 'latest_members_prog';
-      $nid = 0;
-      $sort = 'joined';
-      $ignore_terms = TRUE;
-      $add_d = TRUE;
-      break;
-    case 6:
-      $type = 'creed';
-      $title = 'Featured Creeds';
-      $description = 'Featured Creeds';
-      $name = 'featured_creeds_prog';
-      $nid = 0;
-      $ignore_terms = TRUE;
-      $featured = TRUE;
-      break;
-    case 7:
-      $type = 'opinion';
-      $title = 'Featured Discussions';
-      $description = 'Featured Discussions';
-      $name = 'featured_opinions_prog';
-      $nid = 0;
-      $ignore_terms = TRUE;
-      $featured = TRUE;
-      break;
-    case 8:
-      $type = 'member';
-      $title = 'Featured Members';
-      $description = 'Featured Members';
-      $name = 'featured_members_prog';
-      $nid = 0;
-      $ignore_terms = TRUE;
-      $featured = TRUE;
-      break;
-    case 9:
-      $type = 'creed';
-      $title = 'Latest Creeds';
-      $description = 'Latest Creeds';
-      $name = 'front_latest_creeds_prog';
-      $nid = 0;
-      $sort = 'recent';
-      $ignore_terms = TRUE;
-      break;
-    case 10:
-      $type = 'opinion';
-      $title = 'Latest Discussions';
-      $description = 'Latest opinions';
-      $name = 'front_latest_opinions_prog';
-      $nid = 0;
-      $sort = 'recent';
-      $ignore_terms = TRUE;
-      break;
-    case 11:
-      $type = 'member';
-      $title = 'Latest Members';
-      $description = 'Latest members';
-      $name = 'front_latest_members_prog';
-      $nid = 0;
-      $sort = 'joined';
-      $ignore_terms = TRUE;
-      break;
-    case 12:
-      $type = 'blog';
-      $title = 'Related Blogs';
-      $description = 'Related Blogs';
-      $name = 'related_blogs_prog';
-      $nid = 0;
-      $add_d = TRUE;
-
-      if ($node) {
-	$view_block = FALSE;
-      }
-      break;
-    case 13:
-      $type = 'blog';
-      $title = 'Latest Blogs';
-      $description = 'Latest Blogs';
-      $name = 'latest_blogs_prog';
-      $nid = 0;
-      $sort = 'recent';
-      $ignore_terms = TRUE;
-      $add_d = TRUE;
-      break;
-    case 14:
-      $type = 'blog';
-      $title = 'Latest Blogs';
-      $description = 'Latest Blogs';
-      $name = 'front_latest_blogs_prog';
-      $nid = 0;
-      $sort = 'recent';
-      $ignore_terms = TRUE;
-      break;
-    }
-
+      $description = $title;
+//
     if ($view_block) {
-      if (!$ignore_terms) {
-	if ($node) {
-	  $terms = cviews_node_to_terms_filtered($node->nid, $type);
-	  $description .= ' based on node\'s terms.';
-	}
-	else {
-	  $terms = cviews_url_to_terms_filtered($type);
-	  $description .= ' based on selected terms.';
-	}
-      }
-      $block['content'] = cviews_generate_block(array('type' => $type,
-						      'name' => $name,
-						      'title' => $title,
-						      'description' => $description,
-						      'nid' => $nid,
-						      'terms' => $terms,
-						      'sort' => $sort,
-						      ));
+//      if (!$ignore_terms) {
+//        if ($node) {
+//          $terms = cviews_node_to_terms_filtered($node->nid, $type);
+//          $description .= ' based on node\'s terms.';
+//        }
+//        else {
+//          $terms = cviews_url_to_terms_filtered($type);
+//          $description .= ' based on selected terms.';
+//        }
+//      }
+      $block['content'] = views_embed_view($view_name, $display_id);
+//                   cviews_generate_block(array('type' => $type,
+//						      'name' => $name,
+//						      'title' => $title,
+//						      'description' => $description,
+//						      'nid' => $nid,
+//						      'terms' => $terms,
+//						      'sort' => $sort,
+//      ));
       $path = $type .'s';
       if ($sort != CREEDIA_DEFAULTSORT_ID) {
-	$path .= '/'. $sort;
+        $path .= '/'. $sort;
       }
-      if ($terms) {
-	foreach ($terms as $vid => $term_ids) {
-	  $path .= '/'. implode('+', $term_ids) ;
-	}
-      }
-
+//      if ($terms) {
+//        foreach ($terms as $vid => $term_ids) {
+//          $path .= '/'. implode('+', $term_ids) ;
+//        }
+//      }
+//
       $block['subject'] = $add_d ? l('» '. $title, $path, array('attributes' => array('title' => $description))) :
-	l($title, $path, array('attributes' => array('title' => $description)));
+      l($title, $path, array('attributes' => array('title' => $description)));
       // featured indications is added as variable in tendu_block
     }
   }
   return $block;
 }
 
-/*
- * Implementation of hook_menu
- *
- */
-function cviews_menu() {
-  $items = array();
-
-/* TODO
-   Non menu code that was placed in hook_menu under the '!$may_cache' block
-   so that it could be run during initialization, should now be moved to hook_init.
-   Previously we called hook_init twice, once early in the bootstrap process, second
-   just after the bootstrap has finished. The first instance is now called boot
-   instead of init.
-
-   In Drupal 6, there are now two hooks that can be used by modules to execute code
-   at the beginning of a page request. hook_boot() replaces hook_boot() in Drupal 5
-   and runs on each page request, even for cached pages. hook_boot() now only runs
-   for non-cached pages and thus can be used for code that was previously placed in
-   hook_menu() with $may_cache = FALSE:
-
-   Dynamic menu items under a '!$may_cache' block can often be simplified
-   to remove references to arg(n) and use of '%<function-name>' to check
-   conditions. See http://drupal.org/node/103114.
-
-   The title and description arguments should not have strings wrapped in t(),
-   because translation of these happen in a later stage in the menu system.
-*/
-  if ($may_cache) {
-
-    /* Creed Menu */
-    $items['creeds'] = array(
-                     'title' => 'Creeds',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'creed',
-                                                         'name' => 'creeds_prog',
-                                                         'sort' => 'popular',
-                                                         'parent' => TRUE, )),
-                     'type' => MENU_CALLBACK,
-		     'access arguments' => array('access content'),
-                     'weight' => 0, );
-
-    $items['creeds/popular'] = array(
-		     'title' => 'Popular',
-		     'page callback' => 'cviews_generate_page',
-		     'page arguments' => array(array('type' => 'creed',
-							 'name' => 'creeds_prog',
-							 'sort' => 'popular')),
-		     'type' => MENU_DEFAULT_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-		     'weight' => -1, );
-
-    $items['creeds/byname'] = array(
-                     'title' => 'By Name',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'creed',
-                                                         'name' => 'creeds_prog',
-                                                         'sort' => 'byname')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 1, );
-
-    $items['creeds/recent'] = array(
-                     'title' => 'Recent',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'creed',
-                                                         'name' => 'creeds_prog',
-                                                         'sort' => 'recent')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 2, );
-
-    /* Opinion Menu */
-    $items['opinions'] = array(
-                     'title' => 'Discussions',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'opinion',
-                                                         'name' => 'opinions_prog',
-                                                         'sort' => 'featured',
-                                                         'parent' => TRUE, )),
-                     'type' => MENU_CALLBACK,
-		     'access arguments' => array('access content'),
-                     'weight' => 0, );
-
-    $items['opinions/featured'] = array(
-                     'title' => 'Featured',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'opinion',
-                                                         'name' => 'opinions_prog',
-                                                         'sort' => 'featured')),
-                     'type' => MENU_DEFAULT_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => -1, );
-
-    $items['opinions/recent'] = array(
-                     'title' => 'Recent',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'opinion',
-                                                         'name' => 'opinions_prog',
-                                                         'sort' => 'recent')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 0, );
-
-    $items['opinions/viewed'] = array(
-                     'title' => 'Most Viewed',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'opinion',
-                                                         'name' => 'opinions_prog',
-                                                         'sort' => 'viewed')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 1, );
-
-    $items['opinions/rated'] = array(
-                     'title' => 'Highest Rated',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'opinion',
-                                                         'name' => 'opinions_prog',
-                                                         'sort' => 'rated')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 2, );
-
-    /* Blog Menu */
-    $items['blogs'] = array(
-                     'title' => 'Blogs',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'blog',
-                                                         'name' => 'blogs_prog',
-                                                         'sort' => 'featured',
-                                                         'parent' => TRUE, )),
-                     'type' => MENU_CALLBACK,
-		     'access arguments' => array('access content'),
-                     'weight' => 0, );
-
-    $items['blogs/featured'] = array(
-                     'title' => 'Featured',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'blog',
-                                                         'name' => 'blogs_prog',
-                                                         'sort' => 'featured')),
-                     'type' => MENU_DEFAULT_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => -1, );
-
-    $items['blogs/recent'] = array(
-                     'title' => 'Recent',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'blog',
-                                                         'name' => 'blogs_prog',
-                                                         'sort' => 'recent')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 0, );
-
-    $items['blogs/viewed'] = array(
-                     'title' => 'Most Viewed',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'blog',
-                                                         'name' => 'blogs_prog',
-                                                         'sort' => 'viewed')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 1, );
-
-    /* Member Menu */
-    $items['members'] = array(
-                     'title' => 'Members',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'member',
-                                                         'name' => 'members_prog',
-                                                         'sort' => 'featured',
-                                                         'parent' => TRUE, )),
-                     'type' => MENU_CALLBACK,
-		     'access arguments' => array('access content'),
-                     'weight' => 0, );
-
-
-    $items['members/featured'] = array(
-                     'title' => 'Featured',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'member',
-                                                         'name' => 'members_prog',
-                                                         'sort' => 'featured')),
-                     'type' => MENU_DEFAULT_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => -1, );
-
-    $items['members/joined'] = array(
-                     'title' => 'Recently Joined',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'member',
-                                                         'name' => 'members_prog',
-                                                         'sort' => 'joined')),
-                     'type' => MENU_LOCAL_TASK,
-                     'weight' => 0, );
-
-    $items['members/byfullname'] = array(
-                     'title' => 'By Name',
-                     'page callback' => 'cviews_generate_page',
-                     'page arguments' => array(array('type' => 'member',
-                                                         'name' => 'members_prog',
-                                                         'sort' => 'byfullname')),
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 1, );
-
-    $items['members/byway'] = array(
-                     'title' => 'By Way',
-                     'page callback' => 'cdist_byway',
-                     'type' => MENU_LOCAL_TASK,
-		     'access arguments' => array('access content'),
-                     'weight' => 2, );
-
-    /* Deeds Menu */
-    /* Menu implemented in configured views */
-
-    /* Blog */
-    $items['blog'] = array(
-                     'title' => 'Creedia Blog',
-                     'page callback' => 'cviews_blog',
-                     'type' => MENU_CALLBACK,
-		     'access arguments' => array('access content'),
-                     'weight' => 1, );
-
-  }
-  return $items;
-}
-
 
 /**
  * Creedia Blog view
  */
-function cviews_blog($uid = 1) {
+//function cviews_blog($uid = 1) {
+//
+//  $view = views_create_view('blog', t('The World\'s Creed As People See It.'));
+//  views_view_add_page($view, t('Creedia Blog'), 'blog', 'teaser', TRUE, CREEDIA_NODES_PER_PAGE, '', 1, TRUE);
+//
+//  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
+//  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
+//  if ($uid == 1) {
+//    views_view_add_filter($view, 'node', 'type', 'OR', array('blog', 'simplenews'), '') ;
+//  }
+//  else {
+//    views_view_add_filter($view, 'node', 'type', 'OR', array('dblog'), '') ;
+//  }
+//  views_view_add_filter($view, 'users', 'uid', '=', $uid, '') ;
+//
+//  views_view_add_sort($view, 'node', 'sticky', 'ASC', '');
+//  views_view_add_sort($view, 'node', 'created', 'DESC', '');
+//
+//  $view->argument = array(
+//			  array(
+//				'type' => 'node_feed',
+//				'argdefault' => 2,
+//				'title' => '',
+//				'options' => '',
+//				'wildcard' => '',
+//				'wildcard_substitution' => '',
+//				),
+//			  );
+//
+//  views_load_cache();
+//  views_sanitize_view($view);
+//  $output = views_build_view('embed', $view, array(arg(1)), $view->use_pager, $view->nodes_per_page);
+//
+//  if (!$output) {
+//    $output = t('No blog posts here yet.');
+//  }
+//
+//  return $output;
+//}
+//
+///*
+// *  Builds embeded interpretation view rendered within a creed node page.
+// */
+//function cviews_interpretation_view($nid, $sort = 'adopted') {
+//
+//  $view = views_create_view('interpretations', '');
+//  //views_view_add_page($view, $title, $url, $type, $pager, $nodes_per_page,
+//  //                    $header, $header_format, $breadcrumb_no_home = FALSE)
+//  // Use $use_pager to provide a non zero pager id. See http://drupal.org/node/67369. The zero index pager
+//  // is used by the comment module
+//  views_view_add_page($view, '', NULL, 'teaser', 2, CREEDIA_INTERPRETATION_PER_PAGE, '', 1, TRUE);
+//  //views_view_add_filter($view, $table, $field, $operator, $value, $option)
+//  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
+//  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
+//  views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'interpretation'), '') ;
+//  views_view_add_filter($view, 'node_data_field_creed_reference1', 'field_creed_reference1_nid_default', 'OR', array(0 => $nid), '') ;
+//
+//  switch ($sort) {
+//  case 'recent':
+//    break;
+//  case 'adopted':
+//  default:
+//    //    views_view_add_sort($view, 'flag_counts_adopted_interpretation', 'count', 'DESC', '');
+//    views_view_add_sort($view, 'flag_counts_adopt', 'count', 'DESC', '');
+//    break;
+//  }
+//  //  views_view_add_sort($view, 'node', 'changed', 'DESC', '');
+//  views_view_add_sort($view, 'node', 'created', 'DESC', '');
+//
+//  views_load_cache();
+//  views_sanitize_view($view);
+//  //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
+//  $output =  views_build_view('page', $view, array(), $view->use_pager, $view->nodes_per_page);
+//
+//  return $output;
+//}
 
-  $view = views_create_view('blog', t('The World\'s Creed As People See It.'));
-  views_view_add_page($view, t('Creedia Blog'), 'blog', 'teaser', TRUE, CREEDIA_NODES_PER_PAGE, '', 1, TRUE);
-
-  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
-  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
-  if ($uid == 1) {
-    views_view_add_filter($view, 'node', 'type', 'OR', array('blog', 'simplenews'), '') ;
-  }
-  else {
-    views_view_add_filter($view, 'node', 'type', 'OR', array('dblog'), '') ;
-  }
-  views_view_add_filter($view, 'users', 'uid', '=', $uid, '') ;
-
-  views_view_add_sort($view, 'node', 'sticky', 'ASC', '');
-  views_view_add_sort($view, 'node', 'created', 'DESC', '');
-
-  $view->argument = array(
-			  array(
-				'type' => 'node_feed',
-				'argdefault' => 2,
-				'title' => '',
-				'options' => '',
-				'wildcard' => '',
-				'wildcard_substitution' => '',
-				),
-			  );
-
-  views_load_cache();
-  views_sanitize_view($view);
-  $output = views_build_view('embed', $view, array(arg(1)), $view->use_pager, $view->nodes_per_page);
-
-  if (!$output) {
-    $output = t('No blog posts here yet.');
-  }
-
-  return $output;
-}
-
-/*
- *  Builds embeded interpretation view rendered within a creed node page.
- */
-function cviews_interpretation_view($nid, $sort = 'adopted') {
-
-  $view = views_create_view('interpretations', '');
-  //views_view_add_page($view, $title, $url, $type, $pager, $nodes_per_page,
-  //                    $header, $header_format, $breadcrumb_no_home = FALSE)
-  // Use $use_pager to provide a non zero pager id. See http://drupal.org/node/67369. The zero index pager
-  // is used by the comment module
-  views_view_add_page($view, '', NULL, 'teaser', 2, CREEDIA_INTERPRETATION_PER_PAGE, '', 1, TRUE);
-  //views_view_add_filter($view, $table, $field, $operator, $value, $option)
-  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
-  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
-  views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'interpretation'), '') ;
-  views_view_add_filter($view, 'node_data_field_creed_reference1', 'field_creed_reference1_nid_default', 'OR', array(0 => $nid), '') ;
-
-  switch ($sort) {
-  case 'recent':
-    break;
-  case 'adopted':
-  default:
-    //    views_view_add_sort($view, 'flag_counts_adopted_interpretation', 'count', 'DESC', '');
-    views_view_add_sort($view, 'flag_counts_adopt', 'count', 'DESC', '');
-    break;
-  }
-  //  views_view_add_sort($view, 'node', 'changed', 'DESC', '');
-  views_view_add_sort($view, 'node', 'created', 'DESC', '');
-
-  views_load_cache();
-  views_sanitize_view($view);
-  //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
-  $output =  views_build_view('page', $view, array(), $view->use_pager, $view->nodes_per_page);
-
-  return $output;
-}
-
-/**
- * Theme the pager results
- * @params pager_limit - max number of nodes per page.
- * @params i - pager index
- */
-function theme_pager_results($pager_limit = 0, $i = 0) {
-
-  global $pager_page_array;  // current page number
-  global $pager_total_items; // total items paged
-  global $pager_total;       // number of pages
-  global $current_view;      // views configuration
-
-  if (!$pager_limit) {
-    $pager_limit = $current_view->pager_limit;
-  }
-
-  if ($pager_total[$i]) {
-    // Multiply pager_limit by page number (eg 0, 15, 30) and add 1 to get first item
-    $start = 1 + ($pager_page_array[$i] * $pager_limit);
-
-    // Multiply pager_limit by page number + 1 (eg 15, 30, 45) to get last item
-    $end = (1 + $pager_page_array[$i]) * $pager_limit;
-    // Use total items count if this is less than that
-    if ($end > $pager_total_items[$i]) {
-      $end = $pager_total_items[$i];
-    }
-    $content =  t('Results %start-%end from %total',
-		  array('%start' => $start, '%end' => $end, '%total' => $pager_total_items[$i]));
-  }
-  return '<span class="pager-result">'. $content .'</span>';
-}
-
-
-/*
- *  Builds page views for browsing creeds, opinions and members.
- *  Function called as callback from hook_menu
- */
-function cviews_generate_page($cargs = array()) {
-
-  $type = $cargs['type'];
-  $sort = $cargs['sort'];
-  $url = '';
-  $parent = isset($cargs['parent']) ? TRUE : FALSE;
-  $name = $cargs['name'];
-
-  /* Create View */
-  //views_create_view($name, $description, $access = array()) {
-  $name = $parent ? $name : $name .'_'. $sort;
-  $view = views_create_view($name, '');
-
-  // create a page 'view'
-  $view_type = 'teaser';
-  $use_pager = TRUE;
-  $nodes_per_page = CREEDIA_NODES_PER_PAGE;
-
-  //views_view_add_page($view, $title, $url, $type, $pager, $nodes_per_page, $header, $header_format, $breadcrumb_no_home = FALSE)
-  views_view_add_page($view, '', $url, $view_type, $use_pager, $nodes_per_page, '', 1, TRUE);
-
-  /* Add filters */
-  //views_view_add_filter($view, $table, $field, $operator, $value, $option)
-  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;   // Published nodes only
-  //  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ; // Single copy
-  switch ($type) {
-  case 'opinion':
-    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'opinion', 1 => 'interpretation'), '') ;
-    break;
-  case 'blog':
-    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'dblog'), '') ;
-    break;
-  case 'member':
-    views_view_add_filter($view, 'users', 'status', '=', array(0 => '1'), '') ; // Active users only
-    // slide to default
-  default:
-    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => $type), '') ;
-    break;
-  }
-
-  // add taxonomy based filters
-  if (func_num_args() > 1) {
-    // get the array of terms, and get read of the callback argument
-    $arg_list = func_get_args();
-    array_shift($arg_list);
-    $current = current($arg_list);
-    if (is_array($current)) {
-      // If the callback was called directly from hook_menu $arg_list
-      // holds the terms. If callback called from ajax callback, the
-      // terms are ordered in an array. Get this array.
-      $arg_list = $arg_list[0];
-    }
-
-    $terms = cviews_url_to_terms_filtered($type, $arg_list);
-    if ($terms) {
-      foreach ($terms as $vid => $term_ids) {
-	$voc = taxonomy_vocabulary_load($vid);
-	drupal_add_feed(url('taxonomy/term/'. implode('+', $term_ids) .'/feed'),'Creedia '. ucfirst($voc->name) .' Feed');
-	views_view_add_filter($view, 'term_node', 'tid', 'OR', $term_ids, '') ;
-      }
-    }
-  }
-  else {
-    drupal_add_feed(url('taxonomy/term/all/feed'),'Creedia Content Feed');
-  }
-
-  /* Add Sorters */
-  //views_view_add_sort($view, $table, $field, $order, $option)
-  switch ($sort) {
-  case 'featured':
-    views_view_add_sort($view, 'flag_content_featured', 'timestamp', 'DESC', '');
-    break;
-
-  case 'recent':
-    // sort by recent is added to all views
-    break;
-
-  case 'viewed':
-    views_view_add_sort($view, 'node_counter', 'totalcount', 'DESC', '');
-    break;
-
-  case 'rated':
-    views_view_add_sort($view, 'votingapi_cache_vote_percent_average', 'value', 'DESC', '');
-    views_view_add_sort($view, 'votingapi_cache_vote_percent_count', 'value', 'DESC', '');
-    break;
-
-  case 'popular':
-    views_view_add_sort($view, 'flag_counts_adopt', 'count', 'DESC', '');
-    break;
-
-  case 'joined':
-    views_view_add_sort($view, 'node', 'created', 'DESC', 'normal');
-    break;
-
-  case 'byname':
-    views_view_add_sort($view, 'node', 'title', 'ASC', '');
-    break;
-
-  case 'byfullname':
-    views_view_add_sort($view, 'node_data_field_full_name', 'field_full_name_value', 'ASC', '');
-    break;
-  }
-  views_view_add_sort($view, 'node', 'created', 'DESC', '');
-
-  // invoke the cache
-  views_load_cache();
-  // sanitize view
-  views_sanitize_view($view);
-  // build the view
-  //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
-  $output = views_build_view('embed', $view, array(), $view->use_pager, $view->nodes_per_page);
-
-  if (!$output) {
-    $output = t('No !type tagged with the selected terms.', array('!type' => $type));
-  }
-  return $output;
-}
 
 /*
  * Utility function that converts URL to
@@ -990,212 +569,212 @@ function cviews_node_to_terms_filtered($nid, $type) {
  *  Function called hook_block
  *
  */
-function cviews_generate_block($cargs = array()) {
-
-  $type = $cargs['type'];
-  $terms = $cargs['terms'];
-  $nid = $cargs['nid'];
-  $sort = $cargs['sort'];
-
-  // create a basic view object
-  //views_create_view($name, $description, $access = array()) {
-  $view = views_create_view($cargs['name'], t($cargs['description']));
-
-  // create a block 'view'
-  //views_view_add_block($view, $title, $type, $nodes_per_block, $more, $use_page_header, $header = '', $header_format= 0)
-  views_view_add_block($view, t($cargs['title']), 'list', CREEDIA_NODES_PER_BLOCK, FALSE, FALSE, '', 1);
-
-  switch ($type) {
-  case 'blog':
-  $view->field = array (
-			array (
-			       'tablename' => 'node',
-			       'field' => 'title',
-			       'label' => '',
-			       'handler' => 'views_handler_field_nodelink',
-			       'options' => 'nolink',
-			       ),
-			array (
-			       'tablename' => 'node',
-			       'field' => 'body',
-			       'label' => '',
-			       'handler' => 'views_handler_field_teaser_plain',
-			       'options' => 48, // number of charcters to truncate teaser
-			       ),
-			array (
-			       'tablename' => 'users',
-			       'field' => 'uid',
-			       'label' => '',
-			       ),
-			);
-  break;
-  case 'creed':
-  $view->field = array (
-			array (
-			       'tablename' => 'node',
-			       'field' => 'title',
-			       'label' => '',
-			       'handler' => 'views_handler_field_nodelink',
-			       'options' => 'nolink',
-			       ),
-			);
-
-  break;
-  case 'opinion':
-    $view->field = array (
-			  array (
-				 'tablename' => 'node',
-				 'field' => 'title',
-				 'label' => '',
-				 'handler' => 'views_handler_field_nodelink',
-				 'options' => 'nolink',
-				 ),
-			  array (
-				 'tablename' => 'node',
-				 'field' => 'body',
-				 'label' => '',
-				 'handler' => 'views_handler_field_teaser_plain',
-				 'options' => 48, // number of charcters to truncate teaser
-				 ),
-			  array (
-				 'tablename' => 'node_data_field_opinion_image',
-				 'field' => 'field_opinion_image_fid',
-				 'label' => '',
-				 'handler' => 'content_views_field_handler_group',
-				 'options' => 'block_default',
-				 ),
-			  array (
-				 'tablename' => 'node_data_field_opinion_em_picture',
-				 'field' => 'field_opinion_em_picture_embed',
-				 'label' => '',
-				 'handler' => 'content_views_field_handler_group',
-				 'options' => 'image_thumbnail',
-				 ),
-			  array (
-				 'tablename' => 'node_data_field_opinion_em_video',
-				 'field' => 'field_opinion_em_video_embed',
-				 'label' => '',
-				 'handler' => 'content_views_field_handler_group',
-				 'options' => 'video_thumbnail',
-				 ),
-			  array (
-				 'tablename' => 'node_data_field_opinion_em_audio',
-				 'field' => 'field_opinion_em_audio_embed',
-				 'label' => '',
-				 'handler' => 'content_views_field_handler_group',
-				 'options' => 'emaudio_thumbnail',
-				 ),
-
-			  );
-    break;
-  case 'member':
-    $view->field = array (
-			  array (
-				 'tablename' => 'node_data_field_full_name',
-				 'field' => 'field_full_name_value',
-				 'label' => '',
-				 'handler' => 'content_views_field_handler_group',
-				 'options' => 'default',
-				 ),
-			  array (
-				 'tablename' => 'node',
-				 'field' => 'title',
-				 'label' => '',
-				 'handler' => 'views_handler_field_nodelink',
-				 'options' => 'nolink',
-				 ),
-			  array (
-				 'tablename' => 'node_data_field_one_liner',
-				 'field' => 'field_one_liner_value',
-				 'label' => '',
-				 'handler' => 'content_views_field_handler_group',
-				 'options' => 'default',
-				 ),
- 			  array (
- 				 'tablename' => 'users',
- 				 'field' => 'uid',
- 				 'label' => '',
- 				 ),
-			  array (
-				 'tablename' => 'node',
-				 'field' => 'body',
-				 'label' => '',
-				 'handler' => 'views_handler_field_teaser_plain',
-				 'options' => 48, // number of charcters to truncate teaser
-				                  // if one liner is not empty, the teaser will not be shown.
-				 ),
-			  );
-    break;
-  };
-  // filter...
-  //views_view_add_filter($view, $table, $field, $operator, $value, $option)
-  // filter only 'published' nodes
-  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
-  // ensure only a single copy is shown
-  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
-  // filter according to type
-  if ($type == 'opinion') {
-    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'opinion', 1 => 'interpretation'), '') ;
-  }
-  else if ($type == 'blog') {
-    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'blog', 1 => 'dblog'), '') ;
-  }
-  else {
-    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => $type), '') ;
-  }
-  if ($type == 'member') {
-    // show only active users
-    views_view_add_filter($view, 'users', 'status', '=', array(0 => '1'), '') ;
-  }
-  // filter based on taxonomy terms
-  if ($terms) {
-    foreach ($terms as $vid => $term_ids) {
-      views_view_add_filter($view, 'term_node', 'tid', 'OR', $term_ids, '') ;
-    }
-  }
-
-  // ensure the block does not show the node presented in page
-  if ($nid) {
-    // The code below should have worked, but the SQL output is AND (.nid '<>' $nid)
-    // i.e. missing the table name node in node.nid
-    // views_view_add_filter($view, 'node', 'nid', '<>', $nid, '');
-    // Instead we add an argument for this
-    // views_view_add_argument($view, $type, $default, $title, $option = '')
-    views_view_add_argument($view, 'nid', 1, '', 1); // option '1' is 'not-equal'
-    $views_args = array(0 => $nid);
-  }
-  else {
-    $views_args = array();
-  }
-
-  // sort order
-  if ($sort == CREEDIA_DEFAULTSORT_ID) {
-    // show 'featured' first
-    //    views_view_add_sort($view, 'flag_counts_featured', 'count', 'DESC', '');
-    views_view_add_sort($view, 'flag_content_featured', 'timestamp', 'DESC', '');
-    // else select in random
-    views_view_add_sort($view, 'node', 'random', 'ASC', '');
-  }
-  else {
-    // show latest
-    views_view_add_sort($view, 'node', 'created', 'DESC', '');
-    // views_view_add_sort($view, 'node', 'changed', 'DESC', '');
-  }
-  // invoke the cache
-  views_load_cache();
-
-  // sanitize view
-  views_sanitize_view($view);
-
-  // build the view
-  //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
-  $output = views_build_view('block', $view, $views_args, FALSE, $view->nodes_per_block);
-
-//   if (!$output) {
-//     // keep the block title to maintain links to list pages
-//     $output = '<p></p>';
-//   }
-  //  firep($view, 'view in generate_block');
-  return $output;
-}
-
+//function cviews_generate_block($cargs = array()) {
+//
+//  $type = $cargs['type'];
+//  $terms = $cargs['terms'];
+//  $nid = $cargs['nid'];
+//  $sort = $cargs['sort'];
+//
+//  // create a basic view object
+//  //views_create_view($name, $description, $access = array()) {
+//  $view = views_create_view($cargs['name'], t($cargs['description']));
+//
+//  // create a block 'view'
+//  //views_view_add_block($view, $title, $type, $nodes_per_block, $more, $use_page_header, $header = '', $header_format= 0)
+//  views_view_add_block($view, t($cargs['title']), 'list', CREEDIA_NODES_PER_BLOCK, FALSE, FALSE, '', 1);
+//
+//  switch ($type) {
+//  case 'blog':
+//  $view->field = array (
+//			array (
+//			       'tablename' => 'node',
+//			       'field' => 'title',
+//			       'label' => '',
+//			       'handler' => 'views_handler_field_nodelink',
+//			       'options' => 'nolink',
+//			       ),
+//			array (
+//			       'tablename' => 'node',
+//			       'field' => 'body',
+//			       'label' => '',
+//			       'handler' => 'views_handler_field_teaser_plain',
+//			       'options' => 48, // number of charcters to truncate teaser
+//			       ),
+//			array (
+//			       'tablename' => 'users',
+//			       'field' => 'uid',
+//			       'label' => '',
+//			       ),
+//			);
+//  break;
+//  case 'creed':
+//  $view->field = array (
+//			array (
+//			       'tablename' => 'node',
+//			       'field' => 'title',
+//			       'label' => '',
+//			       'handler' => 'views_handler_field_nodelink',
+//			       'options' => 'nolink',
+//			       ),
+//			);
+//
+//  break;
+//  case 'opinion':
+//    $view->field = array (
+//			  array (
+//				 'tablename' => 'node',
+//				 'field' => 'title',
+//				 'label' => '',
+//				 'handler' => 'views_handler_field_nodelink',
+//				 'options' => 'nolink',
+//				 ),
+//			  array (
+//				 'tablename' => 'node',
+//				 'field' => 'body',
+//				 'label' => '',
+//				 'handler' => 'views_handler_field_teaser_plain',
+//				 'options' => 48, // number of charcters to truncate teaser
+//				 ),
+//			  array (
+//				 'tablename' => 'node_data_field_opinion_image',
+//				 'field' => 'field_opinion_image_fid',
+//				 'label' => '',
+//				 'handler' => 'content_views_field_handler_group',
+//				 'options' => 'block_default',
+//				 ),
+//			  array (
+//				 'tablename' => 'node_data_field_opinion_em_picture',
+//				 'field' => 'field_opinion_em_picture_embed',
+//				 'label' => '',
+//				 'handler' => 'content_views_field_handler_group',
+//				 'options' => 'image_thumbnail',
+//				 ),
+//			  array (
+//				 'tablename' => 'node_data_field_opinion_em_video',
+//				 'field' => 'field_opinion_em_video_embed',
+//				 'label' => '',
+//				 'handler' => 'content_views_field_handler_group',
+//				 'options' => 'video_thumbnail',
+//				 ),
+//			  array (
+//				 'tablename' => 'node_data_field_opinion_em_audio',
+//				 'field' => 'field_opinion_em_audio_embed',
+//				 'label' => '',
+//				 'handler' => 'content_views_field_handler_group',
+//				 'options' => 'emaudio_thumbnail',
+//				 ),
+//
+//			  );
+//    break;
+//  case 'member':
+//    $view->field = array (
+//			  array (
+//				 'tablename' => 'node_data_field_full_name',
+//				 'field' => 'field_full_name_value',
+//				 'label' => '',
+//				 'handler' => 'content_views_field_handler_group',
+//				 'options' => 'default',
+//				 ),
+//			  array (
+//				 'tablename' => 'node',
+//				 'field' => 'title',
+//				 'label' => '',
+//				 'handler' => 'views_handler_field_nodelink',
+//				 'options' => 'nolink',
+//				 ),
+//			  array (
+//				 'tablename' => 'node_data_field_one_liner',
+//				 'field' => 'field_one_liner_value',
+//				 'label' => '',
+//				 'handler' => 'content_views_field_handler_group',
+//				 'options' => 'default',
+//				 ),
+// 			  array (
+// 				 'tablename' => 'users',
+// 				 'field' => 'uid',
+// 				 'label' => '',
+// 				 ),
+//			  array (
+//				 'tablename' => 'node',
+//				 'field' => 'body',
+//				 'label' => '',
+//				 'handler' => 'views_handler_field_teaser_plain',
+//				 'options' => 48, // number of charcters to truncate teaser
+//				                  // if one liner is not empty, the teaser will not be shown.
+//				 ),
+//			  );
+//    break;
+//  };
+//  // filter...
+//  //views_view_add_filter($view, $table, $field, $operator, $value, $option)
+//  // filter only 'published' nodes
+//  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
+//  // ensure only a single copy is shown
+//  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
+//  // filter according to type
+//  if ($type == 'opinion') {
+//    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'opinion', 1 => 'interpretation'), '') ;
+//  }
+//  else if ($type == 'blog') {
+//    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'blog', 1 => 'dblog'), '') ;
+//  }
+//  else {
+//    views_view_add_filter($view, 'node', 'type', 'OR', array(0 => $type), '') ;
+//  }
+//  if ($type == 'member') {
+//    // show only active users
+//    views_view_add_filter($view, 'users', 'status', '=', array(0 => '1'), '') ;
+//  }
+//  // filter based on taxonomy terms
+//  if ($terms) {
+//    foreach ($terms as $vid => $term_ids) {
+//      views_view_add_filter($view, 'term_node', 'tid', 'OR', $term_ids, '') ;
+//    }
+//  }
+//
+//  // ensure the block does not show the node presented in page
+//  if ($nid) {
+//    // The code below should have worked, but the SQL output is AND (.nid '<>' $nid)
+//    // i.e. missing the table name node in node.nid
+//    // views_view_add_filter($view, 'node', 'nid', '<>', $nid, '');
+//    // Instead we add an argument for this
+//    // views_view_add_argument($view, $type, $default, $title, $option = '')
+//    views_view_add_argument($view, 'nid', 1, '', 1); // option '1' is 'not-equal'
+//    $views_args = array(0 => $nid);
+//  }
+//  else {
+//    $views_args = array();
+//  }
+//
+//  // sort order
+//  if ($sort == CREEDIA_DEFAULTSORT_ID) {
+//    // show 'featured' first
+//    //    views_view_add_sort($view, 'flag_counts_featured', 'count', 'DESC', '');
+//    views_view_add_sort($view, 'flag_content_featured', 'timestamp', 'DESC', '');
+//    // else select in random
+//    views_view_add_sort($view, 'node', 'random', 'ASC', '');
+//  }
+//  else {
+//    // show latest
+//    views_view_add_sort($view, 'node', 'created', 'DESC', '');
+//    // views_view_add_sort($view, 'node', 'changed', 'DESC', '');
+//  }
+//  // invoke the cache
+//  views_load_cache();
+//
+//  // sanitize view
+//  views_sanitize_view($view);
+//
+//  // build the view
+//  //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
+//  $output = views_build_view('block', $view, $views_args, FALSE, $view->nodes_per_block);
+//
+////   if (!$output) {
+////     // keep the block title to maintain links to list pages
+////     $output = '<p></p>';
+////   }
+//  //  firep($view, 'view in generate_block');
+//  return $output;
+//}
+//
