@@ -76,7 +76,7 @@ if (Drupal.jsEnabled) {
     $(this).remove();
     $('#' + term_id).trigger('click');
   });
-  $(".views-exposed-form select option:selected").each(function() {
+  $("#sidebar-left .views-exposed-form select option:selected").each(function() {
     $('#term_' + $(this).val()).click();
   });
 
@@ -105,14 +105,14 @@ if (Drupal.jsEnabled) {
 
   function viewsSubmit(tid, vid, select) {
     var name = Drupal.settings.ctaxo['vid_' + vid];
-    var vals = $('#edit-' + name).val() || [] ; // all selected values
+    var vals = $('#sidebar-left .edit-' + name).val() || [] ; // all selected values
     if (select) {
       vals.push(tid); 
     }
     else {
       vals.splice($.inArray(tid, vals),1); // remove 
     }
-    $('#edit-' + name).val(vals); // update the new values
+    $('.edit-' + name).val(vals); // update the new values
     $('#taxobar-throbber').css("display", "block");
     $('.views-exposed-form').parents('form').submit();
   }

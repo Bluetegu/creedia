@@ -587,18 +587,6 @@ function ctaxo_theme() {
         'go' => NULL,
       ),
     ),
-    'views_exposed_form__Creeds' => array(
-      'arguments' => array()  // args are needed only if its tpl.php file
-    ),
-    'views_exposed_form__Discussions' => array(
-      'arguments' => array()  // args are needed only if its tpl.php file
-    ),
-    'views_exposed_form__Blogs' => array(
-      'arguments' => array()  // args are needed only if its tpl.php file
-    ),
-    'views_exposed_form__Members' => array(
-      'arguments' => array()  // args are needed only if its tpl.php file
-    ),
   );
 }
 
@@ -621,11 +609,21 @@ function _ctaxo_get_voc_name($vid) {
 
 /**
  * Implementation of hook_form_alter for a specific form
- * Convert arguments to selected exposed filter values.
- *
- * Currently clears all arguments (should add some check here...)
+ * - Page views: Convert arguments to selected exposed filter values.
+ * - Block views: Copy page remembered options
+ * - Set unique ids for select form elements with the same field name
  */
 function creedia_form_views_exposed_form_alter(&$form, &$form_state) {
+  static $i = 0;
+  global $_SESSION;
+
+  // set unique ids for select forms and common class
+  foreach($form as $id => $element) {
+    if ($element['#type'] == 'select') {
+      $form[$id]['#id'] = 'edit-'. $id .'-'. $i;
+      $form[$id]['#attributes'] = array('class' => 'edit-'. $id);
+    }
+  }
 
   if ($form_state['view']->tag == 'creedia-directory') {
     // copy arguments locally
@@ -650,86 +648,27 @@ function creedia_form_views_exposed_form_alter(&$form, &$form_state) {
         }
       }
       unset($form_state['view']->args);
-
-      //    // The code below breaks views ajax
-      //    $path_args = explode('/', $form['#action']);
-      //    array_pop($path_args);
-      //    $form['#action'] = implode('/', $path_args);
     }
   }
+
+//  if ($form_state['view']->tag == 'creedia-related') {
+//    switch (arg(0)) {
+//      case 'creeds':
+//      case 'blogs':
+//      case 'members':
+//        $view_name = ucfirst(arg(0));
+//        break;
+//      case 'opinions':
+//        $view_name = 'Dicussions';
+//        break;
+//    }
+//    if ($view_name) {
+//      // copy the page remembered options to the block exposed filter
+//      $form_state['input'] = $_SESSION['views'][$view_name]['default'];
+//    }
+//  }
   //  krumo($form_state);
   //  krumo($form);
-}
-
-/**
- * Internal function to process exposed filter forms.
- * @param $form
- */
-function _ctaxo_exposed_form($form) {
-  // Add class for js code
-  // for some strange reason inserting the class doesn't work
-  //  $form['#attributes'] = array('class' => 'views-exposed-form');
-  $form['#prefix'] = '<div class="views-exposed-form">';
-  $form['#suffix'] = '</div>';
-
-  // select boxes and submit button are hidden
-//  if (isset($form['religion'])) {
-//    $form['religion']['#prefix'] = '<div style="display:none;">';
-//    $form['religion']['#suffix'] = '</div>';
-//  }
-//  if (isset($form['beliefset'])) {
-//    $form['beliefset']['#prefix'] = '<div style="display:none;">';
-//    $form['beliefset']['#suffix'] = '</div>';
-//  }
-//  if (isset($form['freetag'])) {
-//    $form['freetag']['#prefix'] = '<div style="display:none;">';
-//    $form['freetag']['#suffix'] = '</div>';
-//  }
-//  if (isset($form['country'])) {
-//    $form['country']['#prefix'] = '<div style="display:none;">';
-//    $form['country']['#suffix'] = '</div>';
-//  }
-//  if (isset($form['gender'])) {
-//    $form['gender']['#prefix'] = '<div style="display:none;">';
-//    $form['gender']['#suffix'] = '</div>';
-//  }
-//  $form['submit']['#prefix'] = '<div style="display:none;">';
-//  $form['submit']['#suffix'] = '</div>';
-
-  $output = drupal_render($form);
-  return $output;
-}
-
-/**
- * Theme the exposed filter form for the Creeds view
- * @param $form
- */
-function theme_views_exposed_form__Creeds($form) {
-  return _ctaxo_exposed_form($form);
-}
-
-/**
- * Theme the exposed filter form for the Discussions view
- * @param $form
- */
-function theme_views_exposed_form__Discussions($form) {
-  return _ctaxo_exposed_form($form);
-}
-
-/**
- * Theme the exposed filter form for the Blogs view
- * @param $form
- */
-function theme_views_exposed_form__Blogs($form) {
-  return _ctaxo_exposed_form($form);
-}
-
-/**
- * Theme the exposed filter form for the Creeds view
- * @param $form
- */
-function theme_views_exposed_form__Members($form) {
-  return _ctaxo_exposed_form($form);
 }
 
 function theme_ctaxo_list($vid, $content) {

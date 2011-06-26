@@ -136,20 +136,21 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 
     switch ($delta) {
       case 0:
-//        $type = 'creed';
-//        $title = 'Related Creeds';
-//        $content = views_embed_view('Creed_blocks', 'block_1');
-//        $description = 'Related Creeds';
-//        $name = 'related_creeds_prog';
-//        $nid = 0;
-//        $add_d = TRUE;
-//
-//        if ($node) {
-//          if ($node->type != 'opinion') {
-//            // related creed block shown in opinion view
-//            $view_block = FALSE;
-//          }
-//        }
+        $type = 'creed';
+        $title = 'Related Creeds';
+        $view_name = 'Creed_blocks';
+        $display_id = 'block_2';
+        $nid = 0;
+        $add_d = TRUE;
+        $sort = 'popular';
+
+        if ($node) {
+          if ($node->type != 'opinion' && $node->type != 'dblog') {
+            // related creed block shown in opinion view
+            $view_block = FALSE;
+          }
+        }
+        cviews_set_exposed_filters($view_name, $display_id);
         break;
 //      case 1:
 //        $type = 'opinion';
@@ -340,6 +341,31 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     }
   }
   return $block;
+}
+
+/**
+ * Manipulate exposed filter remembered
+ */
+function cviews_set_exposed_filters($view_name, $display_id) {
+  global $_SESSION;
+
+  switch (arg(0)) {
+    case 'creeds':
+    case 'blogs':
+    case 'members':
+      $page_view_name = ucfirst(arg(0));
+      break;
+    case 'opinions':
+      $page_view_name = 'Dicussions';
+      break;
+  }
+  if ($page_view_name) {
+    // copy the page remembered options to the block exposed filter
+    $_SESSION['views'][$view_name][$display_id] = $_SESSION['views'][$page_view_name]['default'];
+  }
+  elseif ($node = menu_get_object()) {
+    // add node terms as filters
+  }
 }
 
 

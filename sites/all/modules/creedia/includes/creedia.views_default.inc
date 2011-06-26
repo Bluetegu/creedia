@@ -2470,7 +2470,7 @@ function creedia_creeds_blocks_default_view() {
   $view = new view;
   $view->name = 'Creed_blocks';
   $view->description = 'Creed Blocks';
-  $view->tag = 'creedia-directory';
+  $view->tag = 'creedia-related';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
@@ -2577,6 +2577,11 @@ function creedia_creeds_blocks_default_view() {
     'field' => 'created',
     'relationship' => 'none',
   ),
+  'random' => array(
+    'id' => 'random',
+    'table' => 'views',
+    'field' => 'random',
+  ),
   ));
   $handler->override_option('filters', array(
   'type' => array(
@@ -2626,6 +2631,115 @@ function creedia_creeds_blocks_default_view() {
   ));
   $handler = $view->new_display('block', 'Latest', 'block_1');
   $handler->override_option('title', 'Latest Creeds');
+  $handler->override_option('block_description', '');
+  $handler->override_option('block_caching', -1);
+  $handler = $view->new_display('block', 'Related', 'block_2');
+  $handler->override_option('sorts', array(
+  'random' => array(
+    'id' => 'random',
+    'table' => 'views',
+    'field' => 'random',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'creed' => 'creed',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'term_node_tid_depth' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'term_node_tid_depth_op',
+      'identifier' => 'religion',
+      'label' => 'religion',
+      'bef_filter_description' => '',
+      'bef_format' => 'default',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+      'bef_select_all_none' => 0,
+  ),
+    'type' => 'select',
+    'limit' => TRUE,
+    'vid' => '2',
+    'depth' => '-1',
+    'id' => 'term_node_tid_depth',
+    'table' => 'node',
+    'field' => 'term_node_tid_depth',
+    'hierarchy' => 1,
+    'configure_hs' => '<a href="/admin/build/views/hs_config/Creed_blocks/default/term_node_tid_depth">Configure Hierarchical Select</a>',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'tid' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'tid_op',
+      'identifier' => 'beliefset',
+      'label' => 'BeliefSet Term',
+      'bef_filter_description' => '',
+      'bef_format' => 'default',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+      'bef_select_all_none' => 0,
+  ),
+    'type' => 'select',
+    'limit' => TRUE,
+    'vid' => '3',
+    'id' => 'tid',
+    'table' => 'term_node',
+    'field' => 'tid',
+    'hierarchy' => 0,
+    'configure_hs' => '<a href="/admin/build/views/hs_config/Creed_blocks/block_2/tid">Configure Hierarchical Select</a>',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  ));
+  $handler->override_option('use_ajax', TRUE);
+  $handler->override_option('exposed_block', TRUE);
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
 
