@@ -2753,7 +2753,6 @@ function creedia_creeds_blocks_default_view() {
  * Exported Member blocks view
  */
 function creedia_members_blocks_default_view() {
-
   $view = new view;
   $view->name = 'Member_blocks';
   $view->description = 'Member Blocks';
@@ -3065,38 +3064,6 @@ function creedia_members_blocks_default_view() {
     'field' => 'term_node_tid_depth',
     'hierarchy' => 1,
     'configure_hs' => '<a href="/admin/build/views/hs_config/Creed_blocks/default/term_node_tid_depth">Configure Hierarchical Select</a>',
-    'override' => array(
-      'button' => 'Use default',
-  ),
-    'relationship' => 'none',
-    'reduce_duplicates' => 1,
-  ),
-  'tid' => array(
-    'operator' => 'or',
-    'value' => array(),
-    'group' => '0',
-    'exposed' => TRUE,
-    'expose' => array(
-      'use_operator' => 0,
-      'operator' => 'tid_op',
-      'identifier' => 'beliefset',
-      'label' => 'BeliefSet Term',
-      'bef_filter_description' => '',
-      'bef_format' => 'default',
-      'optional' => 1,
-      'single' => 0,
-      'remember' => 1,
-      'reduce' => 0,
-      'bef_select_all_none' => 0,
-  ),
-    'type' => 'select',
-    'limit' => TRUE,
-    'vid' => '3',
-    'id' => 'tid',
-    'table' => 'term_node',
-    'field' => 'tid',
-    'hierarchy' => 0,
-    'configure_hs' => '<a href="/admin/build/views/hs_config/Creed_blocks/block_2/tid">Configure Hierarchical Select</a>',
     'override' => array(
       'button' => 'Use default',
   ),
