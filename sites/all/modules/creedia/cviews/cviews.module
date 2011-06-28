@@ -6,8 +6,6 @@
  *
  * Build blocks for related creeds, opinions and members
  *
- * Build views for creeds, opinions and members
- *
  */
 
 if (!defined(CREEDIA_NODES_PER_BLOCK)) {
@@ -151,29 +149,30 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
           }
         }
         break;
-//      case 1:
-//        $type = 'opinion';
-//        $title = 'Related Discussions';
-//        $description = 'Related Discussions';
-//        $name = 'related_opinions_prog';
-//        $nid = 0;
-//        $add_d = TRUE;
-//
-//        if ($node) {
-//          switch ($node->type) {
-//            case 'opinion':
-//            case 'interpretation':
-//              $nid = $node->nid; // avoid self
-//              break;
-//            case 'creed':
-//              break;  // show block
-//            case 'member':
-//            default:
-//              $view_block = FALSE;
-//              break;
-//          }
-//        }
-//        break;
+      case 1:
+        $type = 'opinion';
+        $title = 'Related Discussions';
+        $view_name = 'Discussion_blocks';
+        $display_id = 'block_2';
+        $sort ='featured';
+        $nid = 0;
+        $add_d = TRUE;
+
+        if ($node) {
+          switch ($node->type) {
+            case 'opinion':
+            case 'interpretation':
+              $nid = $node->nid; // avoid self
+              break;
+            case 'creed':
+              break;  // show block
+            case 'member':
+            default:
+              $view_block = FALSE;
+              break;
+          }
+        }
+        break;
       case 2:
         $type = 'member';
         $title = 'Related Members';
@@ -197,16 +196,16 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $ignore_terms = TRUE;
         $add_d = TRUE;
         break;
-//      case 4:
-//        $type = 'opinion';
-//        $title = 'Latest Discussions';
-//        $description = 'Latest Discussions';
-//        $name = 'latest_opinions_prog';
-//        $nid = 0;
-//        $sort = 'recent';
-//        $ignore_terms = TRUE;
-//        $add_d = TRUE;
-//        break;
+      case 4:
+        $type = 'opinion';
+        $title = 'Latest Discussions';
+        $view_name = 'Discussion_blocks';
+        $display_id = 'block_1';
+        $nid = 0;
+        $sort = 'recent';
+        $ignore_terms = TRUE;
+        $add_d = TRUE;
+        break;
       case 5:
         $type = 'member';
         $title = 'Latest Members';
@@ -253,15 +252,15 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $sort = 'recent';
         $ignore_terms = TRUE;
         break;
-//      case 10:
-//        $type = 'opinion';
-//        $title = 'Latest Discussions';
-//        $description = 'Latest opinions';
-//        $name = 'front_latest_opinions_prog';
-//        $nid = 0;
-//        $sort = 'recent';
-//        $ignore_terms = TRUE;
-//        break;
+      case 10:
+        $type = 'opinion';
+        $title = 'Latest Discussions';
+        $view_name = 'Discussion_blocks';
+        $display_id = 'block_1';
+        $nid = 0;
+        $sort = 'recent';
+        $ignore_terms = TRUE;
+        break;
       case 11:
         $type = 'member';
         $title = 'Latest Members';

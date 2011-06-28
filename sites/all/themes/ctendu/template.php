@@ -261,7 +261,7 @@ function ctendu_opinion_image($node, $page = TRUE) {
  * Truncated title link
  */
 function ctendu_truncated_title($title, $nid, $len) {
-  return l(truncate_utf8($title, $len, TRUE, TRUE), 'node/'.$nid, array('attributes' => array('title' => $title )));
+  return l(truncate_utf8d($title, $len, TRUE, TRUE), 'node/'.$nid, array('attributes' => array('title' => $title )));
 }
 
 /**
@@ -970,9 +970,9 @@ function ctendu_preprocess_views_view_fields__Creed_blocks(&$vars) {
  * views Member blocks preprocess
  */
 function ctendu_preprocess_views_view_fields__Member_blocks(&$vars) {
-  $full_name = $vars['fields']['field_full_name_value']->content;
-  $one_liner = $vars['fields']['field_one_liner_value']->content;
-  $title = $vars['fields']['title']->content;
+  $full_name = $vars['fields']['field_full_name_value']->raw;
+  $one_liner = $vars['fields']['field_one_liner_value']->raw;
+  $title = $vars['fields']['title']->raw;
   $uid = $vars['fields']['uid']->raw;
   $teaser = $vars['fields']['teaser']->content;
 
@@ -995,7 +995,7 @@ function ctendu_preprocess_views_view_fields__Member_blocks(&$vars) {
  * views Blog blocks preprocess
  */
 function ctendu_preprocess_views_view_fields__Blog_blocks(&$vars) {
-  $title = $vars['fields']['title']->content;
+  $title = $vars['fields']['title']->raw; // if content is used we get double check_plain
   $uid = $vars['fields']['uid']->raw;
   $nid = $vars['fields']['nid']->raw;
   $teaser = $vars['fields']['teaser']->content;
@@ -1008,3 +1008,32 @@ function ctendu_preprocess_views_view_fields__Blog_blocks(&$vars) {
     $vars['picture'] = theme('user_picture', $account, 'block');
   }
 }
+
+/**
+ * views Discussion blocks preprocess
+ */
+function ctendu_preprocess_views_view_fields__Discussion_blocks(&$vars) {
+  $node = new stdClass();
+
+  $title = $vars['fields']['title']->raw; // if content is used we get double check_plain
+  $nid = $vars['fields']['nid']->raw;
+  $teaser = $vars['fields']['teaser']->content;
+
+  $node->nid = $nid;
+  $node->field_opinion_image[0]['view'] = $vars['fields']['field_opinion_image_fid']->content;
+  $node->field_opinion_em_picture[0]['view'] = $vars['fields']['field_opinion_em_picture_embed']->content;
+  $node->field_opinion_em_video[0]['view'] = $vars['fields']['field_opinion_em_video_embed']->content;
+  if ($vars['fields']['field_opinion_em_audio_embed']->raw) {
+    $node->field_opinion_em_audio[0]['view'] = $vars['fields']['field_opinion_em_audio_embed']->content;
+  }
+//      // There is a bug I could not trace which doesn't set thumbnail picture even
+//      // if a path for a default thumbnail is set. So, we override it here.
+//      if ($val) {
+//        $snode->field_opinion_em_audio[0]['view'] = theme('image', path_to_theme() .'/images/audio.png');
+//      }
+
+  $vars['opinion_image'] = theme('opinion_image', $node);
+  $vars['title'] = theme('truncated_title', $title, $nid, 32);
+  $vars['body'] = $teaser;
+}
+

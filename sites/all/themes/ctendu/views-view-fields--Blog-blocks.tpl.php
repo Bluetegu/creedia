@@ -6,7 +6,7 @@
   </div>
   <div class="blog-main node-block-main">
     <div class="title">
-      <?php print $name ?>
+      <?php print $title ?>
     </div>
     <div class="body">
       <?php print $body ?>
