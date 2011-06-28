@@ -234,15 +234,16 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //        $ignore_terms = TRUE;
 //        $featured = TRUE;
 //        break;
-//      case 8:
-//        $type = 'member';
-//        $title = 'Featured Members';
-//        $description = 'Featured Members';
-//        $name = 'featured_members_prog';
-//        $nid = 0;
-//        $ignore_terms = TRUE;
-//        $featured = TRUE;
-//        break;
+      case 8:
+        $type = 'member';
+        $title = 'Featured Members';
+        $nid = 0;
+        $view_name = 'Member_blocks';
+        $display_id = 'block_3';
+        $sort = 'featured';
+        $ignore_terms = TRUE;
+        $featured = TRUE;
+        break;
       case 9:
         $type = 'creed';
         $title = 'Latest Creeds';
