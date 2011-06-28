@@ -216,24 +216,26 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $ignore_terms = TRUE;
         $add_d = TRUE;
         break;
-//      case 6:
-//        $type = 'creed';
-//        $title = 'Featured Creeds';
-//        $description = 'Featured Creeds';
-//        $name = 'featured_creeds_prog';
-//        $nid = 0;
-//        $ignore_terms = TRUE;
-//        $featured = TRUE;
-//        break;
-//      case 7:
-//        $type = 'opinion';
-//        $title = 'Featured Discussions';
-//        $description = 'Featured Discussions';
-//        $name = 'featured_opinions_prog';
-//        $nid = 0;
-//        $ignore_terms = TRUE;
-//        $featured = TRUE;
-//        break;
+      case 6:
+        $type = 'creed';
+        $title = 'Featured Creeds';
+        $view_name = 'Creed_blocks';
+        $display_id = 'block_3';
+        $sort = 'featured';
+        $nid = 0;
+        $ignore_terms = TRUE;
+        $featured = TRUE;
+        break;
+      case 7:
+        $type = 'opinion';
+        $title = 'Featured Discussions';
+        $view_name = 'Discussion_blocks';
+        $display_id = 'block_3';
+        $sort = 'featured';
+        $nid = 0;
+        $ignore_terms = TRUE;
+        $featured = TRUE;
+        break;
       case 8:
         $type = 'member';
         $title = 'Featured Members';
@@ -328,9 +330,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //						      'sort' => $sort,
 //      ));
       $path = $type .'s';
-      if ($sort != CREEDIA_DEFAULTSORT_ID) {
-        $path .= '/'. $sort;
-      }
+      $path .= '/'. $sort;
 //      if ($terms) {
 //        foreach ($terms as $vid => $term_ids) {
 //          $path .= '/'. implode('+', $term_ids) ;

@@ -3744,11 +3744,6 @@ function creedia_discussions_blocks_default_view() {
     'field' => 'created',
     'relationship' => 'none',
   ),
-  'random' => array(
-    'id' => 'random',
-    'table' => 'views',
-    'field' => 'random',
-  ),
   ));
   $handler->override_option('filters', array(
   'type' => array(
@@ -3789,7 +3784,7 @@ function creedia_discussions_blocks_default_view() {
   $handler->override_option('cache', array(
   'type' => 'none',
   ));
-  $handler->override_option('title', 'Creed Blocks');
+  $handler->override_option('title', 'Discussion Blocks');
   $handler->override_option('items_per_page', 3);
   $handler->override_option('distinct', 1);
   $handler->override_option('style_plugin', 'list');
@@ -3798,7 +3793,6 @@ function creedia_discussions_blocks_default_view() {
   'type' => 'ul',
   ));
   $handler = $view->new_display('block', 'Latest', 'block_1');
-  $handler->override_option('title', 'Latest Creeds');
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
   $handler = $view->new_display('block', 'Related', 'block_2');
@@ -3940,6 +3934,31 @@ function creedia_discussions_blocks_default_view() {
   ));
   $handler->override_option('use_ajax', TRUE);
   $handler->override_option('exposed_block', TRUE);
+  $handler->override_option('block_description', '');
+  $handler->override_option('block_caching', -1);
+  $handler = $view->new_display('block', 'Featured', 'block_3');
+  $handler->override_option('relationships', array(
+  'flag_content_rel' => array(
+    'label' => 'flag',
+    'required' => 1,
+    'flag' => 'featured',
+    'user_scope' => 'any',
+    'id' => 'flag_content_rel',
+    'table' => 'node',
+    'field' => 'flag_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'random' => array(
+    'id' => 'random',
+    'table' => 'views',
+    'field' => 'random',
+  ),
+  ));
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
 
