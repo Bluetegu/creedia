@@ -966,3 +966,28 @@ function ctendu_preprocess_views_view_fields__Creed_blocks(&$vars) {
   $vars['title'] = theme('truncated_title', $node->title, $node->nid, 32);
 }
 
+/**
+ * views Member blocks preprocess
+ */
+function ctendu_preprocess_views_view_fields__Member_blocks(&$vars) {
+  $full_name = $vars['fields']['field_full_name_value']->content;
+  $one_liner = $vars['fields']['field_one_liner_value']->content;
+  $title = $vars['fields']['title']->content;
+  $uid = $vars['fields']['uid']->raw;
+  $teaser = $vars['fields']['teaser']->content;
+
+  $vars['name'] = theme('truncated_user', $full_name, $title, $uid, 16);
+  if ($one_liner) {
+    // show only a single text field in block.
+    $vars['one_liner'] = truncate_utf8d($one_liner, 48, TRUE, TRUE );
+  }
+  else {
+    $vars['body'] = $teaser;
+  }
+  // align the author picture to the block size
+  $account = user_load(array('uid' => $uid));
+  if ($account) {
+    $vars['picture'] = theme('user_picture', $account, 'block');
+  }
+}
+

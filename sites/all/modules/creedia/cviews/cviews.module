@@ -150,7 +150,6 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
             $view_block = FALSE;
           }
         }
-        cviews_set_exposed_filters($view_name, $display_id);
         break;
 //      case 1:
 //        $type = 'opinion';
@@ -175,18 +174,19 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //          }
 //        }
 //        break;
-//      case 2:
-//        $type = 'member';
-//        $title = 'Related Members';
-//        $description = 'Related Members';
-//        $name = 'related_members_prog';
-//        $nid = 0;
-//        $add_d = TRUE;
-//
-//        if ($node) {
-//          $view_block = FALSE;
-//        }
-//        break;
+      case 2:
+        $type = 'member';
+        $title = 'Related Members';
+        $view_name = 'Member_blocks';
+        $display_id = 'block_2';
+        $sort = 'featured';
+        $nid = 0;
+        $add_d = TRUE;
+
+        if ($node) {
+          $view_block = FALSE;
+        }
+        break;
       case 3:
         $type = 'creed';
         $title = 'Latest Creeds';
@@ -207,16 +207,16 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //        $ignore_terms = TRUE;
 //        $add_d = TRUE;
 //        break;
-//      case 5:
-//        $type = 'member';
-//        $title = 'Latest Members';
-//        $description = 'Latest Members';
-//        $name = 'latest_members_prog';
-//        $nid = 0;
-//        $sort = 'joined';
-//        $ignore_terms = TRUE;
-//        $add_d = TRUE;
-//        break;
+      case 5:
+        $type = 'member';
+        $title = 'Latest Members';
+        $nid = 0;
+        $view_name = 'Member_blocks';
+        $display_id = 'block_1';
+        $sort = 'joined';
+        $ignore_terms = TRUE;
+        $add_d = TRUE;
+        break;
 //      case 6:
 //        $type = 'creed';
 //        $title = 'Featured Creeds';
@@ -262,15 +262,15 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //        $sort = 'recent';
 //        $ignore_terms = TRUE;
 //        break;
-//      case 11:
-//        $type = 'member';
-//        $title = 'Latest Members';
-//        $description = 'Latest members';
-//        $name = 'front_latest_members_prog';
-//        $nid = 0;
-//        $sort = 'joined';
-//        $ignore_terms = TRUE;
-//        break;
+      case 11:
+        $type = 'member';
+        $title = 'Latest Members';
+        $view_name = 'Member_blocks';
+        $display_id = 'block_1';
+        $nid = 0;
+        $sort = 'joined';
+        $ignore_terms = TRUE;
+        break;
 //      case 12:
 //        $type = 'blog';
 //        $title = 'Related Blogs';
@@ -306,7 +306,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
       $description = $title;
 //
     if ($view_block) {
-//      if (!$ignore_terms) {
+      if (!$ignore_terms) {
 //        if ($node) {
 //          $terms = cviews_node_to_terms_filtered($node->nid, $type);
 //          $description .= ' based on node\'s terms.';
@@ -315,7 +315,8 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //          $terms = cviews_url_to_terms_filtered($type);
 //          $description .= ' based on selected terms.';
 //        }
-//      }
+        cviews_set_exposed_filters($view_name, $display_id);
+      }
       $block['content'] = views_embed_view($view_name, $display_id);
 //                   cviews_generate_block(array('type' => $type,
 //						      'name' => $name,

@@ -31,6 +31,9 @@ function creedia_views_default_views() {
   $view = creedia_creeds_blocks_default_view();
   $views[$view->name] = $view;
 
+  $view = creedia_members_blocks_default_view();
+  $views[$view->name] = $view;
+
   return $views;
 }
 
@@ -2745,3 +2748,367 @@ function creedia_creeds_blocks_default_view() {
 
   return $view;
 }
+
+/**
+ * Exported Member blocks view
+ */
+function creedia_members_blocks_default_view() {
+
+  $view = new view;
+  $view->name = 'Member_blocks';
+  $view->description = 'Member Blocks';
+  $view->tag = 'creedia-related';
+  $view->view_php = '';
+  $view->base_table = 'node';
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->override_option('fields', array(
+  'title' => array(
+    'label' => 'Title',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+  ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 0,
+    'exclude' => 0,
+    'id' => 'title',
+    'table' => 'node',
+    'field' => 'title',
+    'relationship' => 'none',
+  ),
+  'field_full_name_value' => array(
+    'label' => '',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+  ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 0,
+    'label_type' => 'none',
+    'format' => 'default',
+    'multiple' => array(
+      'group' => TRUE,
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_reversed' => FALSE,
+  ),
+    'exclude' => 0,
+    'id' => 'field_full_name_value',
+    'table' => 'node_data_field_full_name',
+    'field' => 'field_full_name_value',
+    'relationship' => 'none',
+  ),
+  'field_one_liner_value' => array(
+    'label' => '',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+  ),
+    'empty' => '',
+    'hide_empty' => 1,
+    'empty_zero' => 0,
+    'link_to_node' => 0,
+    'label_type' => 'none',
+    'format' => 'default',
+    'multiple' => array(
+      'group' => TRUE,
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_reversed' => FALSE,
+  ),
+    'exclude' => 0,
+    'id' => 'field_one_liner_value',
+    'table' => 'node_data_field_one_liner',
+    'field' => 'field_one_liner_value',
+    'relationship' => 'none',
+  ),
+  'teaser' => array(
+    'label' => 'Teaser',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 1,
+      'max_length' => '48',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 1,
+  ),
+    'empty' => '',
+    'hide_empty' => 1,
+    'empty_zero' => 0,
+    'exclude' => 0,
+    'id' => 'teaser',
+    'table' => 'node_revisions',
+    'field' => 'teaser',
+    'relationship' => 'none',
+  ),
+  'uid' => array(
+    'label' => 'Uid',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+  ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_user' => 0,
+    'exclude' => 0,
+    'id' => 'uid',
+    'table' => 'users',
+    'field' => 'uid',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  'random' => array(
+    'id' => 'random',
+    'table' => 'views',
+    'field' => 'random',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'member' => 'member',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('access', array(
+  'type' => 'none',
+  ));
+  $handler->override_option('cache', array(
+  'type' => 'none',
+  ));
+  $handler->override_option('title', 'Member Blocks');
+  $handler->override_option('items_per_page', 3);
+  $handler->override_option('distinct', 1);
+  $handler->override_option('style_plugin', 'list');
+  $handler->override_option('style_options', array(
+  'grouping' => '',
+  'type' => 'ul',
+  ));
+  $handler = $view->new_display('block', 'Latest', 'block_1');
+  $handler->override_option('title', 'Latest Creeds');
+  $handler->override_option('block_description', '');
+  $handler->override_option('block_caching', -1);
+  $handler = $view->new_display('block', 'Related', 'block_2');
+  $handler->override_option('sorts', array(
+  'random' => array(
+    'id' => 'random',
+    'table' => 'views',
+    'field' => 'random',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'member' => 'member',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'term_node_tid_depth' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'term_node_tid_depth_op',
+      'identifier' => 'religion',
+      'label' => 'religion',
+      'bef_filter_description' => '',
+      'bef_format' => 'default',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+      'bef_select_all_none' => 0,
+  ),
+    'type' => 'select',
+    'limit' => TRUE,
+    'vid' => '2',
+    'depth' => '-1',
+    'id' => 'term_node_tid_depth',
+    'table' => 'node',
+    'field' => 'term_node_tid_depth',
+    'hierarchy' => 1,
+    'configure_hs' => '<a href="/admin/build/views/hs_config/Creed_blocks/default/term_node_tid_depth">Configure Hierarchical Select</a>',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  'tid' => array(
+    'operator' => 'or',
+    'value' => array(),
+    'group' => '0',
+    'exposed' => TRUE,
+    'expose' => array(
+      'use_operator' => 0,
+      'operator' => 'tid_op',
+      'identifier' => 'beliefset',
+      'label' => 'BeliefSet Term',
+      'bef_filter_description' => '',
+      'bef_format' => 'default',
+      'optional' => 1,
+      'single' => 0,
+      'remember' => 1,
+      'reduce' => 0,
+      'bef_select_all_none' => 0,
+  ),
+    'type' => 'select',
+    'limit' => TRUE,
+    'vid' => '3',
+    'id' => 'tid',
+    'table' => 'term_node',
+    'field' => 'tid',
+    'hierarchy' => 0,
+    'configure_hs' => '<a href="/admin/build/views/hs_config/Creed_blocks/block_2/tid">Configure Hierarchical Select</a>',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+    'reduce_duplicates' => 1,
+  ),
+  ));
+  $handler->override_option('use_ajax', TRUE);
+  $handler->override_option('exposed_block', TRUE);
+  $handler->override_option('block_description', '');
+  $handler->override_option('block_caching', -1);
+
+  return $view;
+}
+
