@@ -271,37 +271,38 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $sort = 'joined';
         $ignore_terms = TRUE;
         break;
-//      case 12:
-//        $type = 'blog';
-//        $title = 'Related Blogs';
-//        $description = 'Related Blogs';
-//        $name = 'related_blogs_prog';
-//        $nid = 0;
-//        $add_d = TRUE;
-//
-//        if ($node) {
-//          $view_block = FALSE;
-//        }
-//        break;
-//      case 13:
-//        $type = 'blog';
-//        $title = 'Latest Blogs';
-//        $description = 'Latest Blogs';
-//        $name = 'latest_blogs_prog';
-//        $nid = 0;
-//        $sort = 'recent';
-//        $ignore_terms = TRUE;
-//        $add_d = TRUE;
-//        break;
-//      case 14:
-//        $type = 'blog';
-//        $title = 'Latest Blogs';
-//        $description = 'Latest Blogs';
-//        $name = 'front_latest_blogs_prog';
-//        $nid = 0;
-//        $sort = 'recent';
-//        $ignore_terms = TRUE;
-//        break;
+      case 12:
+        $type = 'blog';
+        $title = 'Related Blogs';
+        $view_name = 'Blog_blocks';
+        $display_id = 'block_2';
+        $sort = 'featured';
+        $nid = 0;
+        $add_d = TRUE;
+
+        if ($node) {
+          $view_block = FALSE;
+        }
+        break;
+      case 13:
+        $type = 'blog';
+        $title = 'Latest Blogs';
+        $view_name = 'Blog_blocks';
+        $display_id = 'block_1';
+        $sort = 'recent';
+        $nid = 0;
+        $ignore_terms = TRUE;
+        $add_d = TRUE;
+        break;
+      case 14:
+        $type = 'blog';
+        $title = 'Latest Blogs';
+        $view_name = 'Blog_blocks';
+        $display_id = 'block_1';
+        $nid = 0;
+        $sort = 'recent';
+        $ignore_terms = TRUE;
+        break;
       }
       $description = $title;
 //

@@ -991,3 +991,20 @@ function ctendu_preprocess_views_view_fields__Member_blocks(&$vars) {
   }
 }
 
+/**
+ * views Blog blocks preprocess
+ */
+function ctendu_preprocess_views_view_fields__Blog_blocks(&$vars) {
+  $title = $vars['fields']['title']->content;
+  $uid = $vars['fields']['uid']->raw;
+  $nid = $vars['fields']['nid']->raw;
+  $teaser = $vars['fields']['teaser']->content;
+
+  $vars['title'] = theme('truncated_title', $title, $nid, 32);
+  $vars['body'] = $teaser;
+  // align the author picture to the block size
+  $account = user_load(array('uid' => $uid));
+  if ($account) {
+    $vars['picture'] = theme('user_picture', $account, 'block');
+  }
+}
