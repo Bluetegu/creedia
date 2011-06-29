@@ -321,6 +321,11 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         cviews_set_exposed_filters($view_name, $display_id);
       }
       $block['content'] = views_embed_view($view_name, $display_id);
+      if (!$ignore_terms && !$node) {
+        // add exposed filters to be controlled through js
+        $filter_block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
+        $block['content'] .= $filter_block['content'];
+      }
 //                   cviews_generate_block(array('type' => $type,
 //						      'name' => $name,
 //						      'title' => $title,
