@@ -1106,7 +1106,7 @@ function creedia_blogs_default_view() {
   'type' => 'none',
   ));
   $handler->override_option('title', 'Blogs');
-  $handler->override_option('empty', 'No blog posts tagged with selected terms.');
+  $handler->override_option('empty', 'No blog posts here yet. ');
   $handler->override_option('empty_format', '4');
   $handler->override_option('use_ajax', TRUE);
   $handler->override_option('use_pager', '1');
@@ -1257,6 +1257,151 @@ function creedia_blogs_default_view() {
   'title' => 'Most Viewed',
   'description' => '',
   'weight' => '2',
+  'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+  ));
+  $handler = $view->new_display('page', 'My Blog', 'page_4');
+  $handler->override_option('sorts', array(
+  'sticky' => array(
+    'order' => 'DESC',
+    'id' => 'sticky',
+    'table' => 'node',
+    'field' => 'sticky',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'hour',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+  'uid' => array(
+    'default_action' => 'default',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'breadcrumb' => '',
+    'default_argument_type' => 'fixed',
+    'default_argument' => '',
+    'validate_type' => 'none',
+    'validate_fail' => 'not found',
+    'break_phrase' => 0,
+    'not' => 0,
+    'id' => 'uid',
+    'table' => 'users',
+    'field' => 'uid',
+    'validate_user_argument_type' => 'uid',
+    'validate_user_roles' => array(
+      '2' => 0,
+      '3' => 0,
+  ),
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+    'default_options_div_prefix' => '',
+    'default_argument_fixed' => '1',
+    'default_argument_user' => 0,
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(
+      'blog' => 0,
+      'faq' => 0,
+      'creed' => 0,
+      'dblog' => 0,
+      'deed' => 0,
+      'image_cck' => 0,
+      'interpretation' => 0,
+      'member' => 0,
+      'opinion' => 0,
+      'page' => 0,
+      'profile' => 0,
+      'religion_info' => 0,
+      'simplenews' => 0,
+      'story' => 0,
+  ),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+      '1' => 0,
+      '3' => 0,
+      '5' => 0,
+      '6' => 0,
+      '9' => 0,
+      '7' => 0,
+      '2' => 0,
+      '8' => 0,
+      '4' => 0,
+  ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_transform' => 0,
+    'validate_user_restrict_roles' => 0,
+    'validate_argument_node_flag_name' => '*relationship*',
+    'validate_argument_node_flag_test' => 'flaggable',
+    'validate_argument_node_flag_id_type' => 'id',
+    'validate_argument_user_flag_name' => '*relationship*',
+    'validate_argument_user_flag_test' => 'flaggable',
+    'validate_argument_user_flag_id_type' => 'id',
+    'validate_argument_php' => '',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'blog' => 'blog',
+      'dblog' => 'dblog',
+      'simplenews' => 'simplenews',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'user/%/blog');
+  $handler->override_option('menu', array(
+  'type' => 'tab',
+  'title' => 'My Blog',
+  'description' => 'My blog posts',
+  'weight' => '-7',
   'name' => 'navigation',
   ));
   $handler->override_option('tab_options', array(
