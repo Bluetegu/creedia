@@ -974,12 +974,14 @@ function ctendu_preprocess_views_view_fields__Member_blocks(&$vars) {
   $one_liner = $vars['fields']['field_one_liner_value']->raw;
   $title = $vars['fields']['title']->raw;
   $uid = $vars['fields']['uid']->raw;
+  $cnt = $vars['fields']['cnt']->content;
   $teaser = $vars['fields']['teaser']->content;
 
+  $vars['common'] = $cnt;
   $vars['name'] = theme('truncated_user', $full_name, $title, $uid, 16);
   if ($one_liner) {
     // show only a single text field in block.
-    $vars['one_liner'] = truncate_utf8d($one_liner, 48, TRUE, TRUE );
+    $vars['one_liner'] = truncate_utf8d($one_liner, $cnt ? 36 : 48, TRUE, TRUE );
   }
   else {
     $vars['body'] = $teaser;

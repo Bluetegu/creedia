@@ -278,7 +278,7 @@ function cdist_flag($event, $flag, $content_id, $account) {
 /**
  * Implementation of hook_block
  */
-/*function cdist_block($op = 'list', $delta = 0, $edit = array()) {
+function cdist_block($op = 'list', $delta = 0, $edit = array()) {
   global $user;
   $uid = $user->uid;
 
@@ -300,14 +300,14 @@ function cdist_flag($event, $flag, $content_id, $account) {
             $title = t('My Way Members');
             $path = 'members/byway';
             $block['subject'] = l('» '. $title, $path, array('attributes' => array('title' => $description)));
-            $block['content'] = cdist_myway(arg(1));
+            $block['content'] = views_embed_view('Member_blocks', 'block_4', arg(1));
           }
           break;
       }
   }
   return $block;
 }
-@@@TODO*/
+
 
 /**
  * Resets the cache and recalculate

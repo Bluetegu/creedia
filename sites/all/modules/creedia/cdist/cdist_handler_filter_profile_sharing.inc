@@ -11,9 +11,10 @@ class cdist_handler_filter_profile_sharing extends views_handler_filter {
   function query() {
     $this->ensure_my_table();
 
-    $where = "$this->table_alias.$this->real_field ";
-    $where .= '<> 255';  // private profiles are not listed
-    $where = '(' . $where . " AND NOT ( ***CURRENT_USER*** = 0 AND $this->table_alias.$this->real_field = 1))";
+    $cond1 = "$this->table_alias.$this->real_field IS NULL";
+    $cond2 = "$this->table_alias.$this->real_field = 0"; // private profiles are not listed
+    $cond3 = "(***CURRENT_USER*** != 0 AND $this->table_alias.$this->real_field = 1)";
+    $where = '('. $cond1 .' OR '. $cond2 .' OR '. $cond3 .')';
 
     $this->query->add_where($this->options['group'], $where);
   }
