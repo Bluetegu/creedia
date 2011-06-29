@@ -20,10 +20,22 @@ if (!defined(CREEDIA_MAX_SYMBOLS_IN_BLOCK)) {
   define("CREEDIA_MAX_SYMBOLS_IN_PROFILE", 8);
 }
 
+/**
+ * Implementation of hook_menu
+ */
+function cviews_menu() {
+  $items = array();
 
-/*
+  $items['blog'] = array(
+        'page callback' => 'cviews_blog',
+        'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
  * Implementation of hook_block
- *
  */
 function cviews_block($op = 'list', $delta = 0, $edit = array()) {
   // The $op parameter determines what piece of information is being requested.
@@ -377,48 +389,12 @@ function cviews_set_exposed_filters($view_name, $display_id) {
 
 
 /**
- * Creedia Blog view
+ * Creedia Company Blog view
  */
-//function cviews_blog($uid = 1) {
-//
-//  $view = views_create_view('blog', t('The World\'s Creed As People See It.'));
-//  views_view_add_page($view, t('Creedia Blog'), 'blog', 'teaser', TRUE, CREEDIA_NODES_PER_PAGE, '', 1, TRUE);
-//
-//  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
-//  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
-//  if ($uid == 1) {
-//    views_view_add_filter($view, 'node', 'type', 'OR', array('blog', 'simplenews'), '') ;
-//  }
-//  else {
-//    views_view_add_filter($view, 'node', 'type', 'OR', array('dblog'), '') ;
-//  }
-//  views_view_add_filter($view, 'users', 'uid', '=', $uid, '') ;
-//
-//  views_view_add_sort($view, 'node', 'sticky', 'ASC', '');
-//  views_view_add_sort($view, 'node', 'created', 'DESC', '');
-//
-//  $view->argument = array(
-//			  array(
-//				'type' => 'node_feed',
-//				'argdefault' => 2,
-//				'title' => '',
-//				'options' => '',
-//				'wildcard' => '',
-//				'wildcard_substitution' => '',
-//				),
-//			  );
-//
-//  views_load_cache();
-//  views_sanitize_view($view);
-//  $output = views_build_view('embed', $view, array(arg(1)), $view->use_pager, $view->nodes_per_page);
-//
-//  if (!$output) {
-//    $output = t('No blog posts here yet.');
-//  }
-//
-//  return $output;
-//}
-//
+function cviews_blog() {
+  return views_embed_view('Blogs', 'page_4');
+}
+
 ///*
 // *  Builds embeded interpretation view rendered within a creed node page.
 // */
