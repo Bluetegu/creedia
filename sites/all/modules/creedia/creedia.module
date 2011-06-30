@@ -261,59 +261,6 @@ function creedia_pages() {
   return ''; // this shouldn't happen
 }
 
-function creedia_creed_view($node) {
-
-  $teaser = FALSE;
-  $page = TRUE;
-  $links = TRUE;
-  $output  = node_view($node, $teaser, $page, $links);
-  $output .= comment_render($node, $node->cid);
-  $output .= creedia_interpretation_render($node);
-
-  return $output;
-}
-
-function creedia_interpretation_render($node) {
-  global $pager_total_items; // total items paged
-  $sort = $_GET["sort"];
-  $content = 'interpreation view - waiting for cview module to be upgraded';
-  /*$content = cviews_interpretation_view($node->nid, $sort);  temporary @@@TODO */
-  $tabs .= '<div class="tabs">';
-  $tabs .= theme('pager_result', CREEDIA_INTERPRETATION_PER_PAGE, 1);
-  $tabs .= '<span id="subtabs-title">'. t('Sort by:') .'</span>';
-  $tabs .= creedia_interpretation_tabs($sort);
-  $tabs .= '</div>';
-  if ($content) {
-    $content = $tabs . $content;
-  }
-  $output = theme('interpretation_wrapper', $content, $pager_total_items[1]);
-  return $output;
-}
-
-
-/**
- * Theme the interpretation tab
- * There must be a better way to do this using the menu system, instead of
- * copying the code to here.
- */
-function creedia_interpretation_tabs($activesort) {
-  $activesort = $activesort ? $activesort : 'adopted';
-  $path = 'node/'. arg(1) .'/view';
-  $title = array(t('Adopted'), t('Recent'));
-  $sort = array('adopted', 'recent');
-  $activesort = $activesort ? $activesort : 'recent';
-
-  $output ="\n<ul class=\"menu primary\">\n";
-  for ($i = 0; $i < count($title); $i++) {
-    $query = drupal_query_string_encode(array('sort' => $sort[$i]));
-    $output .= ($sort[$i] == $activesort) ? '<li class="active">' : '<li>';
-    $output .= l($title[$i], $path, array('attributes' => array('title' => $title[$i]), 'query' => $query, 'fragment' => 'interpretations'));
-    $output .= "</li>\n";
-  }
-  $output .= "\n</ul>\n";
-  return $output;
-}
-
 /**
  * Implementation of hook_nodeapi
  */

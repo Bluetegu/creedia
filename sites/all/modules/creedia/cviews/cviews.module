@@ -395,44 +395,6 @@ function cviews_blog() {
   return views_embed_view('Blogs', 'page_4');
 }
 
-///*
-// *  Builds embeded interpretation view rendered within a creed node page.
-// */
-//function cviews_interpretation_view($nid, $sort = 'adopted') {
-//
-//  $view = views_create_view('interpretations', '');
-//  //views_view_add_page($view, $title, $url, $type, $pager, $nodes_per_page,
-//  //                    $header, $header_format, $breadcrumb_no_home = FALSE)
-//  // Use $use_pager to provide a non zero pager id. See http://drupal.org/node/67369. The zero index pager
-//  // is used by the comment module
-//  views_view_add_page($view, '', NULL, 'teaser', 2, CREEDIA_INTERPRETATION_PER_PAGE, '', 1, TRUE);
-//  //views_view_add_filter($view, $table, $field, $operator, $value, $option)
-//  views_view_add_filter($view, 'node', 'status', '=', 1, '') ;
-//  views_view_add_filter($view, 'node', 'distinct', '=', array(0 => 'distinct'), '') ;
-//  views_view_add_filter($view, 'node', 'type', 'OR', array(0 => 'interpretation'), '') ;
-//  views_view_add_filter($view, 'node_data_field_creed_reference1', 'field_creed_reference1_nid_default', 'OR', array(0 => $nid), '') ;
-//
-//  switch ($sort) {
-//  case 'recent':
-//    break;
-//  case 'adopted':
-//  default:
-//    //    views_view_add_sort($view, 'flag_counts_adopted_interpretation', 'count', 'DESC', '');
-//    views_view_add_sort($view, 'flag_counts_adopt', 'count', 'DESC', '');
-//    break;
-//  }
-//  //  views_view_add_sort($view, 'node', 'changed', 'DESC', '');
-//  views_view_add_sort($view, 'node', 'created', 'DESC', '');
-//
-//  views_load_cache();
-//  views_sanitize_view($view);
-//  //views_build_view($type, $view, $args = array(), $use_pager = false, $limit = 0, $page = 0, $offset= 0, $filters= NULL)
-//  $output =  views_build_view('page', $view, array(), $view->use_pager, $view->nodes_per_page);
-//
-//  return $output;
-//}
-
-
 /*
  * Utility function that converts URL to
  * an array of terms. Terms from vocabularies not

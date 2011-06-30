@@ -53,12 +53,6 @@ function ctendu_theme($existing, $type, $theme, $path) {
         'page' => TRUE,
       ),
     ),
-    'interpretation_wrapper' => array(
-      'arguments' => array(
-        'content' => NULL,
-        'num' => 0,
-      ),
-    ),
     'truncated_user' => array(
       'arguments' => array(
         'fullname' => '',
@@ -358,9 +352,6 @@ function ctendu_comment_wrapper($content) {
     return '<div id="comments">'. $content .'</div>'; // this shouldn't happen
   }
   $num = $node->comment_count;
-  if ($node->type == 'creed') {
-    $collapsed = TRUE;
-  }
   $element['#collapsible'] = TRUE;
   $element['#collapsed'] = $collapsed;
   if ($num) {
@@ -378,30 +369,6 @@ function ctendu_comment_wrapper($content) {
 
   return $output;
   //  return '<div id="comments">'. $content .'</div>';
-}
-
-/**
- * Theme wrapping of all interpretations.
- */
-function ctendu_interpretation_wrapper($content, $num) {
-
-  $element['#collapsible'] = TRUE;
-  if ($num) {
-    $element['#title'] = t('Interpretations (!num)', array('!num'=>$num));
-    $element['#collapsed'] = FALSE;
-  }
-  else {
-    $element['#title'] = t('No Interpretation so far');
-    $element['#collapsed'] = TRUE;
-  }
-
-  $element['#value'] = $content;
-  $element['#attributes'] = array('id' => 'interpretations-fieldset');
-
-  $output = '<div id="interpretations">';
-  $output .= theme('fieldset', $element);
-  $output .= '</div>';
-  return $output;
 }
 
 /**
