@@ -125,6 +125,7 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
       $blocks[4]['info'] = t('Creedia: Add Picture');
       $blocks[5]['info'] = t('Creedia: Add Blog Post');
       $blocks[6]['info'] = t('Creedia: Add Deed');
+      $blocks[7]['info'] = t('Creedia: This Way Members');
       $blocks[0]['visibility'] = 1; // show only on listed pages
       $blocks[1]['visibility'] = 1; // show only on listed pages
       $blocks[2]['visibility'] = 1; // show only on listed pages
@@ -132,6 +133,7 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
       $blocks[4]['visibility'] = 1; // show only on listed pages
       $blocks[5]['visibility'] = 1; // show only on listed pages
       $blocks[6]['visibility'] = 1; // show only on listed pages
+      $blocks[7]['visibility'] = 1; // show only on listed pages
       $blocks[0]['pages'] = "creeds\n"."creeds/*\n"."node/*\n";
       $blocks[1]['pages'] = "opinions\n"."opinions/*\n"."node/*\n";
       $blocks[2]['pages'] = "creeds\n"."creeds/*\n"."node/*\n";
@@ -139,6 +141,7 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
       $blocks[4]['pages'] = "node/*\n"."gallery\n"."gallery/*\n";
       $blocks[5]['pages'] = "user/*/blog\n"."blogs\n"."blogs/*\n";
       $blocks[6]['pages'] = "deeds\n"."deeds/*\n"."node/*\n";
+      $blocks[7]['pages'] = "node/*\n";
 
       return $blocks;
     case 'configure':
@@ -232,6 +235,13 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
             l(t('Add Deed'), 'node/add/deed', array('attributes' => array('title' => t('Add a Deed.')))) :
             l(t('Add Deed'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
           }
+          break;
+        case 7:
+            $title = t('This Way Members');
+            $description = t('Members who Chose this Way');
+            $path = 'node/'. $node->nid .'/members';
+            $block['subject'] = l('» '. $title, $path, array('attributes' => array('title' => $description)));
+            $block['content'] = views_embed_view('Member_blocks', 'block_5', arg(1));
           break;
       }
   }

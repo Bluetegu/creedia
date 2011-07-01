@@ -852,6 +852,8 @@ function _ctendu_block_types($block, &$featured) {
     switch ($block->delta) {
     case 0: case 1: case 2: case 3: case 4: case 5: case 6:
       return 'action';
+    case 7:
+      return 'related';
     }
     break;
   case 'cfront':

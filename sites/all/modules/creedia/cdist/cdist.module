@@ -129,6 +129,7 @@ function cdist_block($op = 'list', $delta = 0, $edit = array()) {
         case 0:
           if (is_numeric(arg(1))) {
             $title = t('My Way Members');
+            $description = t('Members with Most Common Ways');
             $path = 'members/byway';
             $block['subject'] = l('» '. $title, $path, array('attributes' => array('title' => $description)));
             $block['content'] = views_embed_view('Member_blocks', 'block_4', arg(1));

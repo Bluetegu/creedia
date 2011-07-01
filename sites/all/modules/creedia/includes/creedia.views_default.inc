@@ -3614,6 +3614,151 @@ function creedia_members_blocks_default_view() {
   $handler->override_option('distinct', 0);
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
+  $handler = $view->new_display('block', 'This Way', 'block_5');
+  $handler->override_option('relationships', array(
+  'flag_user_content_rel' => array(
+    'label' => 'user flagged content',
+    'required' => 1,
+    'flag' => 'adopt',
+    'id' => 'flag_user_content_rel',
+    'table' => 'users',
+    'field' => 'flag_user_content_rel',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('sorts', array(
+  'random' => array(
+    'id' => 'random',
+    'table' => 'views',
+    'field' => 'random',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+  'content_id' => array(
+    'default_action' => 'ignore',
+    'style_plugin' => 'default_summary',
+    'style_options' => array(),
+    'wildcard' => 'all',
+    'wildcard_substitution' => 'All',
+    'title' => '',
+    'breadcrumb' => '',
+    'default_argument_type' => 'fixed',
+    'default_argument' => '',
+    'validate_type' => 'node',
+    'validate_fail' => 'not found',
+    'break_phrase' => 0,
+    'not' => 0,
+    'id' => 'content_id',
+    'table' => 'flag_content',
+    'field' => 'content_id',
+    'relationship' => 'flag_user_content_rel',
+    'validate_user_argument_type' => 'uid',
+    'validate_user_roles' => array(
+      '2' => 0,
+      '3' => 0,
+  ),
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'default_options_div_prefix' => '',
+    'default_argument_fixed' => '',
+    'default_argument_user' => 0,
+    'default_argument_php' => '',
+    'validate_argument_node_type' => array(
+      'creed' => 'creed',
+      'blog' => 0,
+      'faq' => 0,
+      'dblog' => 0,
+      'deed' => 0,
+      'image_cck' => 0,
+      'interpretation' => 0,
+      'member' => 0,
+      'opinion' => 0,
+      'page' => 0,
+      'profile' => 0,
+      'religion_info' => 0,
+      'simplenews' => 0,
+      'story' => 0,
+  ),
+    'validate_argument_node_access' => 0,
+    'validate_argument_nid_type' => 'nid',
+    'validate_argument_vocabulary' => array(
+      '1' => 0,
+      '3' => 0,
+      '5' => 0,
+      '6' => 0,
+      '9' => 0,
+      '7' => 0,
+      '2' => 0,
+      '8' => 0,
+      '4' => 0,
+  ),
+    'validate_argument_type' => 'tid',
+    'validate_argument_transform' => 0,
+    'validate_user_restrict_roles' => 0,
+    'validate_argument_node_flag_name' => '*relationship*',
+    'validate_argument_node_flag_test' => 'flaggable',
+    'validate_argument_node_flag_id_type' => 'id',
+    'validate_argument_user_flag_name' => '*relationship*',
+    'validate_argument_user_flag_test' => 'flaggable',
+    'validate_argument_user_flag_id_type' => 'id',
+    'validate_argument_php' => '',
+  ),
+  ));
+  $handler->override_option('filters', array(
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'member' => 'member',
+  ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'node',
+    'field' => 'status',
+    'relationship' => 'none',
+  ),
+  'field_profile_sharing_value_dist' => array(
+    'operator' => '=',
+    'value' => '',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'field_profile_sharing_value_dist',
+    'table' => 'node_data_field_profile_sharing',
+    'field' => 'field_profile_sharing_value_dist',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('block_description', '');
+  $handler->override_option('block_caching', -1);
 
   return $view;
 }
