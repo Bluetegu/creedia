@@ -211,7 +211,7 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
         case 3:
           if ($nid) {
             $block['content'] = user_access('post comments') ?
-            l(t('Add Comment'), 'comment/reply/'. $nid, array('attributes' => array('title' =>  t('Share your thoughts related to this posting.'), NULL, 'comment-form'))) :
+            l(t('Add Comment'), 'comment/reply/'. $nid, array('attributes' => array('title' =>  t('Share your thoughts related to this posting.')), 'fragment' => 'comment-form')) :
             l(t('Add Comment'), 'user/login', array('attributes' => array('title' => CREEDIA_LOGIN_TO_POST_MESSAGE), 'query' => drupal_get_destination()));
           }
           break;
