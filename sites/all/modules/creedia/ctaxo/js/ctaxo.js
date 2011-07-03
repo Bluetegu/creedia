@@ -4,9 +4,9 @@ Drupal.behaviors.ctaxoBehavior = function(context) {
     // rerun xfbml parser to process all fbml tags loaded via ajax
     FB.XFBML.parse(document.getElementById('content-area'));
   }
-  if ($('.pager-hidden-result', context).length) {
+  if ($('#pager-hidden-result', context).length) {
     // replace the pager results text with the hidden udpated one returned by ajax
-    $('.pager-result').html($('.pager-hidden-result span', context).html());
+    $('.pager-result').html($('#pager-hidden-result span', context).html());
   }
   // vertical align left bars
   creediaVerAlign();

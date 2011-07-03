@@ -544,7 +544,9 @@ function ctendu_preprocess_flag(&$vars) {
  */
 function ctendu_preprocess_views_view(&$vars) {
   $view = $vars['view'];
-  $vars['pager_result'] = theme('pager_result', $view->pager['items_per_page']);
+  if($view->tag == 'creedia-directory') {
+    $vars['pager_result'] = theme('pager_result', $view->pager['items_per_page']);
+  }
   return;
 }
 

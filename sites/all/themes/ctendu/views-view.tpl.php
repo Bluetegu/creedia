@@ -68,7 +68,7 @@
   <?php endif; ?>
 
   <?php if ($pager_result): ?>
-    <span class="pager-hidden-result" style="display:none">
+    <span id="pager-hidden-result" style="display:none">
       <?php print $pager_result; ?>
     </span>
   <?php endif; ?>
