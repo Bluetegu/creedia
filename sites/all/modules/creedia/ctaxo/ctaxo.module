@@ -624,6 +624,7 @@ function creedia_form_views_exposed_form_alter(&$form, &$form_state) {
       $form[$id]['#attributes'] = array('class' => 'edit-'. $id);
     }
   }
+  ++$i;
 
   if ($form_state['view']->tag == 'creedia-directory') {
     // copy arguments locally
