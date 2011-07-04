@@ -157,13 +157,6 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $nid = 0;
         $add_d = TRUE;
         $sort = 'popular';
-
-        if ($node) {
-          if ($node->type != 'opinion' && $node->type != 'dblog') {
-            // related creed block shown in opinion view
-            $view_block = FALSE;
-          }
-        }
         break;
       case 1:
         $type = 'opinion';
@@ -173,21 +166,6 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $sort ='featured';
         $nid = 0;
         $add_d = TRUE;
-
-        if ($node) {
-          switch ($node->type) {
-            case 'opinion':
-            case 'interpretation':
-              $nid = $node->nid; // avoid self
-              break;
-            case 'creed':
-              break;  // show block
-            case 'member':
-            default:
-              $view_block = FALSE;
-              break;
-          }
-        }
         break;
       case 2:
         $type = 'member';
@@ -197,10 +175,6 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $sort = 'featured';
         $nid = 0;
         $add_d = TRUE;
-
-        if ($node) {
-          $view_block = FALSE;
-        }
         break;
       case 3:
         $type = 'creed';
@@ -297,10 +271,6 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $sort = 'featured';
         $nid = 0;
         $add_d = TRUE;
-
-        if ($node) {
-          $view_block = FALSE;
-        }
         break;
       case 13:
         $type = 'blog';
@@ -388,9 +358,28 @@ function cviews_set_exposed_filters($view_name, $display_id) {
   }
   elseif ($node = menu_get_object()) {
     // add node terms as filters
+    $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID);
+    if (count($terms)) {
+      $terms = array_keys($terms);
+      $terms = array_combine($terms, $terms);
+    }
+    $_SESSION['views'][$view_name][$display_id]['religion'] = $terms;
+
+    $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_BELIEFSET_VID);
+    if (count($terms)) {
+      $terms = array_keys($terms);
+      $terms = array_combine($terms, $terms);
+    }
+    $_SESSION['views'][$view_name][$display_id]['beliefset'] = $terms;
+
+    $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_FREETAG_VID);
+    if (count($terms)) {
+      $terms = array_keys($terms);
+      $terms = array_combine($terms, $terms);
+    }
+    $_SESSION['views'][$view_name][$display_id]['freetag'] = $terms;
   }
 }
-
 
 /**
  * Creedia Company Blog view

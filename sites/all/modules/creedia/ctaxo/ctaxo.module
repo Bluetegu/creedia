@@ -71,6 +71,16 @@ if (!defined(CREEDIA_TAGADELIC_MAX_TERMS)) {
 }
 
 /**
+ * Implementation of hook init
+ */
+function ctaxo_init() {
+  // disable caching: otherwise the filters are not remembered correctly across sort options
+  if (in_array(arg(0), array('creeds', 'opinions', 'members', 'gallery', 'blogs'))) {
+    $GLOBALS['conf']['cache'] = FALSE;
+  }
+}
+
+/**
  * Implementation of hook_block
  */
 function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
@@ -92,6 +102,12 @@ function ctaxo_block($op = 'list', $delta = 0, $edit = array()) {
       $blocks[3]['visibility'] = 1; // show only on listed pages
       $blocks[4]['visibility'] = 1; // show only on listed pages
       $blocks[5]['visibility'] = 1; // show only on listed pages
+      $blocks[0]['cache'] = BLOCK_CACHE_GLOBAL;
+      $blocks[1]['cache'] = BLOCK_CACHE_GLOBAL;
+      $blocks[2]['cache'] = BLOCK_CACHE_GLOBAL;
+      $blocks[3]['cache'] = BLOCK_CACHE_GLOBAL;
+      $blocks[4]['cache'] = BLOCK_CACHE_GLOBAL;
+      $blocks[5]['cache'] = BLOCK_CACHE_GLOBAL;
       $blocks[0]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."taxonomy\n"."taxonomy/*\n"."blogs\n"."blogs/*\n";
       $blocks[1]['pages'] = "creeds\n"."creeds/*\n"."opinions\n"."opinions/*\n"."blogs\n"."blogs/*\n";
       $blocks[2]['pages'] = "opinions\n"."opinions/*\n"."members\n"."members/*\n"."creeds\n"."creeds/*\n"."blogs\n"."blogs/*\n";
