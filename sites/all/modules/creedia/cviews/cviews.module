@@ -59,6 +59,9 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[12]['info'] = t('Creedia: Related Blogs');
     $blocks[13]['info'] = t('Creedia: Latest Blogs');
     $blocks[14]['info'] = t('Creedia: Front Latest Blogs');
+    $blocks[0]['cache'] = BLOCK_NO_CACHE;
+    $blocks[1]['cache'] = BLOCK_NO_CACHE;
+    $blocks[2]['cache'] = BLOCK_NO_CACHE;
     $blocks[3]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[4]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[5]['cache'] = BLOCK_CACHE_GLOBAL;
@@ -68,6 +71,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[9]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[10]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[11]['cache'] = BLOCK_CACHE_GLOBAL;
+    $blocks[12]['cache'] = BLOCK_NO_CACHE;
     $blocks[13]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[14]['cache'] = BLOCK_CACHE_GLOBAL;
     $blocks[0]['visibility'] = 1; // show only on listed pages
@@ -375,7 +379,7 @@ function cviews_set_exposed_filters($view_name, $display_id) {
       $page_view_name = ucfirst(arg(0));
       break;
     case 'opinions':
-      $page_view_name = 'Dicussions';
+      $page_view_name = 'Discussions';
       break;
   }
   if ($page_view_name) {
