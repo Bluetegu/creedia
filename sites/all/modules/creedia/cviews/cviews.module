@@ -293,55 +293,34 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         break;
       }
       $description = $title;
-//
-    if ($view_block) {
-      if (!$ignore_terms) {
-//        if ($node) {
-//          $terms = cviews_node_to_terms_filtered($node->nid, $type);
-//          $description .= ' based on node\'s terms.';
-//        }
-//        else {
-//          $terms = cviews_url_to_terms_filtered($type);
-//          $description .= ' based on selected terms.';
-//        }
-        cviews_set_exposed_filters($view_name, $display_id);
-      }
 
-      $view = views_get_view($view_name);
-      if ($view) {
-        // done this way and not using view_embed_view to ensure no block printing when
-        // view results are empty.
-        $content = $view->preview($display_id, array($nid));
-        if (!empty($view->result)) {
-          $block['content'] = $content;
+      if ($view_block) {
+        if (!$ignore_terms) {
+          cviews_set_exposed_filters($view_name, $display_id);
         }
+
+        $view = views_get_view($view_name);
+        if ($view) {
+          // done this way and not using view_embed_view to ensure no block printing when
+          // view results are empty.
+          $content = $view->preview($display_id, array($nid));
+          if (!empty($view->result)) {
+            $block['content'] = $content;
+            //      $block['content'] = views_embed_view($view_name, $display_id, $nid);
+            if (!$ignore_terms && !$node) {
+              // add exposed filters to be controlled through js
+              $filter_block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
+              $block['content'] .= $filter_block['content'];
+            }
+          }
+        }
+
+        $path = $type .'s';
+        $path .= '/'. $sort;
+        $block['subject'] = $add_d ? l('» '. $title, $path, array('attributes' => array('title' => $description))) :
+                                     l($title, $path, array('attributes' => array('title' => $description)));
+        // featured indications is added as variable in tendu_block
       }
-//      $block['content'] = views_embed_view($view_name, $display_id, $nid);
-      if (!$ignore_terms && !$node) {
-        // add exposed filters to be controlled through js
-        $filter_block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
-        $block['content'] .= $filter_block['content'];
-      }
-//                   cviews_generate_block(array('type' => $type,
-//						      'name' => $name,
-//						      'title' => $title,
-//						      'description' => $description,
-//						      'nid' => $nid,
-//						      'terms' => $terms,
-//						      'sort' => $sort,
-//      ));
-      $path = $type .'s';
-      $path .= '/'. $sort;
-//      if ($terms) {
-//        foreach ($terms as $vid => $term_ids) {
-//          $path .= '/'. implode('+', $term_ids) ;
-//        }
-//      }
-//
-      $block['subject'] = $add_d ? l('» '. $title, $path, array('attributes' => array('title' => $description))) :
-      l($title, $path, array('attributes' => array('title' => $description)));
-      // featured indications is added as variable in tendu_block
-    }
   }
   return $block;
 }
