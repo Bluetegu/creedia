@@ -865,6 +865,10 @@ function cprofile_view($node) {
   $page = TRUE;    // whole page
   $links = FALSE;
 
+  if (user_is_blocked($node->name)) {
+    drupal_goto();
+  }
+
   $view = node_view($node, $teaser, $page, $links);
 
   $edit = user_access('administer cprofile') || ($user->uid == $node->uid);
