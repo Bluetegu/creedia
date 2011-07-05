@@ -224,10 +224,7 @@ function ctendu_opinion_image($node, $page = TRUE) {
   $em_video = $node->field_opinion_em_video[0]['view'];
   $em_audio = $node->field_opinion_em_audio[0]['view'];
 
-  if ($image) {
-    $output .= $image;
-  }
-  elseif ($audio) {
+  if ($audio) {
     if ($page) {
       $output .= swf('../'. $audio, FALSE, FALSE, FALSE, array('player' => 'onepixelout'));
     }
@@ -236,7 +233,6 @@ function ctendu_opinion_image($node, $page = TRUE) {
     }
   }
   elseif ($em_picture) {
-    // default picture is saved in em_picture.
     $output .= $em_picture;
   }
   elseif ($em_audio) {
@@ -246,6 +242,9 @@ function ctendu_opinion_image($node, $page = TRUE) {
     // for some unknown reason, em_video inserts a 'view viedo' link even if no em video is selected
     // so I'm setting it to be the last one, such that it won't override real images.
     $output .= $em_video;
+  }
+  elseif ($image) {
+    $output .= $image;  // default image is loaded
   }
 
   return $output;
@@ -1005,7 +1004,7 @@ function ctendu_preprocess_views_view_fields__Discussion_blocks(&$vars) {
 //        $snode->field_opinion_em_audio[0]['view'] = theme('image', path_to_theme() .'/images/audio.png');
 //      }
 
-  $vars['opinion_image'] = theme('opinion_image', $node);
+  $vars['opinion_image'] = theme('opinion_image', $node, FALSE);
   $vars['title'] = theme('truncated_title', $title, $nid, 32);
   $vars['body'] = $teaser;
 }
