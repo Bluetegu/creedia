@@ -3193,7 +3193,7 @@ function creedia_members_blocks_default_view() {
       'label' => '',
   ),
     'id' => 'status',
-    'table' => 'node',
+    'table' => 'users',
     'field' => 'status',
     'relationship' => 'none',
   ),
@@ -3315,20 +3315,6 @@ function creedia_members_blocks_default_view() {
       'button' => 'Use default',
   ),
   ),
-  'status' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-  ),
-    'id' => 'status',
-    'table' => 'node',
-    'field' => 'status',
-    'relationship' => 'none',
-  ),
   'term_node_tid_depth' => array(
     'operator' => 'or',
     'value' => array(),
@@ -3361,6 +3347,23 @@ function creedia_members_blocks_default_view() {
   ),
     'relationship' => 'none',
     'reduce_duplicates' => 1,
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'users',
+    'field' => 'status',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
   ),
   ));
   $handler->override_option('use_ajax', TRUE);
@@ -3702,20 +3705,6 @@ function creedia_members_blocks_default_view() {
     'field' => 'type',
     'relationship' => 'none',
   ),
-  'status' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-  ),
-    'id' => 'status',
-    'table' => 'node',
-    'field' => 'status',
-    'relationship' => 'none',
-  ),
   'cnt' => array(
     'operator' => '>',
     'value' => array(
@@ -3749,6 +3738,23 @@ function creedia_members_blocks_default_view() {
     'id' => 'field_profile_sharing_value_dist',
     'table' => 'node_data_field_profile_sharing',
     'field' => 'field_profile_sharing_value_dist',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'users',
+    'field' => 'status',
     'override' => array(
       'button' => 'Use default',
   ),
@@ -3869,20 +3875,6 @@ function creedia_members_blocks_default_view() {
     'field' => 'type',
     'relationship' => 'none',
   ),
-  'status' => array(
-    'operator' => '=',
-    'value' => '1',
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-  ),
-    'id' => 'status',
-    'table' => 'node',
-    'field' => 'status',
-    'relationship' => 'none',
-  ),
   'field_profile_sharing_value_dist' => array(
     'operator' => '=',
     'value' => '',
@@ -3895,6 +3887,23 @@ function creedia_members_blocks_default_view() {
     'id' => 'field_profile_sharing_value_dist',
     'table' => 'node_data_field_profile_sharing',
     'field' => 'field_profile_sharing_value_dist',
+    'override' => array(
+      'button' => 'Use default',
+  ),
+    'relationship' => 'none',
+  ),
+  'status' => array(
+    'operator' => '=',
+    'value' => '1',
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+  ),
+    'id' => 'status',
+    'table' => 'users',
+    'field' => 'status',
     'override' => array(
       'button' => 'Use default',
   ),
