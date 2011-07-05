@@ -241,7 +241,15 @@ function creedia_block($op = 'list', $delta = 0, $edit = array()) {
             $description = t('Members who Chose this Way');
             $path = 'node/'. $node->nid .'/members';
             $block['subject'] = l('» '. $title, $path, array('attributes' => array('title' => $description)));
-            $block['content'] = views_embed_view('Member_blocks', 'block_5', arg(1));
+            $view = views_get_view('Member_blocks');
+            if ($view) {
+              // done this way and not using view_embed_view to ensure no block printing when
+              // view results are empty.
+              $content = $view->preview('block_5', array(arg(1)));
+              if (!empty($view->result)) {
+                $block['content'] = $content;
+              }
+            }
           break;
       }
   }

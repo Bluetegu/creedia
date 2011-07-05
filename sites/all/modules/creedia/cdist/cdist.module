@@ -132,7 +132,15 @@ function cdist_block($op = 'list', $delta = 0, $edit = array()) {
             $description = t('Members with Most Common Ways');
             $path = 'members/byway';
             $block['subject'] = l('» '. $title, $path, array('attributes' => array('title' => $description)));
-            $block['content'] = views_embed_view('Member_blocks', 'block_4', arg(1));
+            $view = views_get_view('Member_blocks');
+            if ($view) {
+              // done this way and not using view_embed_view to ensure no block printing when
+              // view results are empty.
+              $content = $view->preview('block_4', array(arg(1)));
+              if (!empty($view->result)) {
+                $block['content'] = $content;
+              }
+            }
           }
           break;
       }
