@@ -141,7 +141,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
     // purposes. The $delta parameter tells us which block is being requested.
 
     if (arg(0) == 'node' && is_numeric(arg(1))) {
-      $node = node_load(arg(1));
+      $node = menu_get_object();
     }
 
     $view_block = TRUE;
@@ -154,7 +154,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $title = 'Related Creeds';
         $view_name = 'Creed_blocks';
         $display_id = 'block_2';
-        $nid = 0;
+        $nid = $node->nid;
         $add_d = TRUE;
         $sort = 'popular';
         break;
@@ -164,7 +164,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $view_name = 'Discussion_blocks';
         $display_id = 'block_2';
         $sort ='featured';
-        $nid = 0;
+        $nid = $node->nid;
         $add_d = TRUE;
         break;
       case 2:
@@ -173,7 +173,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $view_name = 'Member_blocks';
         $display_id = 'block_2';
         $sort = 'featured';
-        $nid = 0;
+        $nid = $node->nid;
         $add_d = TRUE;
         break;
       case 3:
@@ -269,7 +269,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         $view_name = 'Blog_blocks';
         $display_id = 'block_2';
         $sort = 'featured';
-        $nid = 0;
+        $nid = $node->nid;
         $add_d = TRUE;
         break;
       case 13:
@@ -306,7 +306,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 //        }
         cviews_set_exposed_filters($view_name, $display_id);
       }
-      $block['content'] = views_embed_view($view_name, $display_id);
+      $block['content'] = views_embed_view($view_name, $display_id, $nid);
       if (!$ignore_terms && !$node) {
         // add exposed filters to be controlled through js
         $filter_block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
@@ -358,13 +358,18 @@ function cviews_set_exposed_filters($view_name, $display_id) {
   }
   elseif ($node = menu_get_object()) {
     // add node terms as filters
-    $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID);
-    if (count($terms)) {
-      $terms = array_keys($terms);
-      $terms = array_combine($terms, $terms);
+    $terms = array();
+    if ($view_name == 'Member_blocks') {
+      $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_RELIGION_VID);
+      if (count($terms)) {
+        $terms = array_keys($terms);
+        $terms = array_combine($terms, $terms);
+      }
     }
     $_SESSION['views'][$view_name][$display_id]['religion'] = $terms;
 
+    // related by beliefset
+    $terms = array();
     $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_BELIEFSET_VID);
     if (count($terms)) {
       $terms = array_keys($terms);
@@ -372,11 +377,12 @@ function cviews_set_exposed_filters($view_name, $display_id) {
     }
     $_SESSION['views'][$view_name][$display_id]['beliefset'] = $terms;
 
-    $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_FREETAG_VID);
-    if (count($terms)) {
-      $terms = array_keys($terms);
-      $terms = array_combine($terms, $terms);
-    }
+    $terms = array();
+//    $terms = taxonomy_node_get_terms_by_vocabulary($node, CREEDIA_FREETAG_VID);
+//    if (count($terms)) {
+//      $terms = array_keys($terms);
+//      $terms = array_combine($terms, $terms);
+//    }
     $_SESSION['views'][$view_name][$display_id]['freetag'] = $terms;
   }
 }
