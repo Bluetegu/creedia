@@ -252,7 +252,6 @@ function creedia_creeds_default_view() {
   $handler->override_option('title', 'Creeds');
   $handler->override_option('empty', 'No creed statement tagged with selected terms.');
   $handler->override_option('empty_format', '4');
-  $handler->override_option('use_ajax', TRUE);
   $handler->override_option('use_pager', '1');
   $handler->override_option('distinct', 1);
   $handler->override_option('style_options', NULL);
@@ -645,7 +644,6 @@ function creedia_discussions_default_view() {
   $handler->override_option('title', 'Discussions');
   $handler->override_option('empty', 'No discussion tagged with selected terms.');
   $handler->override_option('empty_format', '4');
-  $handler->override_option('use_ajax', TRUE);
   $handler->override_option('use_pager', '1');
   $handler->override_option('distinct', 1);
   $handler->override_option('row_plugin', 'node');
@@ -2307,7 +2305,6 @@ function creedia_members_default_view() {
   $handler->override_option('title', 'Members');
   $handler->override_option('empty', 'No member tagged with selected terms.');
   $handler->override_option('empty_format', '4');
-  $handler->override_option('use_ajax', TRUE);
   $handler->override_option('use_pager', '1');
   $handler->override_option('distinct', 1);
   $handler->override_option('row_plugin', 'node');
