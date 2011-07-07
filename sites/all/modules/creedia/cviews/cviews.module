@@ -307,11 +307,11 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
           if (!empty($view->result)) {
             $block['content'] = $content;
             //      $block['content'] = views_embed_view($view_name, $display_id, $nid);
-            if (!$ignore_terms && !$node) {
-              // add exposed filters to be controlled through js
-              $filter_block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
-              $block['content'] .= $filter_block['content'];
-            }
+//            if (!$ignore_terms && !$node) {
+//              // add exposed filters to be controlled through js
+//              $filter_block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
+//              $block['content'] .= $filter_block['content'];
+//            }
           }
         }
 

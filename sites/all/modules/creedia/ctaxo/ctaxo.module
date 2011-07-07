@@ -1,33 +1,5 @@
 <?php
 // $Id$
-/* TODO Automatically add Drupal.settings.basePath
-   In Drupal 5, you would have to add the base path to Drupal.settings yourself
-   if you needed it (it's needed for just about every AHAH/AJAX enabled module
-   if you did it right). Now in Drupal 6, it's added automatically. You can always
-   find it at Drupal.settings.basePath (actually, as soon as drupal_add_js() is
-   called at least once, so this is similar to the way we automatically add
-   drupal.js and jquery.js. */
-
-/* TODO Use drupal_set_breadcrumb() instead of menu_set_location() to set
-   custom breadcrumbs.
-   Currently in D5, menu_set_location() is 'misused' in several modules to set
-   a custom breadcrumb, drupal_set_breadcrumb() should be used instead, as
-   discussed in #177497.
-   Note, when using drupal_set_breadcrumb(), you need to include 'home' but
-   not the current page.
-   Alternatively, if you do want to set the current location in the menu tree
-   as well as affect breadcrumbs, use menu_set_item(). */
-
-/* TODO FormAPI image buttons are now supported.
-   FormAPI now offers the 'image_button' element type, allowing developers to
-   use icons or other custom images in place of traditional HTML submit buttons.
-
-$form['my_image_button'] = array(
-  '#type'         => 'image_button',
-  '#title'        => t('My button'),
-  '#return_value' => 'my_data',
-  '#src'          => 'my/image/path.jpg',
-); */
 
 /*
  * @file
@@ -415,20 +387,6 @@ function ctaxo_dynamic($view, $sort) {
 //  $cargs['type'] = $type;
 //  $cargs['sort'] = $sort;
 
-//  $answer = array();
-//  if ($view == 'gallery') {
-//    $answer['view'] = cgallery_view($arg_list);
-//    $answer['pager'] = theme('pager_result', CREEDIA_IMAGES_PER_GALLERY);
-//  }
-//  else {
-//    if ($sort == 'byway') {
-//      $answer['view'] = cdist_byway($arg_list);
-//    }
-//    else {
-//      $answer['view'] = cviews_generate_page($cargs, $arg_list);
-//    }
-//    $answer['pager'] = theme('pager_result', CREEDIA_NODES_PER_PAGE);
-//  }
   if ($view_name) {
     $answer['view'] = views_embed_view($view_name, $display_id);
     $answer['pager'] = theme('pager_result', CREEDIA_NODES_PER_PAGE);
