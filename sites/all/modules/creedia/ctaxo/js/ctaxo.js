@@ -1,16 +1,16 @@
-Drupal.behaviors.ctaxoBehavior = function(context) {
-  $('#taxobar-throbber').css("display", "none");
-  if ($("#fb-root > *").length){
-    // rerun xfbml parser to process all fbml tags loaded via ajax
-    FB.XFBML.parse(document.getElementById('content-area'));
-  }
-  if ($('#pager-hidden-result', context).length) {
-    // replace the pager results text with the hidden udpated one returned by ajax
-    $('.pager-result').html($('#pager-hidden-result span', context).html());
-  }
-  // vertical align left bars
-  creediaVerAlign();
-}
+//Drupal.behaviors.ctaxoBehavior = function(context) {
+//  $('#taxobar-throbber').css("display", "none");
+//  if ($("#fb-root > *").length){
+//    // rerun xfbml parser to process all fbml tags loaded via ajax
+//    FB.XFBML.parse(document.getElementById('content-area'));
+//  }
+//  if ($('#pager-hidden-result', context).length) {
+//    // replace the pager results text with the hidden udpated one returned by ajax
+//    $('.pager-result').html($('#pager-hidden-result span', context).html());
+//  }
+//  // vertical align left bars
+//  creediaVerAlign();
+//}
 
 if (Drupal.jsEnabled) {
   $(document).ready(function(){
@@ -46,20 +46,33 @@ if (Drupal.jsEnabled) {
     $(this).appendTo(".taxobar-target");
     var api = $('#vid_' + vid).parent("div.scrollable").scrollable();
     api.reload();
-//  ajaxify(false);
-    if (initialized) {
-      viewsSubmit(tid ,vid, true);
-    }
+
+    var name = Drupal.settings.ctaxo['vid_' + vid];
+    var vals = $('#sidebar-left .edit-' + name).val() || [] ; // all selected values
+    vals.push(tid); 
+    $('.edit-' + name).val(vals); // update the new values
+
+    
+    ajaxify(false);
+//    if (initialized) {
+//      viewsSubmit(tid ,vid, true);
+//    }
   },function(){
     var vid = $(this).attr('class').slice('taxoterm vid_'.length);
     var tid = $(this).attr('id').slice(5); // term_tid
     $(this).prependTo('#vid_' + vid).find("img + a").show();
     var api = $('#vid_' + vid).parent("div.scrollable").scrollable();
     api.reload().begin();
-//  ajaxify(false);
-    if (initialized) {
-      viewsSubmit(tid ,vid, false);
-    }  
+    
+    var name = Drupal.settings.ctaxo['vid_' + vid];
+    var vals = $('#sidebar-left .edit-' + name).val() || [] ; // all selected values
+    vals.splice($.inArray(tid, vals),1); // remove 
+    $('.edit-' + name).val(vals); // update the new values
+    
+    ajaxify(false);
+//    if (initialized) {
+//      viewsSubmit(tid ,vid, false);
+//    }  
   });
 
   $("#taxobar .taxoterm").each(function(){
@@ -80,28 +93,48 @@ if (Drupal.jsEnabled) {
     $('#term_' + $(this).val()).click();
   });
 
-//// override clicking the 'sort' links
-//$('.tabs.primary a').click(function(){
-//// grab the taxonomy in the taxobar and retrieve the page
-//// location.href = $(this).attr("href") + taxoPath;
-//ajaxify($(this).attr("href"));
-//$('.tabs.primary li').removeClass("active");
-//$(this).parent().addClass("active");
-//return false;
-//});
+  //override clicking the 'sort' links
+  $('.tabs.primary a').click(function(){
+    //  grab the taxonomy in the taxobar and retrieve the page
+    //  location.href = $(this).attr("href") + taxoPath;
+    ajaxify($(this).attr("href"));
+    $('.tabs.primary li').removeClass("active");
+    $(this).parent().addClass("active");
+    return false;
+  });
 
-//bindPager();
+  bindPager();
 
+//  // abort outstanding views ajax request when new ones are submitted
+//  // per: http://groups.google.com/group/jquery-en/browse_thread/thread/cc732c4f38d2fde2
+//  $().ajaxSend(function(e, xhr, opts) {
+//
+//    if (!Drupal.settings.ctaxo.ajaxTargets)
+//      Drupal.settings.ctaxo.ajaxTargets = {};
+//
+//    var targets = Drupal.settings.ctaxo.ajaxTargets;
+//    var target = opts.view;
+//
+//    try {
+//        if (targets[target]) {
+//            targets[target].abort();
+//            delete targets[target];
+//        }
+//    } catch(e) {}
+//
+//    targets[target] = xhr; 
+//  }); 
+  
   initialized = true;
 
-//function bindPager() {
-//// override clicking the pager links
-//$('.pager a').click(function(){
-//ajaxify($(this).attr("href"), false);
-//return false;
-//});
-//return false;
-//}
+  function bindPager() {
+    //  override clicking the pager links
+    $('.pager a').click(function(){
+      ajaxify($(this).attr("href"), false);
+      return false;
+    });
+    return false;
+  }
 
   function viewsSubmit(tid, vid, select) {
     var name = Drupal.settings.ctaxo['vid_' + vid];
@@ -134,16 +167,19 @@ if (Drupal.jsEnabled) {
           basePath = $("#taxobar a:first").attr("href");
         }
       }
-      langCode = basePath.substr(0,4); 
-      basePath = basePath.slice(3); // remove the language code
-      url = langCode + 'd' + basePath;
-      if (addTaxoPath) {
-        url += taxoPath;
-      }
-      $('#taxobar-submit').css("display", "none");
+//      langCode = basePath.substr(0,4); 
+//      basePath = basePath.slice(3); // remove the language code
+//      url = langCode + 'd' + basePath;
+      url = 'd' + basePath;
+      data = taxoPath;
+//      if (addTaxoPath) {
+//        url += taxoPath;
+//      }
+//      $('#taxobar-submit').css("display", "none");
       $('#taxobar-throbber').css("display", "block");
       request = $.ajax({
-        type : "POST",
+        //type : "POST",
+        type : "GET",
         url : url,
         data : data,
         dataType : "json",
@@ -175,7 +211,7 @@ if (Drupal.jsEnabled) {
         creediaVerAlign();
       },
       complete : function(data) {
-        $('#taxobar-submit').css("display", "block");
+        //$('#taxobar-submit').css("display", "block");
         $('#taxobar-throbber').css("display", "none");
         bindPager();
         // Make sure slideshow do not show double images
@@ -198,28 +234,32 @@ if (Drupal.jsEnabled) {
   }
 
   function computeTaxoPath() {
-    // Build a url composed of all terms grouped according to vocabulary ID
-    var url = '';
-    var sorted = $(".taxobar-target .taxoterm").get().sort(function(a, b) {
-      if (a.className < b.className) return -1;
-      else if (a.className > b.className) return 1;
-      else return 0;
-    });
-
-    var voc;
-    $(sorted).each(function(i) {
-      // if previous term is from the same vocabulary, add '+ term_id'
-      // else add '/ term_id'
-      if (i !== 0) {
-        url += (voc == $(this).attr('class')) ? '+' : '/';
-      }
-      url += $(this).attr('id').slice(5);
-      voc = $(this).attr('class');
-    });
-    if (url) {
-      url = '/' + url;
-    }
-    return url;
+    var q = $("#sidebar-left .views-exposed-form").parents('form').serialize();
+    return q;
+//    if (q) return '?' + q;
+//    else return false;
+//    // Build a url composed of all terms grouped according to vocabulary ID
+//    var url = '';
+//    var sorted = $(".taxobar-target .taxoterm").get().sort(function(a, b) {
+//      if (a.className < b.className) return -1;
+//      else if (a.className > b.className) return 1;
+//      else return 0;
+//    });
+//
+//    var voc;
+//    $(sorted).each(function(i) {
+//      // if previous term is from the same vocabulary, add '+ term_id'
+//      // else add '/ term_id'
+//      if (i !== 0) {
+//        url += (voc == $(this).attr('class')) ? '+' : '/';
+//      }
+//      url += $(this).attr('id').slice(5);
+//      voc = $(this).attr('class');
+//    });
+//    if (url) {
+//      url = '/' + url;
+//    }
+//    return url;
   }
 
 //// Assign a function to calculate and submit the URL

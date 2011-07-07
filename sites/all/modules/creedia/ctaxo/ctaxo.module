@@ -289,16 +289,16 @@ function ctaxo_exposed_block() {
 /**
  * Implementation of hook_menu
  */
-/*function ctaxo_menu() {
+function ctaxo_menu() {
   $items = array();
 
-  // for unknown reason if I place this in may_cache section it doesn't work
-  $items['taxonomy/term'] = array(
-         'title' => 'Taxonomy override',
-         'page callback' => 'ctaxo_taxonomy_page',
-         'type' => MENU_CALLBACK,
-         'access arguments' => array('access content'),
-  );
+//  // for unknown reason if I place this in may_cache section it doesn't work
+//  $items['taxonomy/term'] = array(
+//         'title' => 'Taxonomy override',
+//         'page callback' => 'ctaxo_taxonomy_page',
+//         'type' => MENU_CALLBACK,
+//         'access arguments' => array('access content'),
+//  );
 
   $items['d'] = array(
          'title' => 'Dynamic Views',
@@ -310,27 +310,86 @@ function ctaxo_exposed_block() {
   return $items;
 
 }
-@@@TODO*/
 
 
 /**
  * Creedia dynamic view
  */
-/*function ctaxo_dynamic($view) {
+function ctaxo_dynamic($view, $sort) {
 
-  switch ($view) {
-  case 'creeds':
-    $type = 'creed';
-    break;
-  case 'opinions':
-    $type = 'opinion';
-    break;
-  case 'members':
-    $type = 'member';
-    break;
-  case 'blogs':
-    $type = 'blog';
-    break;
+  switch($view) {
+    case 'creeds':
+      $view_name = 'Creeds';
+      switch($sort) {
+        case 'byname':
+          $display_id = 'page_2';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'popular':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_1';
+      }
+      break;
+    case 'opinions':
+      $view_name = 'Discussions';
+      switch($sort) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'viewed':
+          $display_id = 'page_5';
+          break;
+        case 'rated':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_2';
+      }
+      break;
+    case 'members':
+      $view_name = 'Members';
+      switch($sort) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'joined':
+          $display_id = 'page_3';
+          break;
+        case 'byfullname':
+          $display_id = 'page_5';
+          break;
+        case 'byway':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_2';
+      }
+      break;
+    case 'blogs':
+      $view_name = 'Blogs';
+      switch($sort) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'viewed':
+          $display_id = 'page_5';
+          break;
+        default:
+          $display_id = 'page_2';
+      }
+      break;
+    default:
+      watchdog('ctaxo', t('Dynamic Creedia Directory Attempt at view %view and display %display'), array('view' => $view_name, 'display' => $display_id));
   }
 
   // Remove the /d from the path
@@ -345,43 +404,47 @@ function ctaxo_exposed_block() {
   //  menu_set_location(array(array('path' => $view), array('path' => $_GET['q'])));
   //  watchdog(WATCHDOG_NOTICE, dpr($_GET, TRUE));
 
-  $arg_list = func_get_args();
-  if ($path_terms[1]) {
-    $sort = $path_terms[1];
-    array_shift($arg_list);
-  }
-  else {
-    $sort = CREEDIA_DEFAULTSORT_ID;
-  }
-  $cargs['type'] = $type;
-  $cargs['sort'] = $sort;
+//  $arg_list = func_get_args();
+//  if ($path_terms[1]) {
+//    $sort = $path_terms[1];
+//    array_shift($arg_list);
+//  }
+//  else {
+//    $sort = CREEDIA_DEFAULTSORT_ID;
+//  }
+//  $cargs['type'] = $type;
+//  $cargs['sort'] = $sort;
 
-  $answer = array();
-  if ($view == 'gallery') {
-    $answer['view'] = cgallery_view($arg_list);
-    $answer['pager'] = theme('pager_result', CREEDIA_IMAGES_PER_GALLERY);
-  }
-  else {
-    if ($sort == 'byway') {
-      $answer['view'] = cdist_byway($arg_list);
-    }
-    else {
-      $answer['view'] = cviews_generate_page($cargs, $arg_list);
-    }
+//  $answer = array();
+//  if ($view == 'gallery') {
+//    $answer['view'] = cgallery_view($arg_list);
+//    $answer['pager'] = theme('pager_result', CREEDIA_IMAGES_PER_GALLERY);
+//  }
+//  else {
+//    if ($sort == 'byway') {
+//      $answer['view'] = cdist_byway($arg_list);
+//    }
+//    else {
+//      $answer['view'] = cviews_generate_page($cargs, $arg_list);
+//    }
+//    $answer['pager'] = theme('pager_result', CREEDIA_NODES_PER_PAGE);
+//  }
+  if ($view_name) {
+    $answer['view'] = views_embed_view($view_name, $display_id);
     $answer['pager'] = theme('pager_result', CREEDIA_NODES_PER_PAGE);
-  }
-  $answer['blocks'] = theme('blocks', 'sidebar_right');
-  //  $html = '<textarea rows="20" cols="80">'. $answer['blocks']  . '</textarea>';
-  //  drupal_set_message($html);
-  //  $answer['feeds'] = drupal_get_feeds();
-  //  $answer['head'] = drupal_get_html_head();
-  //  watchdog(WATCHDOG_NOTICE, $answer['feeds']);
+    $answer['blocks'] = theme('blocks', 'sidebar_right');
+    //  $html = '<textarea rows="20" cols="80">'. $answer['blocks']  . '</textarea>';
+    //  drupal_set_message($html);
+    //  $answer['feeds'] = drupal_get_feeds();
+    //  $answer['head'] = drupal_get_html_head();
+    //  watchdog(WATCHDOG_NOTICE, $answer['feeds']);
 
-  // pass multiple html pieces in a json array
-  print drupal_to_js($answer);
+    // pass multiple html pieces in a json array
+    print drupal_to_js($answer);
+  }
   exit();
 }
-@@@TODO*/
+
 
 /**
  * Taxonomy override view (depth 0)
