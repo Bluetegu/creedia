@@ -38,7 +38,7 @@ if (Drupal.jsEnabled) {
 //     }
     $.ajax({
       type: "GET",
-      url: "en/rss.xml",
+      url: "rss.xml",
 //      dataType: "xml",
       dataType: ($.browser.msie) ? "text" : "xml",
       success: function(data) {
