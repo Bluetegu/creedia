@@ -4930,7 +4930,6 @@ function creedia_discussions_blocks_default_view() {
  * Exported Creed Refs view
  */
 function creedia_creed_refs_default_view() {
-  return $view;
   $view = new view;
   $view->name = 'Creed_Refs';
   $view->description = 'Members and Posts referencing creeds';
@@ -5298,4 +5297,5 @@ function creedia_creed_refs_default_view() {
   'name' => 'navigation',
   ));
 
+  return $view;
 }
