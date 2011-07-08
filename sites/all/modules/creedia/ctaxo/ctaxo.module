@@ -287,7 +287,8 @@ function ctaxo_menu() {
 /**
  * Creedia dynamic view
  */
-function ctaxo_dynamic($view, $sort) {
+function ctaxo_dynamic($view, $sort = NULL) {
+  global $_SERVER;
 
   switch($view) {
     case 'creeds':
@@ -388,6 +389,11 @@ function ctaxo_dynamic($view, $sort) {
 //  $cargs['sort'] = $sort;
 
   if ($view_name) {
+    // clear all filters when empty call is triggered.
+    if (substr($_SERVER['REQUEST_URI'], -1) == '?') {
+      $_SESSION['views'][$view_name]['default'] = array();
+    }
+
     $answer['view'] = views_embed_view($view_name, $display_id);
     $answer['pager'] = theme('pager_result', CREEDIA_NODES_PER_PAGE);
     $answer['blocks'] = theme('blocks', 'sidebar_right');

@@ -119,6 +119,10 @@ if (Drupal.jsEnabled) {
       url = 'd' + basePath;
       // serialize the selected values 
       data = $("#sidebar-left .views-exposed-form").parents('form').serialize();
+      if (!data) {
+        url += '?'; // Force clearing all filters.
+      }
+      
       $('#taxobar-throbber').css("display", "block");
       // remove any printed messages
       $('#content-header').remove();
