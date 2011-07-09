@@ -177,82 +177,7 @@ function ctaxo_exposed_block() {
   $view_name = '';
   $display_id = 'default';
 
-  switch(arg(0)) {
-    case 'creeds':
-      $view_name = 'Creeds';
-      switch (arg(1)) {
-        case 'byname':
-          $display_id = 'page_2';
-          break;
-        case 'recent':
-          $display_id = 'page_3';
-          break;
-        case 'popular':
-          $display_id = 'page_4';
-          break;
-        default:
-          $display_id = 'page_1';
-          break;
-      }
-      break;
-    case 'members':
-      $view_name = 'Members';
-      switch (arg(1)) {
-        case 'featured':
-          $display_id = 'page_1';
-          break;
-        case 'joined':
-          $display_id = 'page_3';
-          break;
-        case 'byfullname':
-          $display_id = 'page_5';
-          break;
-        case 'byway':
-          $display_id = 'page_4';
-          break;
-        default:
-          $display_id = 'page_2';
-          break;
-      }
-      break;
-    case 'opinions':
-      $view_name = 'Discussions';
-      switch (arg(1)) {
-        case 'featured':
-          $display_id = 'page_1';
-          break;
-        case 'recent':
-          $display_id = 'page_3';
-          break;
-        case 'viewed':
-          $display_id = 'page_5';
-          break;
-        case 'rated':
-          $display_id = 'page_4';
-          break;
-        default:
-          $display_id = 'page_2';
-          break;
-      }
-      break;
-    case 'blogs':
-      $view_name = 'Blogs';
-      switch (arg(1)) {
-        case 'featured':
-          $display_id = 'page_1';
-          break;
-        case 'recent':
-          $display_id = 'page_3';
-          break;
-        case 'viewed':
-          $display_id = 'page_5';
-          break;
-        default:
-          $display_id = 'page_2';
-          break;
-      }
-      break;
-  }
+  cviews_view_ids(&$view_name, &$display_id, arg(0), arg(1));
 
   $block = module_invoke('views', 'block', 'view', '-exp-'. $view_name .'-'. $display_id);
   return $block['content'];
@@ -289,79 +214,10 @@ function ctaxo_menu() {
  */
 function ctaxo_dynamic($view, $sort = NULL) {
   global $_SERVER;
+  $view_name;
+  $display_id;
 
-  switch($view) {
-    case 'creeds':
-      $view_name = 'Creeds';
-      switch($sort) {
-        case 'byname':
-          $display_id = 'page_2';
-          break;
-        case 'recent':
-          $display_id = 'page_3';
-          break;
-        case 'popular':
-          $display_id = 'page_4';
-          break;
-        default:
-          $display_id = 'page_1';
-      }
-      break;
-    case 'opinions':
-      $view_name = 'Discussions';
-      switch($sort) {
-        case 'featured':
-          $display_id = 'page_1';
-          break;
-        case 'recent':
-          $display_id = 'page_3';
-          break;
-        case 'viewed':
-          $display_id = 'page_5';
-          break;
-        case 'rated':
-          $display_id = 'page_4';
-          break;
-        default:
-          $display_id = 'page_2';
-      }
-      break;
-    case 'members':
-      $view_name = 'Members';
-      switch($sort) {
-        case 'featured':
-          $display_id = 'page_1';
-          break;
-        case 'joined':
-          $display_id = 'page_3';
-          break;
-        case 'byfullname':
-          $display_id = 'page_5';
-          break;
-        case 'byway':
-          $display_id = 'page_4';
-          break;
-        default:
-          $display_id = 'page_2';
-      }
-      break;
-    case 'blogs':
-      $view_name = 'Blogs';
-      switch($sort) {
-        case 'featured':
-          $display_id = 'page_1';
-          break;
-        case 'recent':
-          $display_id = 'page_3';
-          break;
-        case 'viewed':
-          $display_id = 'page_5';
-          break;
-        default:
-          $display_id = 'page_2';
-      }
-      break;
-    default:
+  if (!cviews_view_ids(&$view_name, &$display_id, $view, $sort)) {
       watchdog('ctaxo', t('Dynamic Creedia Directory Attempt at view %view and display %display'), array('view' => $view_name, 'display' => $display_id));
   }
 

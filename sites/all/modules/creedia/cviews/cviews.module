@@ -296,7 +296,10 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 
       if ($view_block) {
         if (!$ignore_terms) {
-          cviews_set_exposed_filters($view_name, $display_id);
+          $page_view_name;  // View name of current page
+          $page_display_id; // Not used
+          cviews_view_ids(&$page_view_name, &$page_display_id, arg(0));
+          cviews_set_exposed_filters($view_name, $display_id, $page_view_name);
         }
 
         $view = views_get_view($view_name);
@@ -328,22 +331,12 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 /**
  * Manipulate exposed filter remembered
  */
-function cviews_set_exposed_filters($view_name, $display_id) {
+function cviews_set_exposed_filters($view_name, $display_id, $src_view_name = NULL, $src_display_id = 'default') {
   global $_SESSION;
 
-  switch (arg(0)) {
-    case 'creeds':
-    case 'blogs':
-    case 'members':
-      $page_view_name = ucfirst(arg(0));
-      break;
-    case 'opinions':
-      $page_view_name = 'Discussions';
-      break;
-  }
-  if ($page_view_name) {
+  if ($src_view_name) {
     // copy the page remembered options to the block exposed filter
-    $_SESSION['views'][$view_name][$display_id] = $_SESSION['views'][$page_view_name]['default'];
+    $_SESSION['views'][$view_name][$display_id] = $_SESSION['views'][$src_view_name][$src_display_id];
   }
   elseif ($node = menu_get_object()) {
     // add node terms as filters
@@ -381,6 +374,90 @@ function cviews_set_exposed_filters($view_name, $display_id) {
  */
 function cviews_blog() {
   return views_embed_view('Blogs', 'page_4');
+}
+
+/**
+ * Map url parameters to views name and display id
+ * returns FALSE if no view was found.
+ */
+function cviews_view_ids(&$view_name, &$display_id, $view, $sort = NULL) {
+
+  switch($view) {
+    case 'creeds':
+      $view_name = 'Creeds';
+      switch($sort) {
+        case 'byname':
+          $display_id = 'page_2';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'popular':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_1';
+      }
+      break;
+    case 'opinions':
+      $view_name = 'Discussions';
+      switch($sort) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'viewed':
+          $display_id = 'page_5';
+          break;
+        case 'rated':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_2';
+      }
+      break;
+    case 'members':
+      $view_name = 'Members';
+      switch($sort) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'joined':
+          $display_id = 'page_3';
+          break;
+        case 'byfullname':
+          $display_id = 'page_5';
+          break;
+        case 'byway':
+          $display_id = 'page_4';
+          break;
+        default:
+          $display_id = 'page_2';
+      }
+      break;
+    case 'blogs':
+      $view_name = 'Blogs';
+      switch($sort) {
+        case 'featured':
+          $display_id = 'page_1';
+          break;
+        case 'recent':
+          $display_id = 'page_3';
+          break;
+        case 'viewed':
+          $display_id = 'page_5';
+          break;
+        default:
+          $display_id = 'page_2';
+      }
+      break;
+    default:
+      $view_name = NULL;
+      return FALSE;
+  }
+  return TRUE;
 }
 
 /*
