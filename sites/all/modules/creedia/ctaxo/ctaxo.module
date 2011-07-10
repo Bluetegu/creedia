@@ -43,12 +43,32 @@ if (!defined(CREEDIA_TAGADELIC_MAX_TERMS)) {
 }
 
 /**
- * Implementation of hook init
+ * Implementation of hook_init
  */
 function ctaxo_init() {
-  // disable caching: otherwise the filters are not remembered correctly across sort options
-  if (in_array(arg(0), array('creeds', 'opinions', 'members', 'gallery', 'blogs'))) {
+  $directories = array('creeds', 'opinions', 'members', 'blogs');
+
+  if (in_array(arg(0), $directories)) {
+    // disable caching: otherwise the filters are not remembered correctly across sort options
     $GLOBALS['conf']['cache'] = FALSE;
+
+    // If this page is reached as a result of referal from 'related' block, set the exposed
+    // filters accordingly
+    if ($referer = $_SERVER['HTTP_REFERER']) {
+      $refarray = parse_url($referer);
+      $host = $refarray['host'];
+      if ($host == $_SERVER['HTTP_HOST']) {
+        $src_view = arg(1, $refarray['path']); // path is of the form /blogs
+        if (in_array($src_view, $directories)) {
+          $view_name;
+          $not_used;
+          cviews_view_ids(&$view_name, &$not_used, arg(0));
+          $src_view_name;
+          cviews_view_ids(&$src_view_name, &$not_used, $src_view);
+          cviews_set_exposed_filters($view_name, 'default', $src_view_name);
+        }
+      }
+    }
   }
 }
 
