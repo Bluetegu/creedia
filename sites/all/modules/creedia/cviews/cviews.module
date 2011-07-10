@@ -299,7 +299,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
           $page_view_name;  // View name of current page
           $page_display_id; // Not used
           cviews_view_ids(&$page_view_name, &$page_display_id, arg(0));
-          cviews_set_exposed_filters($view_name, $display_id, $page_view_name);
+          cviews_set_exposed_filters($view_name, $display_id, $page_view_name, 'default', $node);
         }
 
         $view = views_get_view($view_name);
@@ -319,7 +319,7 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
         }
 
         $path = $type .'s';
-        $path .= '/'. $sort;
+        if ($sort) $path .= '/'. $sort;
         $block['subject'] = $add_d ? l('» '. $title, $path, array('attributes' => array('title' => $description))) :
                                      l($title, $path, array('attributes' => array('title' => $description)));
         // featured indications is added as variable in tendu_block
@@ -331,14 +331,23 @@ function cviews_block($op = 'list', $delta = 0, $edit = array()) {
 /**
  * Manipulate exposed filter remembered
  */
-function cviews_set_exposed_filters($view_name, $display_id, $src_view_name = NULL, $src_display_id = 'default') {
+function cviews_set_exposed_filters($view_name, $display_id, $src_view_name = NULL, $src_display_id = NULL, $node = NULL, $erase = FALSE) {
   global $_SESSION;
+
+  if (!$src_display_id) {
+    $src_display_id = 'default';
+  }
+
+  if ($erase) {
+    $_SESSION['views'][$view_name][$display_id] = array();
+    return;
+  }
 
   if ($src_view_name) {
     // copy the page remembered options to the block exposed filter
     $_SESSION['views'][$view_name][$display_id] = $_SESSION['views'][$src_view_name][$src_display_id];
   }
-  elseif ($node = menu_get_object()) {
+  elseif ($node) {
     // add node terms as filters
     $terms = array();
     if ($view_name == 'Member_blocks') {
@@ -452,6 +461,36 @@ function cviews_view_ids(&$view_name, &$display_id, $view, $sort = NULL) {
         default:
           $display_id = 'page_2';
       }
+      break;
+    default:
+      $view_name = NULL;
+      return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Map url parameters to related block views name and display id
+ * returns FALSE if no view was found.
+ */
+function cviews_view_block_ids(&$view_name, &$display_id, $view) {
+
+  switch($view) {
+    case 'creeds':
+      $view_name = 'Creed_blocks';
+      $display_id = 'block_2';
+      break;
+    case 'opinions':
+      $view_name = 'Discussion_blocks';
+      $display_id = 'block_2';
+       break;
+    case 'members':
+      $view_name = 'Member_blocks';
+      $display_id = 'block_2';
+      break;
+    case 'blogs':
+      $view_name = 'Blog_blocks';
+      $display_id = 'block_2';
       break;
     default:
       $view_name = NULL;

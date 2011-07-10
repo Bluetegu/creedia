@@ -47,8 +47,8 @@ if (!defined(CREEDIA_TAGADELIC_MAX_TERMS)) {
  */
 function ctaxo_init() {
   $directories = array('creeds', 'opinions', 'members', 'blogs');
-
-  if (in_array(arg(0), $directories)) {
+  $view = arg(0);
+  if (in_array($view, $directories)) {
     // disable caching: otherwise the filters are not remembered correctly across sort options
     $GLOBALS['conf']['cache'] = FALSE;
 
@@ -57,15 +57,42 @@ function ctaxo_init() {
     if ($referer = $_SERVER['HTTP_REFERER']) {
       $refarray = parse_url($referer);
       $host = $refarray['host'];
+      $src_alias = substr($refarray['path'], 1);  // path starts with '/'
       if ($host == $_SERVER['HTTP_HOST']) {
-        $src_view = arg(1, $refarray['path']); // path is of the form /blogs
-        if (in_array($src_view, $directories)) {
-          $view_name;
-          $not_used;
-          cviews_view_ids(&$view_name, &$not_used, arg(0));
+        $src_view = arg(0, $src_alias);
+        if ($src_view == $view) {
+          return;
+        }
+        $sort = arg(1);
+        $view_name;
+        $not_used;
+        cviews_view_ids(&$view_name, &$not_used, $view);
+        if ($sort == 'recent' || $sort == 'joined') {
+          // erase filters to support 'lastest' referals
+          cviews_set_exposed_filters($view_name, 'default', NULL, NULL, NULL, TRUE);
+        }
+        elseif ($sort) {
+          // avoid clearing filter for menu referals
           $src_view_name;
-          cviews_view_ids(&$src_view_name, &$not_used, $src_view);
-          cviews_set_exposed_filters($view_name, 'default', $src_view_name);
+          $src_display_id;
+          cviews_view_block_ids(&$src_view_name, &$src_display_id, $view);
+          cviews_set_exposed_filters($view_name, 'default', $src_view_name, $src_display_id);
+//          if (in_array($src_view, $directories)) {
+//            $src_view_name;
+//            cviews_view_ids(&$src_view_name, &$not_used, $src_view);
+//            cviews_set_exposed_filters($view_name, 'default', $src_view_name);
+//          }
+//          elseif ($src_view == 'content') {
+//            $src_path = drupal_lookup_path('source', $src_alias);
+//            $src_page = arg(0, $src_path);;
+//            $src_nid = arg(1, $src_path);
+//          firep($src_page);
+//            if ($src_page == 'node' && is_numeric($src_nid)) {
+//              if ($src_node = node_load($src_nid)) {
+//                cviews_set_exposed_filters($view_name, 'default', NULL, NULL, $src_node);
+//              }
+//            }
+//          }
         }
       }
     }
@@ -534,7 +561,6 @@ function _ctaxo_get_voc_name($vid) {
  */
 function creedia_form_views_exposed_form_alter(&$form, &$form_state) {
   static $i = 0;
-  global $_SESSION;
 
   // set unique ids for select forms and common class
   foreach($form as $id => $element) {
