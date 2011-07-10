@@ -116,7 +116,7 @@ if (Drupal.jsEnabled) {
 //    langCode = basePath.substr(0,4); 
 //    basePath = basePath.slice(3); // remove the language code
 //    url = langCode + 'd' + basePath;
-      url = 'd' + basePath;
+      url = '/d' + basePath;
       // serialize the selected values 
       data = $("#sidebar-left .views-exposed-form").parents('form').serialize();
       if (!data) {
