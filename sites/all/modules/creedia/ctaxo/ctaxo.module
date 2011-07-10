@@ -67,7 +67,7 @@ function ctaxo_init() {
         $view_name;
         $not_used;
         cviews_view_ids(&$view_name, &$not_used, $view);
-        if ($sort == 'recent' || $sort == 'joined') {
+        if (in_array($sort, array('recent', 'joined', 'byway'))) {
           // erase filters to support 'lastest' referals
           cviews_set_exposed_filters($view_name, 'default', NULL, NULL, NULL, TRUE);
         }
