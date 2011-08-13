@@ -1,18 +1,5 @@
 <?php
 // $Id$
-/* TODO
-   An argument for replacements has been added to format_plural(),
-   escaping and/or theming the values just as done with t().*/
-
-/* TODO You may want to take advantage of new form-specific alter hooks.
-   The hook_form_alter() is complemented by hook_form_$form-id_alter().
-   Optionally, modules can implement form-specific alteration functions rather
-   than a single hook_form_alter() with many conditional switch statements.
-   This is optional, and is most useful for tidying the code of modules that
-   alter many forms to customize a site's operations.
-   The new function names are built using the following format:
-   [your-module-name]_form_[$form_id]_alter. */
-
 /**
  * @file
  * Creedia faith profile handler
@@ -76,7 +63,7 @@ function cprofile_load($uid) {
   if (is_numeric($uid)) {
     $node = content_profile_load('member', $uid);
     if (!$node) {
-      watchdog('creedia', 'Cprofile: No user profile found for user uid '. $uid, WATCHDOG_ERROR);
+      watchdog('cprofile', 'No user profile found for user uid '. $uid);
     }
   }
   return $node;
@@ -474,126 +461,19 @@ function cprofile_preprocess_user_picture(&$vars) {
  */
 function theme_user_register($form) {
 
-  // modify member form
-  if (isset($form['member'])) {
-    // remove unneeded collapsible title
-    $form['member']['#collapsible'] = FALSE;
-    $form['member']['#title'] = '';
-
-    // change the look and feel from a fieldset to a 'required' attribute
-    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#collapsible'] = FALSE;
-    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#required'] = TRUE;
-    // move the fieldset title to the file field title and move the file title to the file description
-    $pdescription = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#description'];
-    $ftitle = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#title'];
-    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#title'] = '';
-    $fdescription = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#description'];
-    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['#description'] = '';
-    $ptitle = $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#title'];
-    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#title'] = $ftitle;
-    $form['member']['form']['#form']['group_personal_information_0']['field_reg_picture']['new']['field_reg_picture_upload']['#description'] =  $ptitle . '. ' . $fdescription . $pdescription;
-
-    // remove fields
-    unset($form['member']['form']['#form']['group_personal_information_0']['field_birth_date']);
-    unset($form['member']['form']['#form']['group_personal_information_0']['field_home_page']);
-    unset($form['member']['form']['#form']['group_personal_information_0']['field_community_page']);
-    unset($form['member']['form']['#form']['group_personal_information_0']['field_twitter']);
-    unset($form['member']['form']['#form']['group_profile_properties']);
-
-    // modify spiritual biography for registeration purposes
-
-    // I couldn't find how to force the description field to appear between the textarea and the title,
-    // so eventually I added another form element body_title, placed it before the textarea and cleared the
-    // original title
-    $weight = $form['member']['form']['#form']['body_filter']['#weight'];
-    $form['member']['form']['#form']['body_filter']['body']['#title'] = '';
-
-    $form['member']['form']['#form']['body_title']['#type'] = 'item';
-    $form['member']['form']['#form']['body_title']['#title'] = t('More details');
-    $form['member']['form']['#form']['body_title']['#description'] = t('Add any relevant information. The more the merrier. Indicate what you expect from the Creedia experience. The text entered will be used as draft for your Spiritual Biography. You can edit this field once you log in to Creedia.');
-    $form['member']['form']['#form']['body_title']['#weight'] = $weight ? $weight/10 : -30;
-
-  }
-
   // pimp acount information and picture
   $form['account']['#collapsible'] = TRUE;
-  if (isset($form['picture'])) {
-    $form['picture']['#collapsible'] = TRUE;
-    // The #required attribute is set here during the theming phase to generate the look-and-feel of
-    // a mandatory field, without using the default form checking. The usual form checking fails
-    // on file upload fields. A special validation function is added to the form instead to test
-    // this field is filled by the user.
-    $form['picture']['picture_upload_register']['#required'] = TRUE;
-  }
 
   // In order to debug the registration process hack user.module to allow access to registration process
   // for logged in users. And don't forget to clear cache...
 
-  //  firep($form, 'user_register');
-
   // render the personal details first to avoid confusion between full name and username.
   $output = drupal_render($form['user_registration_help']);
-  $output .= drupal_render($form['member']['form']['#form']['group_personal_information_0']);
+  $output .= drupal_render($form['group_personal_information_0']);
   $output .= drupal_render($form);
   return $output;
 }
 
-/**
- * Implementation of hook_form_alter
- *
- * Patch imagecache_profiles to work with reg_with_pic module. During registration, call imagecache_profile
- * user_edit form alter to add its validation and submission functions.
- */
-function cprofile_form_alter(&$form, &$form_state, $form_id) {
-   if ($form_id == 'user_edit') {
-     // redirect the user to its member edit form. During initial registeration user is redirected to
-     // add his/her password. Once done, the user will be redireted to edit/add details beyond those
-     // entered in registeration.
-     // Once user completes those parameters he/she will be redirectred to the user/about page - code
-     // in form alter in creedia.module.
-//     $form['#redirect'] = 'user/'. $form['_account']['#value']->uid .'/edit';
-   }
-//   if ($form_id == 'user_register') {
-//     if (module_exists('imagecache_profiles') && module_exists('reg_with_pic')) {
-//       $form['#validate']['cprofile_user_register_validate'] = array();
-//     }
-//   }
-}
-
-/**
- * Validate picture in user registration.
- */
-function cprofile_user_register_validate($form, &$form_state) {
-  //  dpr($_FILES);
-  //  dpr($form_state['values']);
-
-  // combine the imagecache_profiles added validation copied here and check that a picture
-  // has been uploaded.
-  // I can not use the imagecache_profiles validation function directly as it uses a different
-  // form field (without hacking reg_with_pic).
-
-  // Add a minimum size requirement to the image upload form
-/* TODO Modify the validators array to suit your needs.
-   This array is used in the revised file_save_upload */
-  $validators = array(
-    'file_validate_is_image' => array(),
-    'file_validate_size' => array(30 * 1024),
-    'file_validate_image_resolution' => array('85x85')
-  );
-
-//   if ($info = file_save_upload(file_check_upload, $validators) {
-//     // need to get image info from the file and not from the form
-//     // $image_info = image_get_info($form_state['values']['picture']);
-//     $image_info = image_get_info($info->filepath);
-//     if ($image_info['width'] < variable_get('user_picture_imagecache_profiles_min_width', 0) || $image_info['height'] < variable_get('user_picture_imagecache_profiles_min_height', 0)) {
-//       form_set_error('picture_upload_register',t('The image must be at least @min_user_picture_width pixels wide and @min_user_picture_height pixels tall (your image was @width x @height pixels).',array('@min_user_picture_width' => check_plain(variable_get('user_picture_imagecache_profiles_min_width', 0)), '@min_user_picture_height' => check_plain(variable_get('user_picture_imagecache_profiles_min_height', 0)), '@width' => $image_info['width'], '@height' => $image_info['height'])));
-//     }
-//   }
-//   else {
-//     // check that the a file is entered.
-//     form_set_error('picture_upload_register',t('User picture is required.'));
-//   }
-}
 
 /**
  * Theme the user edit form per calling function parameter
@@ -663,6 +543,53 @@ function theme_user_edit($form) {
   return $output;
 }
 
+/**
+ * Implementation of hook_nodeapi().
+ *
+ * Handle content profile tweaking during registeration
+ * - picture copy
+ * - default profile facets
+ *
+ * @param &$node The node the action is being performed on.
+ * @param $op What kind of action is being performed. Possible values: alter, delete, delete revision, insert, load, prepare, prepare translation, print, rss item, search result, presave, update, update index, validate, view
+ * @param $a3
+ * @param $a4
+ */
+function cprofile_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+  case 'insert':
+    if ($node->type == 'member') {
+      // copy picture to the proper directory.
+      // imagefield has already copied the file from $_FILES which now
+      // no longer hold the uploaded file information. So, we need to
+      // get the info from the node
+      $filepath = $node->field_reg_picture[0]['filepath'];
+      $info = image_get_info($filepath);
+
+      if ($file = file_copy($filepath,   // it might be better to use file_move and not keep two copies...
+                            variable_get('user_picture_path', 'pictures') .'/picture-'. $node->uid .'.'. $info['extension'],
+                            FILE_EXISTS_ERROR)) {
+        db_query("UPDATE {users} SET picture='%s' WHERE uid=%d", $filepath, $node->uid);
+      }
+      else {
+        watchdog('cprofile', 'Failed to set user picture during registration');
+      }
+
+      // Add default terms to member
+      // Pick the first 3 terms defined for the Ways vocabulary
+      $sql = "SELECT vid FROM {vocabulary} WHERE name = '%s'";
+      $vid = db_result(db_query($sql, 'Ways'));
+      if ($vid) {
+        $sql = "SELECT tid FROM {term_data} t WHERE vid = %d ORDER BY t.weight, t.tid ASC";
+        $result = db_query_range($sql, $vid, 0, 3); // db_rewrite_sql is not right here.
+        while ($data = db_fetch_object($result)) {
+          db_query('INSERT INTO {term_node} (nid, vid, tid) VALUES (%d, %d, %d)', $node->nid, $node->vid, $data->tid);
+        }
+      }
+    }
+    break;
+  }  
+}
 
 /**
  * Implementation of hook_user
@@ -680,43 +607,16 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
     $node = content_profile_load('member', $user->uid);
     if (module_exists('usercomment')) {
       if ($num = usercomment_count_unapproved($node->nid)) {
-  $message .= format_plural($num, 'You have 1 message waiting for you approval', '@count messages are waiting for your approval.');
-  drupal_set_message($message);
+        $message .= format_plural($num, 'You have 1 message waiting for you approval', '@count messages are waiting for your approval.');
+        drupal_set_message($message);
       }
     }
     break;
   case 'register':
     break;
   case 'insert':
-    // copy picture to the proper directory now that we have the userid.
-    // imagefield has already copied the file from $_FILES which now
-    // no longer hold the uploaded file information. So, we need to
-    // get the info from the node
-    $node = content_profile_load('member', $user->uid);
-    $filepath = $node->field_reg_picture[0]['filepath'];
-    $info = image_get_info($filepath);
-
-    if ($file = file_copy($filepath,   // it might be better to use file_move and not keep two copies...
-        variable_get('user_picture_path', 'pictures') .'/picture-'. $user->uid .'.'. $info['extension'],
-        FILE_EXISTS_ERROR)) {
-      db_query("UPDATE {users} SET picture='%s' WHERE uid=%d", $filepath, $user->uid);
-    }
-    else {
-      watchdog('creedia', 'Cprofile: failed to set user picture during registration', WATCHDOG_ERROR);
-    }
-
-    // Add default terms to member
-    // Pick the first 3 terms defined for the Ways vocabulary
-    $sql = "SELECT vid FROM {vocabulary} WHERE name = '%s'";
-    $vid = db_result(db_query($sql, 'Ways'));
-    if ($vid) {
-      $sql = "SELECT tid FROM {term_data} WHERE vid = %d ORDER BY weight, tid ASC LIMIT 0, 3";
-      $result = db_query_range($sql, $vid);
-      while ($data = db_fetch_object($result)) {
-  $sql = "INSERT INTO {term_node} (nid, tid) VALUES (%d, %d)";
-  db_query($sql, $node->nid, $data->tid);
-      }
-    }
+    // code handling registeration moved to hook_nodeapi
+    // no access to content_profile in this stage
     break;
   case 'form':
 //       if ($category == "account") {
@@ -738,7 +638,7 @@ function cprofile_user($op, &$edit, &$user, $category = NULL) {
 //     '#description' => t('Select who you share your belief profile with.'),
 //         );
 //       }
-      return $form;
+//      return $form;
       break;
 
 
