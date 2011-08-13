@@ -208,6 +208,35 @@ function content_profile_registration_user_register_validate($form, &$form_state
     $node->type = $type;
     node_object_prepare($node);
 
+     // fix file field if not uploaded and not required 
+    $sql = db_query("select field_name from {content_node_field} where type = 'filefield'");  
+    while( $res = db_fetch_object($sql) ) { 
+      // .. 
+      $fldname = $res->field_name; 
+      
+      if( $node->$fldname && is_array($node->$fldname) && (count($node->$fldname) > 0)  ) { 
+        
+        $nfield = &$node->$fldname;  // get reference .. 
+        foreach( $node->$fldname as $fcontentk => $fcontentval ) {
+          // .. 
+          if($fcontentval['fid'] == 0 && $fcontentval['filepath'] == '' ) { 
+             //unset($nfield[$fcontentk]); 
+             
+             if( (!isset($_POST['files'][$fldname.'_'.$fcontentk]) || $_POST['files'][$fldname.'_'.$fcontentk] == '' ) && $form['#field_info'][$fldname]['required'] == 1 ) { 
+               // check if this field is required or not .. 
+               
+               form_set_error($fldname, t( $form['#field_info'][$fldname]['widget']['label']." field is required."));  
+             } 
+             
+             // echo $_POST['files'][$fldname.'_'.$fcontentk]."--anything ?"; 
+             // print_r($_FILES); 
+          } 
+        }  
+        
+      } 
+    
+    } // end while .. 
+
     // Make sure there is no user name so we can node_validate
     unset($node->name);
 
