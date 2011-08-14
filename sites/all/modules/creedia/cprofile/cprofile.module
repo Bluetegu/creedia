@@ -250,6 +250,36 @@ function cprofile_menu_alter(&$items) {
 }
 
 /**
+ * Implementation of hook_form_alter().
+ * In d6 hook_form_FORM_ID_alter is called before hook_form_alter
+ * and hence the fields are not in form yet.
+ */
+function cprofile_form_alter(&$form, $form_state, $form_id) {
+  // hide field_reg_picture - it should only be used in registration form
+  switch ($form_id) {
+    case 'member_node_form':
+      // hide
+      $form['field_reg_picture']['#prefix'] = '<div style="display:none">';
+      $form['field_reg_picture']['#suffix'] = '</div>';
+      break;
+    case 'user_register':
+      // unhide from registration form
+      unset($form['group_personal_information_0']['field_reg_picture']['#prefix']);
+      unset($form['group_personal_information_0']['field_reg_picture']['#suffix']);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function cprofile_form_user_profile_form_alter(&$form, &$form_state) {
+  // hide delete picture 
+  $form['picture']['picture_delete']['#prefix'] = '<div style="display:none">';
+  $form['picture']['picture_delete']['#suffix'] = '</div>';
+}
+
+/**
  * Print welcome message after successful registeration.
  */
 function cprofile_welcome($member) {
