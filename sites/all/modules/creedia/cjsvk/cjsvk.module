@@ -68,7 +68,7 @@ function cjsvk_add_js($lang = NULL) {
     $langs = i18n_language_list(TRUE);
     foreach ($langs as $code => $name) {
       $settings['layouts'][$code] = $layouts[$code];
-      $settings['rtl'][$code] = i18n_language_rtl($code);
+      $settings['rtl'][$code] = (i18n_language_property($code, 'direction') == LANGUAGE_RTL);
     }
     // add VK configuration
     drupal_add_js(array('jsvk' => $settings), 'setting');
