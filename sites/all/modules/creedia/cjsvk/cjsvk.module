@@ -65,7 +65,7 @@ function cjsvk_add_js($lang = NULL) {
     $settings = array('layouts' => array(), 'rtl' => array(), );
 
     // populate the settings with the listed locales
-    $langs = i18n_language_list(TRUE);
+    $langs = locale_language_list('name', TRUE);
     foreach ($langs as $code => $name) {
       $settings['layouts'][$code] = $layouts[$code];
       $settings['rtl'][$code] = (i18n_language_property($code, 'direction') == LANGUAGE_RTL);
