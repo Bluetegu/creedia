@@ -512,56 +512,63 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         if (!user_access('revert revisions')) {
           unset($form['delete']);
         }
-        $form['group_origin_statements']['field_origin_statement']['#description'] .=
-        t('The maximum length is limited to !maxlen characters',
-        array('!maxlen' => CREEDIA_CREED_MAXLENGTH));
-        // create a combined origin statement field, with statement text and language selector.
-        // prepare the select form element
-        $select = array( '#type' => 'select',
-            '#title' => t('Statement Language'),
+
+        // prepare form elements
+        $select = array( 
+        	'#type' => 'select',
+            '#title' => $form['group_origin_statements']['field_origin_statement_lang']['#title'],
             '#options' => locale_language_list('name', TRUE),
             '#required' => FALSE,
             '#multiple' => FALSE,
             '#description' => $form['group_origin_statements']['field_origin_statement_lang']['#description'],
         );
-        // copy the textfield form element from the first CCK element and override the default value at
-        // later. This allows to maintain the title at each step.
-        $statement = $form['group_origin_statements']['field_origin_statement'][0]['value'];
-        // copy the overall origin statement attributes
-        $form['group_origin_statements']['origin_statement_combo'] =
-        $form['group_origin_statements']['field_origin_statement'];
-        // copy from the content from the statement and statement_lang CCK structures
+        $statement = array(
+        	'#type' => 'textfield',
+            '#title' => $form['group_origin_statements']['field_origin_statement']['#title'],
+            '#required' => FALSE,
+            '#multiple' => FALSE,
+            '#description' => $form['group_origin_statements']['field_origin_statement']['#description'],
+            '#maxlength' => CREEDIA_CREED_MAXLENGTH,                
+//            '#after_build' => $form['group_origin_statements']['field_origin_statement']['#after_build'],                
+        );
+
+        // copy the statement and statement_lang multi valued text fields to new individual form elements
+        // *** CCK doesn't support multi select fields; it assumes its a single select element with multiple
+        //     select values. Hence lang is defined as text field.   
         for ($i = 0; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
 
-          // first set a language selector
-          $lang = $form['group_origin_statements']['field_origin_statement_lang'][$i]['value']['#default_value'];
+          // Update the value of the language selector
+          $lang = $form['group_origin_statements']['field_origin_statement_lang'][$i]['#default_value']['value'];
           if (!$lang) $lang = 'en';
           $select['#default_value'] = array($lang);
           // indicate language selector for virtual keyboard
           $select['#attributes'] = array('class' => 'jsvk-lang jsvk-lang-'. $i);
-          $form['group_origin_statements']['origin_statement_combo'][2*$i] = array('value' => array($select));
-          // and an origin statement text field.
+          
+          // Update the value of the statement
           $statement['#default_value'] =
-          $form['group_origin_statements']['field_origin_statement'][$i]['value']['#default_value'];
+                $form['group_origin_statements']['field_origin_statement'][$i]['#default_value']['value'];
           // add virtual keyboard
-          $statement['#attributes'] = array('class' => 'jsvk-textfield jsvk-textfield-'. $i);
-          $form['group_origin_statements']['origin_statement_combo'][2*$i+1] =
-          array('value' => $statement);
-          if (isset($lang) && (i18n_language_property($code, 'direction') == LANGUAGE_RTL)) {
-            $form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes'] =
-            array_merge(array('lang' => $lang, 'dir' => 'rtl'),
-            $form['group_origin_statements']['origin_statement_combo'][2*$i+1]['value']['#attributes']);
+          if (isset($lang) && (i18n_language_property($lang, 'direction') == LANGUAGE_RTL)) {
+            $statement['#attributes'] = array('lang' => $lang, 'dir' => 'rtl');
+          }        
+          else {
+            $statement['#attributes'] = array();
           }
+          $statement['#attributes'] = 
+                array_merge(array('class' => 'jsvk-textfield jsvk-textfield-'. $i), $statement['#attributes']);          
+          $statement['#delta'] = 2*$i+1;
+                
+          // set the forms into place
+          $form['group_origin_statements']['lang_'. $i] = $select;
+          $form['group_origin_statements']['statement_'. $i] = $statement;                
         }
 
         unset($form['group_origin_statements']['field_origin_statement']);
         unset($form['group_origin_statements']['field_origin_statement_lang']);
+        // add virtual keyboard
         cjsvk_add_js();
-
-        // add limitation to the length of the creed statement (title)
-        $form['title']['#maxlength'] = CREEDIA_CREED_MAXLENGTH;
         // Submit function adapts form_values parameter to the format expected by CCK
-        $form['#submit'] = array('creed_submit' => array());
+        $form['#submit'][] = 'creed_submit';
         break;
       case 'member_node_form':
         //      $form['#redirect'] = 'user/'. $form['uid']['#value'] .'/about';
@@ -593,28 +600,34 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-
 /**
  * creed multipage submit function.
  */
 function creed_submit($form, &$form_state) {
-  //dpr($form_state['values']);
+  // dpr($form_state);
   // convert the origin statement combo back to cck
-  if (isset($form_state['values']['origin_statement_combo'])) {
-    foreach ($form_state['values']['origin_statement_combo'] as $i => $value) {
-      if ($i % 2) {
-        $form_state['values']['field_origin_statement'][] = $form_state['values']['origin_statement_combo'][$i];
-      }
-      else {
-        $form_state['values']['field_origin_statement_lang'][] =
-        array('value' => $form_state['values']['origin_statement_combo'][$i]['value'][0]);
-      }
-    }
-    unset($form_state['values']['origin_statement_combo']);
+  $i = 0;
+  while (isset($form_state['values']['statement_'. $i])) {
+    $form_state['values']['field_origin_statement'][$i]['value'] = $form_state['values']['statement_'. $i];  
+    $form_state['values']['field_origin_statement_lang'][$i]['value'] = $form_state['values']['lang_'. $i];  
+    $i += 1;
   }
-
-  // submit once on final step
-  $form_state['redirect'] = node_form_submit($form_state['values']['form_id'], $form_state['values']);
+//  
+//  if (isset($form_state['values']['origin_statement_combo'])) {
+//    foreach ($form_state['values']['origin_statement_combo'] as $i => $value) {
+//      if ($i % 2) {
+//        $form_state['values']['field_origin_statement'][] = $form_state['values']['origin_statement_combo'][$i];
+//      }
+//      else {
+//        $form_state['values']['field_origin_statement_lang'][] =
+//        array('value' => $form_state['values']['origin_statement_combo'][$i]['value'][0]);
+//      }
+//    }
+//    unset($form_state['values']['origin_statement_combo']);
+//  }
+//
+//  // submit once on final step
+//  $form_state['redirect'] = node_form_submit($form_state['values']['form_id'], $form_state['values']);
 }
 
 /*
