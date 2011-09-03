@@ -1,32 +1,13 @@
 <?php
 // $Id$
-
-/* TODO hook_nodeapi('submit') has been replaced by op='presave'
- There is no longer a 'submit' op for nodeapi. Instead you may use the newly
- created 'presave' op. Note, however, that this op is invoked at the beginning
- of node_save(), in contrast to op='submit' which was invoked at the end of
- node_submit(). Thus 'presave' operations will be performed on nodes that are
- saved programatically via node_save(), while in Drupal 5.x op='submit' was
- only applied to nodes saved via the node form. Note that the node form is now,
- in effect, a multistep form (for example when previewing), so if you need to
- fix up the data in the node for re-building the form, use a #submit function
- added to the node form's $form array. */
-
-/* TODO New user_mail_tokens() method may be useful.
- user.module now provides a user_mail_tokens() function to return an array
- of the tokens available for the email notification messages it sends when
- accounts are created, activated, blocked, etc. Contributed modules that
- wish to make use of the same tokens for their own needs are encouraged
- to use this function. */
-
 /*
  * @file
  * Creedia's general framework
  *
  * - Action menu blocks ('add comment', 'add creed', etc.)
- * - Content edit/add forms alterations
+ * - Content edit/add forms alterations (creed add/edit form, etc.)
  * - Content link alterations
- * - Creed view (and embedded interpretations)
+ * - Creed image and meta-tags generation
  *
  */
 
@@ -612,22 +593,6 @@ function creed_submit($form, &$form_state) {
     $form_state['values']['field_origin_statement_lang'][$i]['value'] = $form_state['values']['lang_'. $i];  
     $i += 1;
   }
-//  
-//  if (isset($form_state['values']['origin_statement_combo'])) {
-//    foreach ($form_state['values']['origin_statement_combo'] as $i => $value) {
-//      if ($i % 2) {
-//        $form_state['values']['field_origin_statement'][] = $form_state['values']['origin_statement_combo'][$i];
-//      }
-//      else {
-//        $form_state['values']['field_origin_statement_lang'][] =
-//        array('value' => $form_state['values']['origin_statement_combo'][$i]['value'][0]);
-//      }
-//    }
-//    unset($form_state['values']['origin_statement_combo']);
-//  }
-//
-//  // submit once on final step
-//  $form_state['redirect'] = node_form_submit($form_state['values']['form_id'], $form_state['values']);
 }
 
 /*
