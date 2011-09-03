@@ -662,92 +662,80 @@ function ctaxo_node_taxonomy($node) {
   $terms = array();
   if ($node->op == 'Preview') {
     if (isset($node->field_religion_single)) {
-      foreach ($node->field_religion_single['tids'] as $tid) {
-  if (is_numeric($tid)) {
-    $term = taxonomy_get_term($tid);
-    $terms['religion'][$term->tid] = $term;
-  }
+      foreach ($node->field_religion_single as $a) {
+          $term = taxonomy_get_term($a['value']);
+          $terms['religion'][$term->tid] = $term;
       }
     }
     elseif (isset($node->field_religion)) {
-      foreach ($node->field_religion['tids'] as $tid) {
-  if (is_numeric($tid)) {
-    $term = taxonomy_get_term($tid);
-    $terms['religion'][$term->tid] = $term;
-  }
+      foreach ($node->field_religion as $a) {
+          $term = taxonomy_get_term($a['value']);
+          $terms['religion'][$term->tid] = $term;
       }
     }
     elseif (isset($node->field_religion_affiliation)) {
-      foreach ($node->field_religion_affiliation['tids'] as $tid) {
-  if (is_numeric($tid)) {
-    $term = taxonomy_get_term($tid);
-    $parents =  taxonomy_get_parents($term->tid, $key = 'vid');
-    $parent = $parents[$term->vid];
-    if ($parent) {
-      $terms['movement'][$parent->tid][$term->tid] = $term;
-    }
-    else {  // Religion
-      $terms['religion'][$term->tid] = $term;
-    }
-  }
+      foreach ($node->field_religion_affiliation as $a) {
+          $term = taxonomy_get_term($a['value']);
+          $parents =  taxonomy_get_parents($term->tid, $key = 'vid');
+          $parent = $parents[$term->vid];
+          if ($parent) {
+            $terms['movement'][$parent->tid][$term->tid] = $term;
+          }
+          else {  // Religion
+            $terms['religion'][$term->tid] = $term;
+          }
       }
     }
     if (isset($node->field_beliefset)) {
-      foreach ($node->field_beliefset['tids'] as $tid) {
-  if (is_numeric($tid)) {
-    $term = taxonomy_get_term($tid);
-    $terms['beliefset'][$term->tid] = $term;
-  }
+      foreach ($node->field_beliefset as $a) {
+          $term = taxonomy_get_term($a['value']);
+          $terms['beliefset'][$term->tid] = $term;
       }
     }
     if (isset($node->field_country)) {
-      foreach ($node->field_country['tids'] as $tid) {
-  if (is_numeric($tid)) {
-    $term = taxonomy_get_term($tid);
-    $terms['country'][$term->tid] = $term;
-  }
+      foreach ($node->field_country as $a) {
+          $term = taxonomy_get_term($a['value']);
+          $terms['country'][$term->tid] = $term;
       }
     }
     if (isset($node->field_free_tag)) {
-      foreach ($node->field_free_tag['tids'] as $tid) {
-  if (is_numeric($tid)) {
-    $term = taxonomy_get_term($tid);
-    $terms['freetag'][$term->tid] = $term;
-  }
+      foreach ($node->field_free_tag as $a) {
+          $term = taxonomy_get_term($a['value']);
+          $terms['freetag'][$term->tid] = $term;
       }
     }
-    if (isset($node->field_gender['tids'][0])) {
-      $term = taxonomy_get_term($node->field_gender['tids'][0]);
+    if (isset($node->field_gender[0])) {
+      $term = taxonomy_get_term($node->field_gender[0]);
       $terms['gender'][$term->tid] = $term;
     }
   }
   else {
     foreach ((array)$node->taxonomy as $term) {
       switch ($term->vid) {
-      case CREEDIA_RELIGION_VID:
-  $parents =  taxonomy_get_parents($term->tid, $key = 'vid');
-  $parent = $parents[$term->vid];
-  if ($parent) {
-    $terms['movement'][$parent->tid][$term->tid] = $term;
-  }
-  else {  // Religion
-    $terms['religion'][$term->tid] = $term;
-  }
-  break;
-      case CREEDIA_BELIEFSET_VID:
-  $terms['beliefset'][$term->tid] = $term;
-  break;
-      case CREEDIA_FREETAG_VID:
-  $terms['freetag'][$term->tid] = $term;
-  break;
-      case CREEDIA_COUNTRY_VID:
-  $terms['country'][$term->tid] = $term;
-  break;
-      case CREEDIA_GENDER_VID:
-  $terms['gender'] = $term;
-  break;
-      default:
-  break;
+        case CREEDIA_RELIGION_VID:
+          $parents =  taxonomy_get_parents($term->tid, $key = 'vid');
+          $parent = $parents[$term->vid];
+          if ($parent) {
+            $terms['movement'][$parent->tid][$term->tid] = $term;
+          }
+          else {  // Religion
+            $terms['religion'][$term->tid] = $term;
+          }
+          break;
+        case CREEDIA_BELIEFSET_VID:
+          $terms['beliefset'][$term->tid] = $term;
+          break;
+        case CREEDIA_FREETAG_VID:
+          $terms['freetag'][$term->tid] = $term;
+          break;
+        case CREEDIA_COUNTRY_VID:
+          $terms['country'][$term->tid] = $term;
+          break;
+        case CREEDIA_GENDER_VID:
+          $terms['gender'] = $term;
+          break;
+        default:
+          break;
       }
     }
   }
