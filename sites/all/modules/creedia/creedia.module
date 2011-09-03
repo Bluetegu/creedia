@@ -718,33 +718,25 @@ function creedia_creed_img_generate($node) {
   $rterms = array();
   $bterms = array();
 
-  if (is_array($node->field_religion_single['tids'])) {
-    // update through hook_nodeapi
-    $rterms = $node->field_religion_single['tids'];   // the 'single' part is no longer valid. It is multiple valued
+  
+  if (is_array($node->field_religion_single)) {
+    $rterms = $node->field_religion_single;   // the 'single' part is no longer valid. It is multiple valued
   }
-  elseif (is_array($node->field_religion_single[0])) {
-    // Direct update after node_load
-    $rterms = array_keys($node->field_religion_single[0]);
+  if (is_array($node->field_beliefset)) {
+    $bterms = $node->field_beliefset;
   }
-
-  if (is_array($node->field_beliefset['tids'])) {
-    $bterms = $node->field_beliefset['tids'];
-  }
-  elseif (is_array($node->field_beliefset[0])) {
-    $bterms = array_keys($node->field_beliefset[0]);
-  }
-
+ 
   $rfiles = array();
   $bfiles = array();
 
   // Add taxonomy images path info
-  foreach ($rterms as $tid) {
-    $rfiles[$tid] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $tid));
+  foreach ($rterms as $a) {
+    $rfiles[$a['value']] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $a['value']));
   }
-  foreach ($bterms as $tid) {
-    $bfiles[$tid] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $tid));
+  foreach ($bterms as $a) {
+    $bfiles[$a['value']] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $a['value']));
   }
-
+ 
   // Generate a true color image
   // Required for alpha blending (transparency) to work well
   $im = imagecreatetruecolor(54, 88);
@@ -774,7 +766,7 @@ function creedia_creed_img_generate($node) {
   $i = 0;
   foreach ($rfiles as $tid => $filename) {
 
-    $yr = imagecreatefrompng($filename);  // create the resource
+    $yr = imagecreatefrompng($path_to_theme .'/images/religion/'. $filename);  // create the resource
     if (!$yr) {
       watchdog('Creedia', 'Failed to generate creed image; religion term image not found.', WATCHDOG_ERROR);
       return;
@@ -821,7 +813,7 @@ function creedia_creed_img_generate($node) {
   $i = 0;
   foreach ($bfiles as $tid => $filename) {
 
-    $yr = imagecreatefromgif($filename);  // create the resource
+    $yr = imagecreatefromgif($path_to_theme .'/images/beliefset/'. $filename);  // create the resource
     if (!$yr) {
       watchdog('Creedia', 'Failed to generate creed image; belief term image not found.', WATCHDOG_ERROR);
       return;
