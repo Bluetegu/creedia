@@ -714,10 +714,8 @@ function creedia_creed_img_reset($nid = 0) {
  * THIS FUNCTION USES THE GD LIBRARY
  */
 function creedia_creed_img_generate($node) {
-
   $rterms = array();
   $bterms = array();
-
   
   if (is_array($node->field_religion_single)) {
     $rterms = $node->field_religion_single;   // the 'single' part is no longer valid. It is multiple valued
