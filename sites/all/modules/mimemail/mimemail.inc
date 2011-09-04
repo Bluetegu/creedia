@@ -55,7 +55,7 @@ function mimemail_headers($headers, $from = NULL) {
 
   // Run all headers through mime_header_encode() to convert non-ascii
   // characters to an rfc compliant string, similar to drupal_mail().
-  foreach($headers as $key => $value) {
+  foreach ($headers as $key => $value) {
     $headers[$key] = mime_header_encode($value);
   }
 
@@ -312,11 +312,11 @@ function _mimemail_expand_links($matches) {
  */
 function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $attachments = array()) {
   if (empty($text)) {
-    // todo: remove this preg_replace once filter_xss() is properly handling
-    // direct descendant css selectors '>' in inline CSS. For now this cleans
-    // up our plain text part. See mimemail #364198, drupal #370903
-    $text = preg_replace('|<style.*?</style>|mis', '', $body);
-    $text = drupal_html_to_text($text);
+    // @todo Remove once filter_xss() can handle direct descendant selectors in inline CSS.
+    // @see http://drupal.org/node/1116930 and http://drupal.org/node/370903
+    // Pull out the message body.
+    preg_match('|<body.*?</body>|mis', $body, $matches);
+    $text = drupal_html_to_text($matches[0]);
   }
   if ($plaintext) {
     //Plain mail without attachment
@@ -337,7 +337,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
     }
   }
   else {
-    $content_type = 'multipart/related; type="multipart/alternative"';
+    $content_type = 'multipart/mixed';
 
     $text_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $text);
 
@@ -353,6 +353,8 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
 
     if ($mime_parts) {
       $parts = array_merge($parts, $mime_parts);
+      $content = mimemail_multipart_body($parts, 'multipart/related; type="multipart/alternative"', TRUE);
+      $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
     }
   }
 
