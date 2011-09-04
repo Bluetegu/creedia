@@ -10,36 +10,27 @@
  */
 
 /**
- * Implementation of hook_form_alter
+ * Implementation of hook_form_FORM_ID_alter().
  */
-function cdigest_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'simplenews_node_form') {
-    //    watchdog('Creedia', 'In cdigest_from_alter.', WATCHDOG_ERROR);
-    //    dpm($form);
-    // add digest button. Note that in Drupal 5 we use a global #after_build functions and a global
-    // op form_values value to figure out what to do. In Drupal 6 this is deprecated and a per field defined
-    // function is used instead.
-    $form['digest'] = array('#type' => 'button', '#value' => t('Add Digest'), '#weight' => 0);
-    //     if (!isset($form['#after_build'])) {
-    //       $form['#after_build'] = array();
-    //     }
-    //     if (!in_array('cdigest_form_add_digest', $form['#after_build'])) {
-    //       array_unshift($form['#after_build'], 'cdigest_form_add_digest');
-    //     }
-
-    // It is much easier to change the body here and not after the form was fully built, i.e. to process
-    // and change the body in the #after_build function.
-
-    if ($form['#post'] && $form['#post']['op'] == t('Add Digest')) {
-      $form['#post']['body'] .= cdigest_digest();
-    }
-  }
+function cdigest_form_simplenews_node_form_alter(&$form, &$form_state) {
+    // dpm($form);
+    // add digest button. 
+    $form['digest'] = array(
+    	'#type' => 'button', 
+    	'#value' => t('Add Digest'), 
+    	'#weight' => 0,
+        '#executes_submit_callback' => TRUE,
+        '#submit'=> array('cdigest_digest'),
+    );
+    
+    // change the filter to 'Full HTML' - *** TODO 
+    // dpm($form['body_field']['format']);
 }
 
 /**
  * Add the digest
  */
-function cdigest_digest() {
+function cdigest_digest($form, &$form_state) {
   // types includes all types to be included in the digest ordered by their appearance
   // i.e. creed will apear first
   $types = array('creed', 'member', 'dblog', 'opinion', 'interpretation');
@@ -54,7 +45,11 @@ function cdigest_digest() {
     $bytype[$data->type][] = node_load($data->nid);
   }
 
-  return theme('cdigest_digest', $bytype);
+  // taken from preview form handling  
+  node_form_submit_build_node($form, &$form_state);
+  $form_state['node']['body'] .= theme('cdigest_digest', $bytype);
+  // dpm($form_state['node']);
+  
 }
 
 /**
