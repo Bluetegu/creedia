@@ -1,0 +1,117 @@
+@charset "utf-8";
+/* Basic CSS Reset */
+body, div,  dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, p, a,
+pre, code, form, fieldset, legend, input, textarea, p, blockquote, table, th, td {margin:0;padding:0;}
+img, fieldset, legend, table, tr, td, th {border:none;}
+ol, ul, li {list-style-type:none;}
+table, td{vertical-align:top;text-align:left;}
+th{vertical-align:middle;text-align:left;}
+fieldset{padding:0;margin:0;}
+
+/* Drupal CSS Defaults reset */
+.profile,
+.node-form .standard{clear:none;}
+ul.menu{padding:0 0 0 1em;}
+ul.menu li{margin:0 0 0 .5em;}
+.item-list ul li{list-style-image:none;list-style-type:none;padding:0;margin:0;}
+li.leaf{list-style-image:none;list-style-type:none;}
+
+/* Fonts
+ * Notes:
+ * - I'm using relative font sizes for 2 reasons:
+ *   1. Accessibility - So users of IE6 will be able to resize fonts.
+ *   2. Font sizes are easier to track this way.
+ * - Note that "line-height" unlike "font-size" is relative to the current element and not to a global line height.
+ * - Basic font size 12px, set as .75em of browsers default 16px size
+ * - Font sizes (when base size is .75em, calculated as desired font size devided by 12):
+ *	 10px = .83em
+ *	 11px = .916em
+ *	 12px = 1em
+ *	 13px = 1.083em
+ *	 14px = 1.166em
+ *	 16px = 1.333em
+ *	 18px = 1.5em
+ *	 20px = 1.666em
+ *   etc...
+ */
+body{font-family:Arial, Helvetica, sans-serif;font-size:100%;}
+#page{font-size:.75em;line-height:1.333em;}
+
+/* Main Layout: */
+
+/* Page width: For fixed width Layout */
+/*#page{width:980px;margin:0 auto;position:relative;}*/
+
+/* Page width: For Fluid width Layout
+  * Notes:
+  * - min and max widths must be set on #content too, calculated according to sidebars widths.
+  * - As a thumb rule I don't deal with non-standard IE hacks so this design degrades to a fixed width in IE6
+  * - To have a full page width in IE6, remove the "width" declerations from #page and #content,
+  *   add "height:1%" to trigger "hasLayout" (For more info - http://www.satzansatz.de/cssd/onhavinglayout.html)
+  * - (For fluid width in IE6 you can use the "width:expression()" hack. But you really shouldn't.)
+  */
+#page{position:relative;width:960px;margin:0 auto;background:#f3f4f7}
+
+/* Content: set hasLayout for IE */
+
+ #content{height:1%}
+
+/* Set hasLayout in IE and clear floats for all main areas
+ * Notes:
+ * "overflow:hidden" is set to clear floats, if it breaks your design,
+ * for example - you are using floating tooltips or dropdown menus,
+ * it can be removed from the corresponding element.
+ * Many times "clear:both" gives the same results.
+ */
+#content-header,
+#content-top,
+#content-area,
+#content-bottom,
+#footer,
+#header,
+#main{width:100%;overflow:hidden;}
+
+/* End of Layout section
+ *****************************************************
+ */
+
+/* Page Design
+ *****************************************************
+ */
+
+/* General Tags */
+body{color:#535d66;background:#fff;}
+h1{font-size:1.833em;line-height:1.333em;font-weight:bold;}
+h2{font-size:1.5em;line-height:1.333em;font-weight:bold;}
+h3{font-size:1.333em;line-height:1.333em;font-weight:bold;}
+h4{font-size:1em;line-height:1.333em;font-weight:bold;}
+h6{font-size:.85em;}
+p{padding-bottom:.5em;}
+td{padding:.2em .5em;}
+dt{font-style:italic;}
+dd{padding:.5em;}
+ul.bullets{padding:.5em 1em;}
+ul.bullets li{margin-left:1.5em;list-style:disc;line-height:1.5em;}
+tr.odd, tr.even{border-bottom:none;}
+tr.even{background:#f8f8f8;}
+
+/* Form Elements  */
+input, select, textarea{font-family:Arial, Helvetica, sans-serif;font-weight:normal;line-height:1em;font-size:1em;}
+textarea{line-height:1.2em;}
+button{font-family:Arial, Helvetica, sans-serif;font-weight:bold;line-height:1em;font-size:13px}
+button{cursor:pointer;}
+
+/* Links */
+a{color:#5297dd;text-decoration:none;}
+/*a{color:#0062a0;text-decoration:none;}*/
+a:hover, a:focus{text-decoration:underline;}
+/*li a.active{color:#0062a0;text-decoration:underline;}*/
+/*li a:visited{color:#0062a0;}*/
+
+/* em styling */
+div.description em {color:red;}
+
+h1#title{font-size:2em;padding:.5em;color:#9caaba;}
+h1#title .title-class{padding-right:.5em;color:#396184;}
+h1#title .title-class{margin-left:36px;}
+

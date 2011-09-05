@@ -91,6 +91,7 @@ function theme_cdigest_digest($bytype) {
           break;
       }
 
+      $outupt .= '<table>';
       $output .= '<div style="width:100%;clear:both;">';
 
       $output .= '<div style="width:100%;">'. $title .'</div>';
@@ -136,6 +137,7 @@ function theme_cdigest_digest($bytype) {
             break;
         }
 
+        $output .= '<tr><td>';
         $output .= '<div style="padding:10px 0;width:100%;overflow:visible;clear:both">';
         $output .= '<div class="image" style="float:left; padding:0 8px 2px 0;">'. $image .'</div>';
         $output .= $node_title;
@@ -145,8 +147,10 @@ function theme_cdigest_digest($bytype) {
         //  $output .= '<div>'. l('More', 'node/' . $node->nid, array('absolute' => TRUE)) .'</div>';
         //  $output .= '<div style="padding-left:400px;" >'. l('More', 'node/' . $node->nid, array('absolute' => TRUE)) .'</div>';
         $output .= '</div>';
+        $output .= '</td></tr>';
       }
       $output .= '</div>';
+      $output .= '</table>';
     }
   }
   return $output;
