@@ -113,7 +113,7 @@
 
 	  <div id="footer">
           <span id="copyright">Creedia &copy; 2009-2011</span>
-        <?php print $footer_message; ?>
+        <?php print $footer; ?>
       </div>
       <!-- /footer -->
           <?php print $scripts; ?>
