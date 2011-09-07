@@ -993,7 +993,11 @@ function ctendu_preprocess_views_view_fields__Discussion_blocks(&$vars) {
   $node->nid = $nid;
   $node->field_opinion_image[0]['view'] = $vars['fields']['field_opinion_image_fid']->content;
   $node->field_opinion_em_picture[0]['view'] = $vars['fields']['field_opinion_em_picture_embed']->content;
-  $node->field_opinion_em_video[0]['view'] = $vars['fields']['field_opinion_em_video_embed']->content;
+  $video = $vars['fields']['field_opinion_em_video_embed']->content;
+  if ($video) {
+    $node->field_opinion_em_video[0]['view'] = $video;
+    $node->field_opinion_em_video[0]['provider'] = 'ok'; // this is a hack for ctendu_opinion_image
+  }
   if ($vars['fields']['field_opinion_em_audio_embed']->raw) {
     $node->field_opinion_em_audio[0]['view'] = $vars['fields']['field_opinion_em_audio_embed']->content;
   }
