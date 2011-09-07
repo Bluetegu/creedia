@@ -221,7 +221,8 @@ function ctendu_opinion_image($node, $page = TRUE) {
   $image = $node->field_opinion_image[0]['view'];
   $audio = $node->field_opinion_audio[0]['filepath'];
   $em_picture = $node->field_opinion_em_picture[0]['view'];
-  $em_video = $node->field_opinion_em_video[0]['view'];
+  // for some unknown reason, ['view'] is sometimes not NULL even if no video is embedded.
+  $em_video = $node->field_opinion_em_video[0]['provider'] ? $node->field_opinion_em_video[0]['view'] : NULL;
   $em_audio = $node->field_opinion_em_audio[0]['view'];
 
   if ($audio) {
@@ -239,8 +240,6 @@ function ctendu_opinion_image($node, $page = TRUE) {
     $output .= $em_audio;
   }
   elseif ($em_video) {
-    // for some unknown reason, em_video inserts a 'view viedo' link even if no em video is selected
-    // so I'm setting it to be the last one, such that it won't override real images.
     $output .= $em_video;
   }
   elseif ($image) {
