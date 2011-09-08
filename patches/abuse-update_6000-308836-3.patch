@@ -1,0 +1,150 @@
+diff -rupN abuse/abuse.install abuse_new/abuse.install
+--- abuse/abuse.install	2008-11-06 07:04:41.000000000 +1100
++++ abuse.install	2010-10-25 11:24:02.000000000 +1100
+@@ -33,7 +33,6 @@ function abuse_schema() {
+       'aid' => array(
+         'description' => t('ID of the flag'),
+         'type' => 'serial',
+-        'unsigned' => TRUE,
+         'not null' => TRUE,
+       ),
+       'oid' => array(
+@@ -239,7 +238,6 @@ function abuse_schema() {
+       'arid' => array(
+         'description' => t('Reason ID'),
+         'type' => 'serial',
+-        'unsigned' => TRUE,
+         'not null' => TRUE,
+       ),
+       'reason' => array(
+@@ -285,3 +283,130 @@ function abuse_install_default_reasons()
+   }
+ }
+ 
++/**
++ * Add the new fields and table required by the drupal 6 version.
++ */
++function abuse_update_6000() {
++  // Add abuse status log table.
++  $schema['abuse_status_log'] = array(
++    'description' => t('A log of the change to the status of a given content'),
++    'fields' => array(
++      'oid' => array(
++        'description' => t('Original content ID'),
++        'type' => 'int',
++        'unsigned' => TRUE,
++        'not null' => TRUE,
++      ),
++      'type' => array(
++        'description' => t('Content Type'),
++        'type' => 'varchar',
++        'length' => 128,
++        'not null' => TRUE,
++        'default' => 'node',
++      ),
++      'uid' => array(
++        'description' => t('Flagged content user ID'),
++        'type' => 'int',
++        'unsigned' => TRUE,
++        'not null' => TRUE,
++        'default' => 0,
++      ),
++      'status' => array(
++        'description' => t('Status of the content'),
++        'type' => 'int',
++        'size' => 'small',
++        'unsigned' => TRUE,
++        'not null' => TRUE,
++        'default' => 0,
++      ),
++      'timestamp' => array(
++        'description' => t('Timestamp'),
++        'type' => 'int',
++        'unsigned' => TRUE,
++        'not null' => TRUE,
++      ),
++    ),
++    'indexes' => array(
++      'uid' => array('uid'),
++      'oid_type_timestamp' => array('oid', 'type', 'timestamp'),
++    ),
++  );
++  db_create_table($ret, 'abuse_status_log', $schema['abuse_status_log']);
++
++  // Abuse table changes.
++  db_drop_primary_key($ret, 'abuse');
++  db_change_field($ret, 'abuse', 'aid', 'aid', array(
++   'description' => t('ID of the flag'),
++   'type' => 'serial',
++   'not null' => TRUE,
++  ),
++  array('primary key' => array('aid')));
++  db_add_index($ret, 'abuse', 'oid_type', array('oid', 'type'));
++  db_add_index($ret, 'abuse', 'uid', array('uid'));
++
++  // Abuse warnings table changes.
++  db_change_field($ret, 'abuse_warnings', 'created', 'created', array(
++    'description' => t('Last timestamp of when content status was added/changed'),
++    'type' => 'int',
++    'unsigned' => TRUE,
++    'not null' => TRUE,
++    'default' => 0,
++  ));
++  db_add_field($ret, 'abuse_warnings', 'sent_by_uid', array(
++    'description' => t('Flagged content user ID'),
++    'type' => 'int',
++    'unsigned' => TRUE,
++    'not null' => TRUE,
++    'default' => 0,
++  ));
++  db_add_index($ret, 'abuse_warnings', 'oid_type_created', array('oid', 'type', 'created'));
++  db_add_index($ret, 'abuse_warnings', 'uid', array('uid'));
++  db_add_index($ret, 'abuse_warnings', 'sent_by_uid', array('sent_by_uid'));
++
++  // Abuse status table changes.
++  db_change_field($ret, 'abuse_status', 'changed', 'changed', array(
++    'description' => t('Last timestamp of when content status was added/changed'),
++    'type' => 'int',
++    'unsigned' => TRUE,
++    'not null' => TRUE,
++    'default' => 0,
++  ));
++  db_change_field(&$ret, 'abuse_status', 'status', 'status', array(
++    'description' => t('Current status of the content'),
++    'type' => 'int',
++    'size' => 'small',
++    'unsigned' => TRUE,
++    'not null' => TRUE,
++    'default' => 0,
++  ));
++  db_add_field($ret, 'abuse_status', 'assigned_to_uid', array(
++    'description' => t('Moderating user content has been assigned to'),
++    'type' => 'int',
++    'unsigned' => TRUE,
++    'not null' => TRUE,
++    'default' => 0,
++  ));
++  db_add_primary_key($ret, 'abuse_status', array('oid', 'type'));
++  db_add_index($ret, 'abuse_status', 'assigned_to_uid_oid', array('assigned_to_uid', 'oid'));
++  db_add_index($ret, 'abuse_status', 'oid_type', array('oid', 'type'));
++  db_add_index($ret, 'abuse_status', 'status_oid', array('status', 'oid'));
++
++  // Abuse reasons table changes.
++  db_drop_primary_key($ret, 'abuse_reasons');
++  db_change_field($ret, 'abuse_reasons', 'arid', 'arid', array(
++    'description' => t('Reason ID'),
++    'type' => 'serial',
++    'not null' => TRUE,
++  ),
++  array('primary key' => array('arid')));
++  db_change_field($ret, 'abuse_reasons', 'reason', 'reason', array(
++    'description' => t('Short sentence of reason for flagging content'),
++    'type' => 'varchar',
++    'length' => 255,
++    'not null' => TRUE,
++    'default' => 'other',
++  ));
++
++  return $ret;
++}
++
