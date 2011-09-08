@@ -1,0 +1,58 @@
+Index: browscap/browscap.module
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/browscap/browscap.module,v
+retrieving revision 1.6.2.3.2.13
+diff -u -r1.6.2.3.2.13 browscap.module
+--- browscap/browscap.module	1 Sep 2010 19:52:03 -0000	1.6.2.3.2.13
++++ browscap/browscap.module	3 Dec 2010 13:53:48 -0000
+@@ -347,7 +347,21 @@
+   fclose($browscapfp);
+ 
+   if (version_compare(PHP_VERSION, '5.3.0', '>=')) {
++    /**
++     * Since PHP 5.3 the INI_SCANNER_RAW parameter is necessary in the
++     * parse_ini_file call below because illegal characters are used in
++     * $browscapfile. parse_ini_file definition available at the "Notes" section
++     * of <http://php.net/parse_ini_file> page defines that:
++     *
++     *   Characters ?{}|&~![()^" must not be used anywhere in the key and have
++     *   a special meaning in the value
++     *
++     * Using the INI_SCANNER_RAW option parse_ini_file does not try to
++     * parse individual values and keys so we must transform the 'false' and
++     * 'true' strings into boolean values through array_walk_recursive().
++     */
+     $a = parse_ini_file($browscapfile, TRUE, INI_SCANNER_RAW);
++    array_walk_recursive($a, '_browscap_parse_ini_value');
+   }
+   else {
+     $a = parse_ini_file($browscapfile, TRUE);
+@@ -379,6 +393,28 @@
+   }
+ }
+ 
++/**
++ * Callback function for the array_walk_recursive in _browscap_import() for PHP
++ * >= 5.3.
++ *
++ * Currently it only converts 'false' and 'true' striong to their respective
++ * bool values.
++ *
++ * @param <mixed> $value The array value to be analysed.
++ * @param <mixed> $key The array key of the value to be analysed.
++ */
++function _browscap_parse_ini_value(&$value, $key) {
++  if (is_string($value)) {
++    $lower_value = strtolower($value);
++    if ($lower_value == 'false') {
++      $value = FALSE;
++    }
++    elseif ($lower_value == 'true') {
++      $value = TRUE;
++    }
++  }
++}
++
+ /*
+  * Undo a recorded browser visit by request
+  *
