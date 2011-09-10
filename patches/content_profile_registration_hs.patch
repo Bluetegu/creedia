@@ -1,0 +1,133 @@
+diff --git a/sites/all/modules/content_profile/modules/content_profile_registration.module b/sites/all/modules/content_profile/modules/content_profile_registration.module
+index ec6c681..66ba6b9 100644
+--- a/sites/all/modules/content_profile/modules/content_profile_registration.module
++++ b/sites/all/modules/content_profile/modules/content_profile_registration.module
+@@ -92,7 +92,7 @@ function _content_profile_registration_get_field_select($type) {
+     }
+   }
+   $return['other'] = t('Other form elements (except for required CCK fields)');
+-  
++
+   return $return;
+ }
+ 
+@@ -153,12 +153,12 @@ function content_profile_registration_add_profile_form($type, &$form, &$form_sta
+       unset($form_add[$field_name]);
+     }
+   }
+-  
++
+   // Add in the new form elements into $form.
+   $form += array('#field_info' => array());
+   $form['#field_info'] += $node_form['#field_info'];
+   $form += $form_add;
+-  
++
+   // Add in further callbacks needed, if not yet done.
+   if (!isset($form['#content_profile_weights'])) {
+     $form['#submit'][] = 'content_profile_registration_user_register_submit';
+@@ -208,34 +208,34 @@ function content_profile_registration_user_register_validate($form, &$form_state
+     $node->type = $type;
+     node_object_prepare($node);
+ 
+-     // fix file field if not uploaded and not required 
+-    $sql = db_query("select field_name from {content_node_field} where type = 'filefield'");  
+-    while( $res = db_fetch_object($sql) ) { 
+-      // .. 
+-      $fldname = $res->field_name; 
+-      
+-      if( $node->$fldname && is_array($node->$fldname) && (count($node->$fldname) > 0)  ) { 
+-        
+-        $nfield = &$node->$fldname;  // get reference .. 
++     // fix file field if not uploaded and not required
++    $sql = db_query("select field_name from {content_node_field} where type = 'filefield'");
++    while( $res = db_fetch_object($sql) ) {
++      // ..
++      $fldname = $res->field_name;
++
++      if( $node->$fldname && is_array($node->$fldname) && (count($node->$fldname) > 0)  ) {
++
++        $nfield = &$node->$fldname;  // get reference ..
+         foreach( $node->$fldname as $fcontentk => $fcontentval ) {
+-          // .. 
+-          if($fcontentval['fid'] == 0 && $fcontentval['filepath'] == '' ) { 
+-             //unset($nfield[$fcontentk]); 
+-             
+-             if( (!isset($_POST['files'][$fldname.'_'.$fcontentk]) || $_POST['files'][$fldname.'_'.$fcontentk] == '' ) && $form['#field_info'][$fldname]['required'] == 1 ) { 
+-               // check if this field is required or not .. 
+-               
+-               form_set_error($fldname, t( $form['#field_info'][$fldname]['widget']['label']." field is required."));  
+-             } 
+-             
+-             // echo $_POST['files'][$fldname.'_'.$fcontentk]."--anything ?"; 
+-             // print_r($_FILES); 
+-          } 
+-        }  
+-        
+-      } 
+-    
+-    } // end while .. 
++          // ..
++          if($fcontentval['fid'] == 0 && $fcontentval['filepath'] == '' ) {
++             //unset($nfield[$fcontentk]);
++
++             if( (!isset($_POST['files'][$fldname.'_'.$fcontentk]) || $_POST['files'][$fldname.'_'.$fcontentk] == '' ) && $form['#field_info'][$fldname]['required'] == 1 ) {
++               // check if this field is required or not ..
++
++               form_set_error($fldname, t( $form['#field_info'][$fldname]['widget']['label']." field is required."));
++             }
++
++             // echo $_POST['files'][$fldname.'_'.$fcontentk]."--anything ?";
++             // print_r($_FILES);
++          }
++        }
++
++      }
++
++    } // end while ..
+ 
+     // Make sure there is no user name so we can node_validate
+     unset($node->name);
+@@ -283,6 +283,42 @@ function content_profile_registration_user_register_submit($form, &$form_state)
+       $node->uid = $form_state['user']->uid;
+       $node->name = $form_state['user']->name;
+ 
++      // patch according to http://drupal.org/node/771284#comment-4885740
++      if (module_exists("hierarchical_select")) {
++        $query = "SELECT distinct field_name, multiple FROM {content_node_field_instance}
++                INNER JOIN {content_node_field} USING (field_name)
++                WHERE type_name = '%s' AND widget_type LIKE '%%_hs'";
++        $db_result = db_query($query, $type);
++
++        //We look for all fields
++        while ($item = db_fetch_array($db_result)) {
++          $field_name = $item['field_name'];
++          $val = array();
++          $field_table = $node->$field_name;
++
++          if (isset($field_table['tids'])){
++            if (is_array($field_table['tids'])) {
++              foreach ($field_table['tids'] as $key => $value) {
++                $val[] = array('value' => $value);
++              }
++            }
++            else {
++              $val[] = array('value' => $field_table['tids']);
++            }
++          }
++
++          if (isset($field_table['nid'])){
++            foreach ($field_table['nid'] as $key => $value) {
++              $val[] = array('nid' => $value);
++            }
++          }
++
++          if (!empty($val)){
++            $node->$field_name = $val;
++          }
++        }
++      }
++
+       // Create the node.
+       $node = node_submit($node);
+       node_save($node);
