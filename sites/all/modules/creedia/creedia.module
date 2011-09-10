@@ -495,7 +495,7 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
         }
 
         // prepare form elements
-        $select = array( 
+        $select = array(
         	'#type' => 'select',
             '#title' => $form['group_origin_statements']['field_origin_statement_lang']['#title'],
             '#options' => locale_language_list('name', TRUE),
@@ -509,13 +509,13 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
             '#required' => FALSE,
             '#multiple' => FALSE,
             '#description' => $form['group_origin_statements']['field_origin_statement']['#description'],
-            '#maxlength' => CREEDIA_CREED_MAXLENGTH,                
-//            '#after_build' => $form['group_origin_statements']['field_origin_statement']['#after_build'],                
+            '#maxlength' => CREEDIA_CREED_MAXLENGTH,
+//            '#after_build' => $form['group_origin_statements']['field_origin_statement']['#after_build'],
         );
 
         // copy the statement and statement_lang multi valued text fields to new individual form elements
         // *** CCK doesn't support multi select fields; it assumes its a single select element with multiple
-        //     select values. Hence lang is defined as text field.   
+        //     select values. Hence lang is defined as text field.
         for ($i = 0; isset($form['group_origin_statements']['field_origin_statement'][$i]); $i++) {
 
           // Update the value of the language selector
@@ -524,24 +524,24 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
           $select['#default_value'] = array($lang);
           // indicate language selector for virtual keyboard
           $select['#attributes'] = array('class' => 'jsvk-lang jsvk-lang-'. $i);
-          
+
           // Update the value of the statement
           $statement['#default_value'] =
                 $form['group_origin_statements']['field_origin_statement'][$i]['#default_value']['value'];
           // add virtual keyboard
           if (isset($lang) && (i18n_language_property($lang, 'direction') == LANGUAGE_RTL)) {
             $statement['#attributes'] = array('lang' => $lang, 'dir' => 'rtl');
-          }        
+          }
           else {
             $statement['#attributes'] = array();
           }
-          $statement['#attributes'] = 
-                array_merge(array('class' => 'jsvk-textfield jsvk-textfield-'. $i), $statement['#attributes']);          
+          $statement['#attributes'] =
+                array_merge(array('class' => 'jsvk-textfield jsvk-textfield-'. $i), $statement['#attributes']);
           $statement['#delta'] = 2*$i+1;
-                
+
           // set the forms into place
           $form['group_origin_statements']['lang_'. $i] = $select;
-          $form['group_origin_statements']['statement_'. $i] = $statement;                
+          $form['group_origin_statements']['statement_'. $i] = $statement;
         }
 
         unset($form['group_origin_statements']['field_origin_statement']);
@@ -589,8 +589,8 @@ function creed_submit($form, &$form_state) {
   // convert the origin statement combo back to cck
   $i = 0;
   while (isset($form_state['values']['statement_'. $i])) {
-    $form_state['values']['field_origin_statement'][$i]['value'] = $form_state['values']['statement_'. $i];  
-    $form_state['values']['field_origin_statement_lang'][$i]['value'] = $form_state['values']['lang_'. $i];  
+    $form_state['values']['field_origin_statement'][$i]['value'] = $form_state['values']['statement_'. $i];
+    $form_state['values']['field_origin_statement_lang'][$i]['value'] = $form_state['values']['lang_'. $i];
     $i += 1;
   }
 }
@@ -716,14 +716,14 @@ function creedia_creed_img_reset($nid = 0) {
 function creedia_creed_img_generate($node) {
   $rterms = array();
   $bterms = array();
-  
+
   if (is_array($node->field_religion_single)) {
     $rterms = $node->field_religion_single;   // the 'single' part is no longer valid. It is multiple valued
   }
   if (is_array($node->field_beliefset)) {
     $bterms = $node->field_beliefset;
   }
- 
+
   $rfiles = array();
   $bfiles = array();
 
@@ -734,7 +734,7 @@ function creedia_creed_img_generate($node) {
   foreach ($bterms as $a) {
     $bfiles[$a['value']] = db_result(db_query('SELECT path FROM {term_image} WHERE tid=%d', $a['value']));
   }
- 
+
   // Generate a true color image
   // Required for alpha blending (transparency) to work well
   $im = imagecreatetruecolor(54, 88);
@@ -757,6 +757,7 @@ function creedia_creed_img_generate($node) {
     return;
   }
 
+  $path_to_taxonomy_image_dir = file_directory_path() .'/'. variable_get('taxonomy_image_path', 'category_pictures') .'/';
   // Add the religion tags
   $count = count($rterms);
   $single_firstrow = ($count == 1);
@@ -764,7 +765,7 @@ function creedia_creed_img_generate($node) {
   $i = 0;
   foreach ($rfiles as $tid => $filename) {
 
-    $yr = imagecreatefrompng($path_to_theme .'/images/religion/'. $filename);  // create the resource
+    $yr = imagecreatefrompng($path_to_taxonomy_image_dir . $filename);  // create the resource
     if (!$yr) {
       watchdog('Creedia', 'Failed to generate creed image; religion term image not found.', WATCHDOG_ERROR);
       return;
@@ -811,7 +812,7 @@ function creedia_creed_img_generate($node) {
   $i = 0;
   foreach ($bfiles as $tid => $filename) {
 
-    $yr = imagecreatefromgif($path_to_theme .'/images/beliefset/'. $filename);  // create the resource
+    $yr = imagecreatefromgif($path_to_taxonomy_image_dir . $filename);  // create the resource
     if (!$yr) {
       watchdog('Creedia', 'Failed to generate creed image; belief term image not found.', WATCHDOG_ERROR);
       return;
