@@ -15,7 +15,7 @@
 //uncomment these three lines to enable teaser break and page break plugins
 //remember to add 'DrupalBreak' and 'DrupalPageBreak' buttons to the toolbar
 FCKConfig.Plugins.Add( 'drupalbreak', 'en,pl,ru' ) ;
-FCKConfig.Plugins.Add( 'imgassist' ) ;
+//FCKConfig.Plugins.Add( 'imgassist' ) ;
 //To enable plugins below you should install additional Drupal modules.
 //Please refer to the README.txt for more instructions.
 //FCKConfig.Plugins.Add( 'drupalpagebreak', 'en,pl,ru' ) ;
@@ -76,6 +76,34 @@ FCKConfig.ToolbarSets['DrupalFiltered'] = [
 //remember to load appropriate plugin with FCKConfig.Plugins.Add
 //['JustifyLeft','JustifyCenter','JustifyRight','DrupalBreak','DrupalPageBreak','ShowBlocks']
 ['JustifyLeft','JustifyCenter','JustifyRight','DrupalBreak','ShowBlocks']
+] ;
+
+/**                                                                                                                                                                                                  
+ * Creedia Toolbar                                                                                                                                                                                   
+ */
+FCKConfig.ToolbarSets["CreediaDefault"] = [
+['Cut','Copy','Paste','PasteText','PasteWord','SpellCheck'],
+['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+['Bold','Italic','Underline','StrikeThrough'],
+['OrderedList','UnorderedList','-','Outdent','Indent'],
+['JustifyLeft','JustifyCenter','JustifyRight'],
+['Link','Unlink'],
+['Image','DrupalBreak'],
+['FontFormat','FontName','FontSize']
+] ;
+
+/**                                                                                                                                                                                                  
+ * Creedia Admin Toolbar                                                                                                                                                                             
+ */
+FCKConfig.ToolbarSets["CreediaAdmin"] = [
+['Cut','Copy','Paste','PasteText','PasteWord','SpellCheck'],
+['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+['Bold','Italic','Underline','StrikeThrough'],
+['OrderedList','UnorderedList','-','Outdent','Indent'],
+['JustifyLeft','JustifyCenter','JustifyRight'],
+['Link','Unlink'],
+['Image','DrupalBreak'],
+['FontFormat','FontName','FontSize']
 ] ;
 
 //helper function to add button at the end of the toolbar
