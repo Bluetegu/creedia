@@ -73,7 +73,8 @@ function ctendu_theme($existing, $type, $theme, $path) {
     'fivestar_average' => array(
       'arguments' => array(),
     ),
-  );
+    'menu_item_link' => array(),
+    );
 }
 
 /**
@@ -1011,3 +1012,17 @@ function ctendu_preprocess_views_view_fields__Discussion_blocks(&$vars) {
   $vars['body'] = $teaser;
 }
 
+/**
+ * override theme_menu_itme_link to map description to title attribute for sub menus created programatically.
+ */
+function ctendu_menu_item_link($link) {
+  if (empty($link['localized_options'])) {
+    $link['localized_options'] = array();
+  }
+  // map description to title attribute.
+  if ($link['description'] && !isset($link['localized_options']['attributes'])) {
+    $link['localized_options']['attributes']['title'] = $link['description'];
+  }
+
+  return l($link['title'], $link['href'], $link['localized_options']);
+}
