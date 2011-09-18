@@ -419,8 +419,8 @@ span.pager-result em{font-weight:bold;}
 .interpretation-footer-actions .adopt span.flag-throbber{padding:0;float:left;padding-left:1em;}
 
 .node-full .interpretation-footer .adopt-text{width:auto;}
-.node-full .interpretation-footer .vote-text{padding-left:8em;width:auto;}
-.node-full .interpretation-footer .childnum{padding-left:8em;}
+.node-full .interpretation-footer .vote-text{padding-left:1em;width:auto;}
+.node-full .interpretation-footer .childnum{padding-left:16em;}
 
 /* interpretations list in creed view overrides */
 #interpretations .adopt,
@@ -465,8 +465,7 @@ span.pager-result em{font-weight:bold;}
 .node-full .creed-footer .vote{float:left;padding:3px 6px;width:70px;}
 
 .node-full .creed-footer .vote-text{float:left;padding-left:1em;width:auto;}
-.node-full .creed-footer .childnum{float:left;padding-left:1em;}
-.node-full .creed-footer .childnum{padding-left:5em;}
+.node-full .creed-footer .childnum{float:left;padding-left:16em;}
 .node-full .creed-footer .vote{float:left;padding:3px 6px;width:70px;}
 
 .node-item .creed-footer .vote-text{float:left;width:80px;}

@@ -480,12 +480,10 @@ function creedia_form_alter(&$form, &$form_state, $form_id) {
     switch ($form_id) {
       case 'interpretation_node_form':
         // Set the default value of the creed reference
-        if (is_numeric(arg(3))) {
-          if (!$form['field_creed_reference1'][0]['node_name']['#default_value']) {
-            $node = menu_get_object('node', 3);
-            if ($node) {
-              $form['field_creed_reference1'][0]['node_name']['#default_value'] = $node->title;
-            }
+        $nid = arg(3);
+        if (is_numeric($nid)) {
+          if (!$form['field_creed_reference'][0]['#default_value']['nid']) {
+            $form['field_creed_reference'][0]['#default_value']['nid'] = $nid;
           }
         }
         break;

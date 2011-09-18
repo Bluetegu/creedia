@@ -127,11 +127,6 @@
 			<?php print $adopt_text; ?>
 			</div>
 			<div class="childnum">
-				<a href="#interpretations"><span> <?php print t('Interpretations: !num', array('!num' => $intnum)); ?>
-				</span>
-				</a>
-			</div>
-			<div class="childnum">
 				<a href="#comments"><span> <?php print t('Comments: !num', array('!num' => $node->comment_count ? $node->comment_count : '0')); ?>
 				</span>
 				</a>

@@ -576,24 +576,6 @@ function ctendu_preprocess_node(&$vars) {
   $vars['featured'] = $featured;
 
   switch ($node->type) {
-    case 'interpretation':
-      $vars['show_vote'] = TRUE;
-      if (arg(0) == 'node' && is_numeric(arg(1)) && arg(1) != $node->nid) {
-        // In full node view both voting and adopting widgets are available. The adopt widget is
-        // available when the interpretation are listed under their creed. In all other lists
-        // the fivestar voting should be shown. Therefore we set 'show vote' to false only
-        // if we are within a node and its not that specific interpretation (i.e. we want
-        // preview to show vote and not adopt as well.
-        $vars['show_vote'] = FALSE;
-      }
-      $counts = flag_get_counts('node', $node->nid);
-      $vars['adopt'] = flag_create_link('adopt', $node->nid);
-      if (!$vars['adopt']) {
-        // for anonymous users
-        $vars['adopt'] = theme('image', path_to_theme() .'/images/flag-adopt-on.png');
-      }
-      $vars['adopt_text'] = t('Adopted: !count', array( '!count' => $counts['adopt'] ? $counts['adopt'] : 0 ));
-      break;
     case 'image_cck':
       $vars['picture'] = $node->field_image[0]['view'];
       $vars['pic_url'] = $node->field_image[0]['filepath'];
@@ -606,9 +588,6 @@ function ctendu_preprocess_node(&$vars) {
       }
       break;
     case 'creed':
-      // Interpretation num
-      $intnum = db_result(db_query('SELECT COUNT(*) FROM {content_field_creed_reference1} WHERE field_creed_reference1_nid = %d', $node->nid));
-      $vars['intnum'] = $intnum;
       $counts = flag_get_counts('node', $node->nid);
       $vars['adopt'] = flag_create_link('adopt', $node->nid);
       if (!$vars['adopt']) {

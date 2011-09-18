@@ -1,11 +1,10 @@
 <div id="node-<?php print $node->nid; ?>" class="node-interpretation node<?php if ($sticky) { print ' sticky'; } ?><?php if (!$status) { print ' node-unpublished'; } ?>">
 
 <?php /*drupal_set_message(print_r($links));*/ ?>
-
   <?php if ($page == 0): ?>
     <?php /* ------------------    page == 0    ------------------ */ ?>
     <div class="node-item">
-    <div class="middle"><div class="top"><div class="bottom">   
+    <div class="middle"><div class="top"><div class="bottom">
       <div class="interpretation-leftbar">
         <div class="interpretation-leftbar-top">
           <?php if ($religions) { ?>
@@ -52,8 +51,8 @@
             </ul>
     	  <?php };?>
         <div class="creed-parent">
-          <?php if ($field_creed_reference1 && $field_creed_reference1[0]['nid']) { ?>
-            <?php foreach ($field_creed_reference1 as $ref) { ?>
+          <?php if ($field_creed_reference && $field_creed_reference[0]['nid']) { ?>
+            <?php foreach ($field_creed_reference as $ref) { ?>
 	      <div class="creed-ref"><?php print $ref['view']; ?></div>
             <?php }; ?>
           <?php };?>
@@ -62,22 +61,12 @@
       </div>
        </div></div></div>
       <div class="interpretation-footer">
-        <?php if ($show_vote): ?>
           <div class="vote">
             <?php print $node->content['fivestar_widget']['#value'] ?>
           </div>
           <div class="vote-text">
             <?php print theme('fivestar_average', $node->nid); ?>
           </div>
-        <? else: ?>
-          <div class="adopt">
-            <label><?php print t('Adopt: '); ?></label>
-            <?php print $adopt ?>
-          </div>
-          <div class="adopt-text">
-            <?php print $adopt_text; ?>
-          </div>
-        <? endif; ?>
         <div class="childnum">
           <?php print t('Comments: !num', array('!num' => $node->comment_count ? $node->comment_count : '0')); ?>
         </div>
@@ -86,12 +75,11 @@
           <span><?php print theme('username',$node);?></span>
 	</div>
       </div>
-     
     </div>
   <?php else: ?>
   <?php /* ------------------    page == 1    ------------------ */ ?>
     <div class="node-full">
-         <div class="middle"><div class="top"><div class="bottom">   
+         <div class="middle"><div class="top"><div class="bottom">
       <div class="interpretation-leftbar">
         <div class="interpretation-leftbar-top">
           <?php if ($religions) { ?>
@@ -130,21 +118,16 @@
             <?php }; ?>
           <?php };?>
         <div class="creed-parent">
-          <?php if ($field_creed_reference1 && $field_creed_reference1[0]['nid']) { ?>
-            <?php foreach ($field_creed_reference1 as $ref) { ?>
+          <?php if ($field_creed_reference && $field_creed_reference[0]['nid']) { ?>
+            <?php foreach ($field_creed_reference as $ref) { ?>
 	      <div class="creed-ref"><?php print $ref['view']; ?></div>
             <?php }; ?>
           <?php };?>
         </div>
       </div>
         </div></div></div>
-        
       </div>
-      
       <div class="interpretation-footer">
-        <div class="adopt-text">
-          <?php print $adopt_text; ?>
-        </div>
         <div class="vote-text">
           <?php print theme('fivestar_average', $node->nid); ?>
         </div>
@@ -159,10 +142,6 @@
 	</div>
       </div>
       <div class="interpretation-footer-actions">
-        <div class="adopt">
-          <span><?php print t('Adopt: '); ?></span>
-          <?php print $adopt; ?>
-        </div>
         <div class="vote">
           <span><?php print t('Rate: '); ?></span>
           <?php print $node->content['fivestar_widget']['#value'] ?>
@@ -171,7 +150,6 @@
           <div class="links"><?php print $links; ?></div>
         <?php endif; ?>
       </div>
-      
     </div>
   <?php endif; ?>
 </div>
