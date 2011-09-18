@@ -260,9 +260,9 @@ function theme_ctwitter_link($service, $url, $title) {
 /*
  * Theme the Facebook like plugin
  */
-function theme_ctwitter_fb_like($url = NULL, $teaser = TRUE) {
+function theme_ctwitter_fb_like($node, $teaser = FALSE) {
 
-  $url = url($url, array('absolute' => TRUE)); // absolute URL
+  $url = url('node/'. $node->nid, array('absolute' => TRUE));
   $width = $teaser ? 100 : 450;
   $show_faces = $teaser ? 'false' : 'true';
   $layout = $teaser ? 'button_count' : 'standard';
@@ -318,11 +318,23 @@ function theme_ctwitter_fb_comments($node) {
 /**
  * Add the comment social plugin
  */
-function theme_ctwitter_fb_like_js($node) {
+function theme_ctwitter_fb_like_js($node, $teaser=FALSE) {
 
   ctwitter_fb_init();
 
-  $attrs = array(
+  if ($teaser) {
+    $attrs = array(
+      'href' => url('node/'. $node->nid, array('absolute' => TRUE)),
+      'layout' => 'button_count', // standard, button_count
+      'show_faces' => 'false', // true, false
+      'width' => 80, // px
+      'action' => 'like', // like, recommend
+      'font' => 'arial',
+      'colorscheme' => 'light' // dark, light, evil
+    );
+  }
+  else {
+    $attrs = array(
       'href' => url('node/'. $node->nid, array('absolute' => TRUE)),
       'layout' => 'standard', // standard, button_count
       'show_faces' => 'true', // true, false
@@ -330,7 +342,8 @@ function theme_ctwitter_fb_like_js($node) {
       'action' => 'like', // like, recommend
       'font' => 'arial',
       'colorscheme' => 'light' // dark, light, evil
-  );
+    );
+  }
 
   $attrs = drupal_attributes($attrs);
 
