@@ -559,7 +559,7 @@ function _ctaxo_get_voc_name($vid) {
  * - Block views: Copy page remembered options
  * - Set unique ids for select form elements with the same field name
  */
-function creedia_form_views_exposed_form_alter(&$form, &$form_state) {
+function ctaxo_form_views_exposed_form_alter(&$form, &$form_state) {
   static $i = 0;
 
   // set unique ids for select forms and common class
