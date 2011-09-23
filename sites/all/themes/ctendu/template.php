@@ -323,50 +323,7 @@ function ctendu_usercomment_empty() {
  * Allow themable wrapping of all comments.
  */
 function ctendu_comment_wrapper($content) {
-  // Member comments handling is different from other node comments in several ways.
-  // First they are presented on the the user/guestbook page, and therefore the
-  // node information can not be directly retrieved from the URL. Second, we show
-  // both the unapproved user comments and the user comments on the same page. As
-  // a result this function is called twice on the same page and therefore we
-  // can not use the id=comments. In addition the theming in the user page is
-  // different then the one for the user pages. Last issue is the number of comments
-  // which doesn't differ between approved and non-approved comments and therefore
-  // shows the combined number for both wrappers.
-  // As a result, instead of extending this function further, we do not return a wrapper
-  // for members comments rather add whatever wrapping required by the calling function.
-  if (arg(0) == 'user') {
-    // member's comment, return no wrapper.
-    return $content;
-  }
-  else {
-    $nid = arg(1);
-    if ($nid) {
-      $node = node_load($nid);
-    }
-  }
-  $collapsed = FALSE;
-  $num = 0;
-  if (!$node) {
-    return '<div id="comments">'. $content .'</div>'; // this shouldn't happen
-  }
-  $num = $node->comment_count;
-  $element['#collapsible'] = TRUE;
-  $element['#collapsed'] = $collapsed;
-  if ($num) {
-    $element['#title'] = t('Comments (!num)', array('!num'=>$num));
-  }
-  else {
-    $element['#title'] = t('No Comments so far');
-  }
-  $element['#value'] = $content;
-  $element['#attributes'] = array('id' => 'comments-fieldset');
-
-  $output = '<div id="comments">';
-  $output .= theme('fieldset', $element);
-  $output .= '</div>';
-
-  return $output;
-  //  return '<div id="comments">'. $content .'</div>';
+  return '<div id="comments"><a name=comments>'. $content .'</a></div>';
 }
 
 /**
