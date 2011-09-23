@@ -178,6 +178,9 @@
 			<?php print $links; ?>
 			</div>
 			<?php endif; ?>
+			<div class="fb-widget">
+			<?php print theme('ctwitter_fb_like', $node); ?>
+			</div>
 		</div>
 	</div>
 	<?php endif; ?>

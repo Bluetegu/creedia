@@ -67,12 +67,9 @@
 							<?php };?>
 						</div>
 					</div>
-
-
 				</div>
 			</div>
 		</div>
-
 		<div class="opinion-footer">
 			<div class="vote">
 			<?php print $node->content['fivestar_widget']['#value'] ?>
@@ -181,6 +178,9 @@
 				<?php print $links; ?>
 			</div>
 			<?php endif; ?>
+			<div class="fb-widget">
+			<?php print theme('ctwitter_fb_like', $node); ?>
+			</div>
 		</div>
 	</div>
 	<?php endif; ?>
