@@ -148,8 +148,11 @@
 			<?php print $links; ?>
 			</div>
 			<?php endif; ?>
+			<div class="fb-widget-like">
+			<?php print theme ('ctwitter_fb_like_js', $node); ?>
+			</div>
 			<div class="fb-widget">
-			<?php print theme('ctwitter_fb_like', $node); ?>
+			<?php print theme ('ctwitter_fb_comments', $node); ?>
 			</div>
 		</div>
 	</div>

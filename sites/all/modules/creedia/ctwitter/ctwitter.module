@@ -305,13 +305,13 @@ function theme_ctwitter_fb_comments($node) {
   $xid = $node->nid .'-page';
   $url = url('node/'. $node->nid, array('absolute' => TRUE));
   $numposts = 10;
-  $width = 550; // px
+  $width = 657; // px
   $title = $node->title;
   $simple = FALSE;
   $reverse = FALSE; // order of comments
   $publish_feed = TRUE;
 
-  $output = '<fb:comments xid="'. $xid .'" url="'. $url .'"></fb:comments>';
+  $output = '<fb:comments href="'. $url .'" num_posts="'. $numposts .'" width="'. $width .'"></fb:comments>';
   return $output;
 }
 

@@ -1173,6 +1173,6 @@ margin:0pt 50px 0pt 0pt;
 
 #admin-menu{font-size:12px;}
 
-.fb-widget{clear:both; margin-top:1.666em;}
+.fb-widget-like, .fb-widget{clear:both; margin-top:2.5em;}
 
 .views-exposed-form{display:none;}

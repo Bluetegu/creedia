@@ -51,8 +51,7 @@
 			</div>
 			<div class="date-author">
 			<?php print t('!date by  ', array('!date' => date("d M Y", $node->changed))); ?>
-				<span><?php print theme('username',$node);?>
-				</span>
+				<span><?php print theme('username',$node);?> </span>
 			</div>
 		</div>
 	</div>
@@ -63,8 +62,7 @@
 		<?php echo $picture; ?>
 			<h2 class="title">
 				<a href="<?php print $node_url ?>" class="blog-title"
-					title="<?php print $title ?>"><?php print $title ?>
-				</a>
+					title="<?php print $title ?>"><?php print $title ?> </a>
 			</h2>
 			<div class="image">
 			<?php echo theme("opinion_image", $node); ?>
@@ -103,21 +101,25 @@
 		<div class="blog-footer">
 			<div class="childnum">
 				<a href="#comments"><span> <?php print t('Comments: !num', array('!num' => $node->comment_count ? $node->comment_count : '0')); ?>
-				</span>
-				</a>
+				</span> </a>
 			</div>
 			<div class="date-author">
 			<?php print t('!date by  ', array('!date' => date("d M Y", $node->changed))); ?>
-				<span><?php print theme('username',$node);?>
-				</span>
+				<span><?php print theme('username',$node);?> </span>
 			</div>
 		</div>
 		<div class="blog-footer-actions">
 		<?php if ($links): ?>
 			<div class="links">
-				<?php print $links; ?>
+			<?php print $links; ?>
 			</div>
 			<?php endif; ?>
+			<div class="fb-widget-like">
+			<?php print theme ('ctwitter_fb_like_js', $node); ?>
+			</div>
+			<div class="fb-widget">
+			<?php print theme ('ctwitter_fb_comments', $node); ?>
+			</div>
 		</div>
 	</div>
 	<?php endif; ?>
