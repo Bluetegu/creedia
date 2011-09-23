@@ -64,8 +64,7 @@
 			</div>
 			<div class="date-author">
 			<?php print t('!date by  ', array('!date' => date("d M Y", $node->changed))); ?>
-				<span><?php print theme('username',$node);?>
-				</span>
+				<span><?php print theme('username',$node);?> </span>
 			</div>
 			<?php print theme('ctwitter_fb_like', $node, TRUE); ?>
 		</div>
@@ -112,8 +111,7 @@
 						<div class="body">
 						<?php if($node->content['body']['#value']): ?>
 							<h4>
-								<label><?php print t('Exposition:')?>
-								</label>
+								<label><?php print t('Exposition:')?> </label>
 							</h4>
 							<?php print $node->content['body']['#value'] ?>
 							<?php endif; ?>
@@ -128,19 +126,16 @@
 			</div>
 			<div class="childnum">
 				<a href="#comments"><span> <?php print t('Comments: !num', array('!num' => $node->comment_count ? $node->comment_count : '0')); ?>
-				</span>
-				</a>
+				</span> </a>
 			</div>
 			<div class="date-author">
 			<?php print t('!date by  ', array('!date' => date("d M Y", $node->changed))); ?>
-				<span><?php print theme('username',$node);?>
-				</span>
+				<span><?php print theme('username',$node);?> </span>
 			</div>
 		</div>
 		<div class="creed-footer-actions">
 			<div class="adopt">
-				<label><?php print t('Adopt: '); ?>
-				</label>
+				<label><?php print t('Adopt: '); ?> </label>
 				<?php print $adopt ?>
 			</div>
 			<?php if ($links): ?>
@@ -149,7 +144,7 @@
 			</div>
 			<?php endif; ?>
 			<div class="fb-widget">
-				<?php print theme('ctwitter_fb_like', $node); ?>
+			<?php print theme('ctwitter_fb_like', $node); ?>
 			</div>
 		</div>
 	</div>
