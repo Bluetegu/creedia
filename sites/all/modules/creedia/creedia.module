@@ -391,6 +391,8 @@ function creedia_node_meta_tags($node) {
       drupal_set_html_head($meta_title);
       $image_src = '<link rel="image_src" href="'. $url .'"/>';
       drupal_set_html_head($image_src);
+      $og_image_src = '<meta property="og:image" content="'. $url .'" />';
+      drupal_set_html_head($og_image_src);
     }
 
     $done = TRUE;
