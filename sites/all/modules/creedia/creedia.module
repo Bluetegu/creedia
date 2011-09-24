@@ -372,8 +372,8 @@ function creedia_node_meta_tags($node) {
     $description = truncate_utf8d(strip_tags($node->teaser), 120, TRUE, TRUE);
     if ($node->type == 'creed') {
       // override the teaser if an origin statement is set
-      if ($node->field_origin_statement[0]['view']) {
-        $description = $node->field_origin_statement[0]['view'];
+      if ($node->field_origin_statement[0]['safe']) {
+        $description = $node->field_origin_statement[0]['safe'];
       }
     }
     if ($description) {
