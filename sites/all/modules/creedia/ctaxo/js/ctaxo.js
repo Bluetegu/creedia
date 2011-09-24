@@ -155,6 +155,10 @@ if (Drupal.jsEnabled) {
           if ($("#fb-root > *").length){
             FB.XFBML.parse(document.getElementById('content-area'));
           }
+          // rerun Google's plusone
+          if ($('.g-plusone-wrapper').length) {
+        	gapi.plusone.go();
+          }
           // Make sure slideshow do not show double images
           // I assume here only one slideshow per page
           if ($("#views_slideshow_main_1").length) {

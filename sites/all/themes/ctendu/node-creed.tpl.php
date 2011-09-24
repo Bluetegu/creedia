@@ -67,6 +67,8 @@
 				<span><?php print theme('username',$node);?> </span>
 			</div>
 			<?php print theme('ctwitter_fb_like', $node, TRUE); ?>
+			<?php print theme ('google_plusone_button', array('node' => $node, 'css' => 'margin:1px 0px 0px 220px', 'syntax' => 'g:plusone',
+        'annotation' => 'bubble', 'size' => 'small')); ?>
 		</div>
 	</div>
 	<?php else: ?>
@@ -143,10 +145,16 @@
 			<?php print $links; ?>
 			</div>
 			<?php endif; ?>
-			<div class="fb-widget-like">
-			<?php print theme ('ctwitter_fb_like_js', $node); ?>
+			<div id="social-widgets">
+				<div class="google-plusone">
+				<?php print theme ('google_plusone_button', array('node' => $node, 'css' => 'float:right', 'syntax' => 'g:plusone',
+        'annotation' => 'inline', 'size' => 'medium', 'width' => '180')); ?>
+				</div>
+				<div class="fb-widget-like">
+				<?php print theme ('ctwitter_fb_like_js', $node); ?>
+				</div>
 			</div>
-			<div class="fb-widget">
+			<div class="fb-widget-comment">
 			<?php print theme ('ctwitter_fb_comments', $node); ?>
 			</div>
 		</div>

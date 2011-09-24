@@ -1173,6 +1173,7 @@ margin:0pt 50px 0pt 0pt;
 
 #admin-menu{font-size:12px;}
 
-.fb-widget-like, .fb-widget{clear:both; margin-top:2.5em;}
+.fb-widget-comment{clear:both; margin-top:2.5em;}
+#social-widgets{clear:both; margin-top:2.5em;}
 
 .views-exposed-form{display:none;}
