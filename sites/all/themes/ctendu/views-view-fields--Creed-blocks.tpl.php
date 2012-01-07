@@ -26,6 +26,7 @@
     </div>
     <div class="creed-leftbar-middle">
       <?php if ($beliefset[0]) { ?>
+      <?php $i = 0;?>
       <?php foreach ($beliefset as $term) { ?>
         <?php if ($i++ == CREEDIA_MAX_SYMBOLS_IN_BLOCK) break; ?>
         <div class="terms-beliefset"><?php print $term;?></div>

@@ -266,6 +266,7 @@ function ctendu_pager_result($pager_limit = CREEDIA_NODES_PER_PAGE, $i = 0) {
   global $pager_page_array;  // current page number
   global $pager_total_items; // total items paged
   global $pager_total;       // number of pages
+  $content = '';
 
   if ($pager_total[$i]) {
     // Multiply pager_limit by page number (eg 0, 15, 30) and add 1 to get first item
@@ -674,6 +675,7 @@ function ctendu_preprocess_page(&$vars) {
   $background = FALSE;
   $use_title = TRUE;
   $class = arg(0);
+  $title = '';
   if (drupal_is_front_page()) {
     $title = $vars['site_slogan'];
   }

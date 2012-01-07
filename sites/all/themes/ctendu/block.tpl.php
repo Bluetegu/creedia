@@ -24,14 +24,17 @@
  *
  * Tendu Specific:
  * - $block_region_placement: Outputs 'block-first and 'block-last' to the first and the last blocks on each block region.
- * 
- * Suport for "block-class" and "block-theme" modules (Not included in the theme): 
+ *
+ * Suport for "block-class" and "block-theme" modules (Not included in the theme):
  * - $blocktheme: Blocktheme's machine readable block name.
  * - block_class($block): Block classes defined in admin/build/block
- * 
+ *
  * @see template_preprocess()
  * @see template_preprocess_block()
  */
+// temporary to avoid errors
+$block_region_placement = '';
+$blocktheme = '';
 ?>
 <div id="block-<?php print $block->module .'-'. $block->delta; ?>" class="block block-<?php print $block->module ?> <?php print $block_region_placement ?> block-<?php print $block_zebra ?> <?php if ($blocktheme != '') print $blocktheme; if (function_exists(block_class)) print block_class($block); ?>">
 <?php if ($block->subject): ?>

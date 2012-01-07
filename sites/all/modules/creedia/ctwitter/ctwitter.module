@@ -144,6 +144,7 @@ function ctwitter_add_js($name) {
  * Implementation of hook_footer().
  */
 function ctwitter_footer($main = 0) {
+  $output = '';
   if ($name = ctwitter_screenname()) {
     $output = '<script type="text/javascript" src="http://twitter.com/javascripts/blogger.js"></script>';
   }
