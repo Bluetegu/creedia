@@ -843,7 +843,7 @@ function ctendu_preprocess_block(&$vars) {
   $vars['template_files'][] = 'block-'. $block->module;
   $vars['template_files'][] = 'block-'. $block_type;
   $vars['template_files'][] = 'block-'. $block->module .'-'. $block->delta;
-  $vars['template_files'][] = 'block-'. $block->type .'-'. $block->delta;
+  $vars['template_files'][] = 'block-'. $block_type .'-'. $block->delta;
 
   return;
 }

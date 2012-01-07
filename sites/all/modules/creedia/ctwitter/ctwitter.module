@@ -244,7 +244,7 @@ function theme_ctwitter_links() {
 
 function theme_ctwitter_link($service, $url, $title) {
 
-  $output .= '<div class="service-link">';
+  $output = '<div class="service-link">';
   $theme = variable_get('theme_default', '');
   $path = drupal_get_path('theme', $theme) .'/images/'. $service .'-icon.png';
   $image = theme('image', $path);
