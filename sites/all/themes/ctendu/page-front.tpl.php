@@ -87,7 +87,7 @@
 		<!-- /main -->
 
 		<div id="footer" class="front-footer">
-			<span id="copyright">Creedia &copy; 2009-2011</span>
+			<span id="copyright">Creedia &copy; 2009-2012</span>
 			<?php print $footer; ?>
 		</div>
 		<!-- /footer -->
