@@ -349,6 +349,13 @@ function creedia_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       if ($a4) { // page
         creedia_node_meta_tags($node);
       }
+      if ($a4 && arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == NULL) {
+        // redirect content profile pages to user pages. 
+        $node = node_load(arg(1));
+        if ($node->type == 'member') {
+          drupal_goto("user/$node->uid");
+        }
+      }
       break;
 
   }
