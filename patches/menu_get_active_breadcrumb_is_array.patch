@@ -1,0 +1,15 @@
+diff --git a/includes/menu.inc b/includes/menu.inc
+index d23edd0..3787bd4 100644
+--- a/includes/menu.inc
++++ b/includes/menu.inc
+@@ -1611,7 +1611,9 @@ function menu_get_active_breadcrumb() {
+     $active_trail = menu_get_active_trail();
+ 
+     foreach ($active_trail as $parent) {
+-      $breadcrumb[] = l($parent['title'], $parent['href'], $parent['localized_options']);
++      if (is_array($parent['localized_options'])) {
++        $breadcrumb[] = l($parent['title'], $parent['href'], $parent['localized_options']);
++      }
+     }
+     $end = end($active_trail);
+ 
