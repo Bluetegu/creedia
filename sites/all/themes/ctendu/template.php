@@ -74,9 +74,19 @@ function ctendu_theme($existing, $type, $theme, $path) {
       'arguments' => array(),
     ),
     'menu_item_link' => array(),
-    );
+    'breadcrumb' => array(),
+  );
 }
 
+/**
+ * Override breadcrumb theming - show only on admin pages
+ */
+function ctendu_breadcrumb($breadcrumb) {
+  if (!empty($breadcrumb) && arg(0) == 'admin') {
+    return '<div class="breadcrumb">' . implode(' » ', $breadcrumb) . '</div>';
+  }
+  return '';
+}
 /**
  * Theme Taxonomy Terms
  * Depends on taxonomy_image module
@@ -671,7 +681,6 @@ function ctendu_preprocess_page(&$vars) {
   }
 
   // rewrite title
-  $breadcrumb = '';
   $background = FALSE;
   $use_title = TRUE;
   $class = arg(0);
@@ -740,9 +749,6 @@ function ctendu_preprocess_page(&$vars) {
     $class = 'Creedia';
     $title = t('Company Blog');
   }
-  elseif (arg(0) == 'admin') {
-    $breadcrumb = $vars['breadcrumb'];
-  }
   else {
     $background = TRUE;
     $class = 'Creedia';
@@ -756,7 +762,6 @@ function ctendu_preprocess_page(&$vars) {
   $vars['title'] = $use_title ? $title : '';
   $vars['class'] = ucfirst($class);
   $vars['content_background'] = $background;
-  $vars['breadcrumb'] = $breadcrumb;
   return;
 }
 
