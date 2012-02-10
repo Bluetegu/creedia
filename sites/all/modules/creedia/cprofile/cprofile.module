@@ -754,11 +754,12 @@ function cprofile_facet($uid, $fid, $term, $num, $edit) {
     "ORDER BY f.timestamp DESC, c.delta DESC "; // Delta DESC is used below to run over statments
 
   $result = db_query(db_rewrite_sql($sql), $uid, $fid, $term->tid);
+
   $i = 0;
   while ($data = db_fetch_object($result)) {
     //firep($data, 'data on cprofile_facet ');
     // Gather all origin statements into one entry
-    if ($data->field_origin_statement_value) {
+//    if ($data->field_origin_statement_value) {
       $statements[$data->statement_num]['value'] = $data->field_origin_statement_value;
       $langs[$data->statement_num]['value'] = $data->field_origin_statement_lang_value;
       if ($data->statement_num != 0) {
@@ -772,7 +773,7 @@ function cprofile_facet($uid, $fid, $term, $num, $edit) {
         $statements = array();
         $langs = array();
       }
-    }
+//    }
     $content .= theme('cprofile_entry', $data, $i, $edit);
     $i += 1;
   }
